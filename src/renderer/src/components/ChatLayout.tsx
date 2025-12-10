@@ -38,7 +38,6 @@ export default function ChatLayout() {
     navigate(`/chat/${newId}`)
   }
 
-  
   const handleMouseDown = (side: 'left' | 'right') => {
     if (side === 'left') {
       setIsDraggingLeft(true)
@@ -120,9 +119,7 @@ export default function ChatLayout() {
             className="h-14 flex items-center justify-center border-b border-gray-800/50"
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
-            <span className="text-sm text-gray-400">
-              0 条消息
-            </span>
+            <span className="text-sm text-gray-400">0 条消息</span>
           </div>
 
           {/* 聊天消息区域 */}
@@ -168,25 +165,6 @@ export default function ChatLayout() {
 
                 {/* 右侧按钮组 */}
                 <div className="flex items-center gap-2 pr-2">
-                  {/* 模型选择器 */}
-                  <button className="flex items-center gap-2 px-3 py-1.5 bg-[#3a3a3a] hover:bg-[#444444] rounded-md transition-colors text-xs">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-gray-300">deepseek-reasoner</span>
-                    <svg
-                      className="w-4 h-4 text-gray-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
                   {/* 发送按钮 */}
                   <button className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                     <Send className="w-4 h-4 text-white" />
@@ -214,9 +192,7 @@ export default function ChatLayout() {
             className="h-14 flex items-center justify-center border-b border-gray-800/50"
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
-            <span className="text-sm text-gray-300">
-              Studio
-            </span>
+            <span className="text-sm text-gray-300">Studio</span>
           </div>
 
           {/* 内容区域 */}

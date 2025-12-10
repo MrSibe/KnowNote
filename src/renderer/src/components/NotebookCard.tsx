@@ -61,11 +61,11 @@ export default function NotebookCard({ notebook, onClick, onDelete, onRename }: 
   return (
     <div
       onClick={onClick}
-      className="group relative bg-[#1a1a1a] rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-[#222222] hover:scale-[1.02] border border-gray-800/50 hover:border-gray-700"
+      className="group relative bg-[#1a1a1a] rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-[#222222] hover:scale-[1.02] border border-gray-800/50 hover:border-gray-700 overflow-hidden"
     >
       {/* 顶部彩色装饰条 */}
       <div
-        className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+        className="absolute top-0 left-0 right-0 h-1"
         style={{ backgroundColor: notebook.coverColor }}
       />
 
