@@ -120,10 +120,7 @@ export default function ChatLayout() {
             className="h-14 flex items-center justify-center border-b border-gray-800/50"
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
-            <span
-              className="text-sm text-gray-400"
-              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            >
+            <span className="text-sm text-gray-400">
               0 条消息
             </span>
           </div>
@@ -217,10 +214,7 @@ export default function ChatLayout() {
             className="h-14 flex items-center justify-center border-b border-gray-800/50"
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
-            <span
-              className="text-sm text-gray-300"
-              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            >
+            <span className="text-sm text-gray-300">
               Studio
             </span>
           </div>

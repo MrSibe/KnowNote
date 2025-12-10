@@ -3,9 +3,12 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+let mainWindow: BrowserWindow | null = null
+let settingsWindow: BrowserWindow | null = null
+
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     show: false,
@@ -19,7 +22,7 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    mainWindow?.show()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -33,6 +36,48 @@ function createWindow(): void {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+  }
+}
+
+function createSettingsWindow(): void {
+  // 如果设置窗口已经存在，则聚焦并返回
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.focus()
+    return
+  }
+
+  // 创建设置窗口
+  settingsWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    minWidth: 600,
+    minHeight: 500,
+    show: false,
+    autoHideMenuBar: true,
+    titleBarStyle: 'hiddenInset',
+    parent: mainWindow || undefined,
+    modal: false,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      sandbox: false
+    }
+  })
+
+  settingsWindow.on('ready-to-show', () => {
+    settingsWindow?.show()
+  })
+
+  settingsWindow.on('closed', () => {
+    settingsWindow = null
+  })
+
+  // 加载设置页面
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    settingsWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#/settings`)
+  } else {
+    settingsWindow.loadFile(join(__dirname, '../renderer/index.html'), {
+      hash: '/settings'
+    })
   }
 }
 
@@ -53,6 +98,11 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
+  // 处理打开设置窗口的请求
+  ipcMain.handle('open-settings', () => {
+    createSettingsWindow()
+  })
+
   createWindow()
 
   app.on('activate', function () {
@@ -68,6 +118,13 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
+  }
+})
+
+// 确保在应用退出前关闭所有窗口
+app.on('before-quit', () => {
+  if (settingsWindow && !settingsWindow.isDestroyed()) {
+    settingsWindow.destroy()
   }
 })
 

@@ -1,8 +1,6 @@
 import { Home, Plus, X, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useNotebookStore } from '../store/notebookStore'
-import { useState } from 'react'
-import SettingsPanel from './SettingsPanel'
 
 interface TopNavigationBarProps {
   onCreateClick: () => void
@@ -16,7 +14,6 @@ export default function TopNavigationBar({
   const navigate = useNavigate()
   const { currentNotebook, openedNotebooks, removeOpenedNotebook, setCurrentNotebook } =
     useNotebookStore()
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   const handleHomeClick = () => {
     navigate('/')
@@ -48,31 +45,28 @@ export default function TopNavigationBar({
     removeOpenedNotebook(id)
   }
 
-  const handleSettingsClick = () => {
-    setIsSettingsOpen(true)
-  }
-
-  const handleSettingsClose = () => {
-    setIsSettingsOpen(false)
+  const handleSettingsClick = async () => {
+    try {
+      await window.api.openSettings()
+    } catch (error) {
+      console.error('Failed to open settings:', error)
+    }
   }
 
   return (
-    <>
-      <div
-        className="h-10 flex-shrink-0 flex items-center justify-between px-3"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-      >
+    <div
+      className="h-10 flex-shrink-0 flex items-center justify-between px-3"
+      style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+    >
       {/* 左侧空白区域（留给窗口控制按钮） */}
       <div className="w-16"></div>
 
       {/* 导航按钮 */}
-      <div
-        className="flex items-center gap-2 flex-1"
-        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-      >
+      <div className="flex items-center gap-2 flex-1">
         <button
           onClick={handleHomeClick}
           disabled={isHomePage}
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           className={`flex items-center gap-2 px-3 py-1 rounded-lg transition-colors text-sm h-7 ${
             isHomePage ? 'bg-[#2a2a2a] cursor-default' : 'bg-[#2a2a2a] hover:bg-[#333333]'
           }`}
@@ -88,6 +82,7 @@ export default function TopNavigationBar({
             <button
               key={notebook.id}
               onClick={() => handleOpenedNotebookClick(notebook.id)}
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
               className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm h-7 transition-colors ${
                 isActive && !isHomePage
                   ? 'bg-[#2a2a2a]'
@@ -100,6 +95,7 @@ export default function TopNavigationBar({
                   e.stopPropagation()
                   handleCloseOpenedNotebook(notebook.id)
                 }}
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
                 className="ml-2 p-1 hover:bg-[#3a3a3a] rounded transition-colors"
                 title="关闭标签"
               >
@@ -111,6 +107,7 @@ export default function TopNavigationBar({
 
         <button
           onClick={onCreateClick}
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           className="flex items-center justify-center w-7 h-7 hover:bg-[#2a2a2a] rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -118,19 +115,14 @@ export default function TopNavigationBar({
       </div>
 
       {/* 设置按钮 */}
-      <div style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-        <button
-          onClick={handleSettingsClick}
-          className="flex items-center justify-center w-7 h-7 hover:bg-[#2a2a2a] rounded-lg transition-colors"
-          title="设置"
-        >
-          <Settings className="w-4 h-4" />
-        </button>
-      </div>
+      <button
+        onClick={handleSettingsClick}
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        className="flex items-center justify-center w-7 h-7 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+        title="设置"
+      >
+        <Settings className="w-4 h-4" />
+      </button>
     </div>
-
-      {/* 设置面板 */}
-      <SettingsPanel isOpen={isSettingsOpen} onClose={handleSettingsClose} />
-    </>
   )
 }
