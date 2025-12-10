@@ -27,7 +27,9 @@
     "clsx": "^2.1.1",
     "electron-updater": "^6.3.9",
     "lucide-react": "^0.556.0",
-    "tailwind-merge": "^3.4.0"
+    "react-router-dom": "^7.10.1",
+    "tailwind-merge": "^3.4.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
@@ -37,6 +39,7 @@
     "@types/node": "^22.19.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.4.22",
     "electron": "^39.2.6",

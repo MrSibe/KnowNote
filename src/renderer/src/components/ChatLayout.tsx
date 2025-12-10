@@ -1,7 +1,14 @@
-import { useState } from 'react'
-import { MoreHorizontal, Paperclip, Send, Home, Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { MoreHorizontal, Paperclip, Send } from 'lucide-react'
+import TopNavigationBar from './TopNavigationBar'
+import { useNotebookStore } from '../store/notebookStore'
 
 export default function ChatLayout() {
+  const navigate = useNavigate()
+  const { id } = useParams()
+  const { notebooks, addNotebook, addOpenedNotebook, setCurrentNotebook } = useNotebookStore()
+
   const [messages] = useState<string[]>([])
   const [input, setInput] = useState('')
   const [leftWidth, setLeftWidth] = useState(320)
@@ -9,6 +16,29 @@ export default function ChatLayout() {
   const [isDraggingLeft, setIsDraggingLeft] = useState(false)
   const [isDraggingRight, setIsDraggingRight] = useState(false)
 
+  // 当进入笔记本时，设置openedNotebook和currentNotebook
+  useEffect(() => {
+    if (id) {
+      addOpenedNotebook(id)
+      setCurrentNotebook(id)
+    }
+  }, [id, addOpenedNotebook, setCurrentNotebook])
+
+  const handleCreateNotebook = () => {
+    const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4']
+    const randomColor = colors[Math.floor(Math.random() * colors.length)]
+
+    const newId = addNotebook({
+      title: `新笔记本 ${notebooks.length + 1}`,
+      description: '开始你的笔记之旅',
+      coverColor: randomColor,
+      chatCount: 0
+    })
+
+    navigate(`/chat/${newId}`)
+  }
+
+  
   const handleMouseDown = (side: 'left' | 'right') => {
     if (side === 'left') {
       setIsDraggingLeft(true)
@@ -40,22 +70,7 @@ export default function ChatLayout() {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {/* 全局顶部区域 */}
-      <div className="h-10 flex-shrink-0 flex items-center gap-3" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
-        {/* 左侧空白区域（留给窗口控制按钮） */}
-        <div className="w-16"></div>
-
-        {/* 导航按钮 */}
-        <div className="flex items-center gap-2" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-          <button className="flex items-center gap-2 px-3 py-1.5 bg-[#2a2a2a] hover:bg-[#333333] rounded-lg transition-colors text-sm h-8">
-            <Home className="w-4 h-4" />
-            <span>首页</span>
-          </button>
-          <button className="flex items-center justify-center w-8 h-8 hover:bg-[#2a2a2a] rounded-lg transition-colors">
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
+      <TopNavigationBar onCreateClick={handleCreateNotebook} />
 
       {/* 三栏布局 */}
       <div className="flex flex-1 px-3 pb-3 gap-0">
