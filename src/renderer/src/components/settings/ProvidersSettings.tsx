@@ -1,4 +1,5 @@
 import { useState, useEffect, ReactElement } from 'react'
+import { Search, Eye, EyeOff, ExternalLink } from 'lucide-react'
 
 interface LLMConfig {
   apiKey?: string
@@ -9,7 +10,10 @@ interface LLMConfig {
 }
 
 export default function ProvidersSettings(): ReactElement {
-  const [activeProvider, setActiveProvider] = useState<string>('openai')
+  const [activeProvider, setActiveProvider] = useState<string>('deepseek')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showApiKey, setShowApiKey] = useState(false)
+
   const [openaiConfig, setOpenaiConfig] = useState<LLMConfig>({
     apiKey: '',
     baseUrl: 'https://api.openai.com/v1',
@@ -17,253 +21,259 @@ export default function ProvidersSettings(): ReactElement {
     temperature: 0.7,
     maxTokens: 2048
   })
-  const [ollamaConfig, setOllamaConfig] = useState<LLMConfig>({
-    baseUrl: 'http://localhost:11434',
-    model: 'llama2',
-    temperature: 0.7
+  const [deepseekConfig, setDeepseekConfig] = useState<LLMConfig>({
+    apiKey: '',
+    baseUrl: 'https://api.deepseek.com/v1',
+    model: 'deepseek-chat',
+    temperature: 0.7,
+    maxTokens: 4096
   })
+
   const [openaiEnabled, setOpenaiEnabled] = useState(false)
-  const [ollamaEnabled, setOllamaEnabled] = useState(false)
-  const [validating, setValidating] = useState(false)
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle')
+  // const [ollamaEnabled] = useState(false)
+  const [deepseekEnabled, setDeepseekEnabled] = useState(true)
 
   // 加载配置
   useEffect(() => {
+    const loadConfigs = async (): Promise<void> => {
+      try {
+        const openai = await window.api.getProviderConfig('openai')
+        if (openai) {
+          setOpenaiConfig(openai.config)
+          setOpenaiEnabled(openai.enabled)
+        }
+      } catch (error) {
+        console.error('Failed to load provider configs:', error)
+      }
+    }
     loadConfigs()
   }, [])
 
-  const loadConfigs = async (): Promise<void> => {
-    try {
-      const openai = await window.api.getProviderConfig('openai')
-      if (openai) {
-        setOpenaiConfig(openai.config)
-        setOpenaiEnabled(openai.enabled)
-      }
-
-      const ollama = await window.api.getProviderConfig('ollama')
-      if (ollama) {
-        setOllamaConfig(ollama.config)
-        setOllamaEnabled(ollama.enabled)
-      }
-    } catch (error) {
-      console.error('Failed to load provider configs:', error)
-    }
-  }
-
-  // 保存配置
-  const handleSave = async (providerName: string): Promise<void> => {
-    setSaveStatus('saving')
-    try {
-      const config = providerName === 'openai' ? openaiConfig : ollamaConfig
-      const enabled = providerName === 'openai' ? openaiEnabled : ollamaEnabled
-
-      await window.api.saveProviderConfig({
-        providerName,
-        config,
-        enabled,
-        updatedAt: Date.now()
-      })
-
-      setSaveStatus('success')
-      setTimeout(() => setSaveStatus('idle'), 2000)
-    } catch (error) {
-      console.error('Failed to save config:', error)
-      setSaveStatus('error')
-      setTimeout(() => setSaveStatus('idle'), 2000)
-    }
-  }
-
-  // 验证配置
-  const handleValidate = async (providerName: string): Promise<void> => {
-    setValidating(true)
-    try {
-      const config = providerName === 'openai' ? openaiConfig : ollamaConfig
-      const isValid = await window.api.validateProviderConfig(providerName, config)
-
-      if (isValid) {
-        alert('配置验证成功!')
-      } else {
-        alert('配置验证失败,请检查配置是否正确')
-      }
-    } catch (error) {
-      alert('配置验证失败: ' + (error as Error).message)
-    } finally {
-      setValidating(false)
-    }
-  }
-
   const providers = [
+    {
+      id: 'deepseek',
+      name: 'DeepSeek',
+      description: 'DeepSeek AI models with reasoning capabilities',
+      enabled: deepseekEnabled
+    },
     {
       id: 'openai',
       name: 'OpenAI',
-      icon: '🤖',
-      color: 'from-green-400 to-green-600',
+      description: 'OpenAI GPT models including GPT-4 and GPT-3.5',
       enabled: openaiEnabled
-    },
-    {
-      id: 'ollama',
-      name: 'Ollama',
-      icon: '🦙',
-      color: 'from-purple-400 to-purple-600',
-      enabled: ollamaEnabled
     }
   ]
 
+  const filteredProviders = providers.filter((provider) =>
+    provider.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
-    <div className="flex h-full">
+    <div className="flex h-full gap-6">
       {/* 左侧供应商列表 */}
-      <div className="w-48 min-w-[12rem] border-r border-gray-800/50 p-4 pt-16">
-        <h3 className="text-sm font-medium text-gray-300 mb-4">AI 供应商</h3>
-        <div className="space-y-2">
-          {providers.map((provider) => (
+      <div className="w-48 flex-shrink-0 flex flex-col gap-4">
+        {/* 搜索框 */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="搜索提供商..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 bg-[#2a2a2a] rounded-lg text-sm text-gray-100 placeholder-gray-500 outline-none border border-gray-700/50 focus:border-gray-600"
+          />
+        </div>
+
+        {/* 供应商列表 */}
+        <div className="flex flex-col gap-2">
+          {filteredProviders.map((provider) => (
             <button
               key={provider.id}
               onClick={() => setActiveProvider(provider.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
                 activeProvider === provider.id
-                  ? 'bg-[#2a2a2a] text-gray-100'
-                  : 'bg-[#171717] hover:bg-[#2a2a2a] text-gray-300'
+                  ? 'bg-[#2a2a2a] border border-blue-500/50'
+                  : 'bg-transparent border border-gray-700/30 hover:border-gray-600/50'
               }`}
             >
-              <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br ${provider.color} ${
-                  provider.enabled ? '' : 'opacity-50'
-                }`}
-              >
-                <span className="text-white font-bold text-sm">{provider.icon}</span>
-              </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium text-gray-100">{provider.name}</div>
-                <div className="text-xs text-gray-400">
-                  {provider.enabled ? '已启用' : '未启用'}
-                </div>
               </div>
-              {provider.enabled && <div className="w-2 h-2 rounded-full bg-green-500"></div>}
+              <div
+                className={`w-2 h-2 rounded-full ${provider.enabled ? 'bg-blue-500' : 'bg-gray-600'}`}
+              ></div>
             </button>
           ))}
         </div>
+
+        {/* 添加自定义提供商按钮 */}
+        <button className="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl text-sm font-medium transition-colors">
+          Add Custom Provider
+        </button>
       </div>
 
       {/* 右侧配置区域 */}
-      <div className="flex-1 min-w-[400px] overflow-y-auto p-6 pt-16">
-        {activeProvider === 'openai' && (
-          <div className="max-w-4xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-100">OpenAI 配置</h3>
-              <button
-                onClick={() => handleSave('openai')}
-                disabled={saveStatus === 'saving'}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors disabled:opacity-50"
-              >
-                {saveStatus === 'saving'
-                  ? '保存中...'
-                  : saveStatus === 'success'
-                    ? '已保存'
-                    : '保存配置'}
-              </button>
+      <div className="flex-1 min-w-[400px] overflow-y-auto">
+        {activeProvider === 'deepseek' && (
+          <div className="flex flex-col gap-4">
+            {/* 顶部标题和开关 */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-gray-100">DeepSeek</h2>
+                <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full border border-blue-500/30">
+                  Active
+                </span>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={deepseekEnabled}
+                  onChange={(e) => setDeepseekEnabled(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+              </label>
             </div>
 
-            <div className="space-y-4">
-              {/* 启用开关 */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-100">启用 OpenAI</h4>
-                    <p className="text-xs text-gray-400 mt-1">启用后可使用 OpenAI 服务</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={openaiEnabled}
-                      onChange={(e) => setOpenaiEnabled(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              </div>
+            {/* 描述 */}
+            <p className="text-gray-400 text-sm -mt-1">
+              DeepSeek AI models with reasoning capabilities
+            </p>
 
-              {/* API Key */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <h4 className="text-sm font-medium mb-3 text-gray-100">API 密钥</h4>
-                <div className="p-3 bg-[#0a0a0a] rounded-lg border border-gray-700">
-                  <input
-                    type="password"
-                    value={openaiConfig.apiKey}
-                    onChange={(e) => setOpenaiConfig({ ...openaiConfig, apiKey: e.target.value })}
-                    placeholder="sk-..."
-                    className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-500"
-                  />
-                </div>
+            {/* API Key */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-medium text-gray-100">API Key</h3>
+              <div className="relative">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={deepseekConfig.apiKey}
+                  onChange={(e) => setDeepseekConfig({ ...deepseekConfig, apiKey: e.target.value })}
+                  placeholder="sk-..."
+                  className="w-full px-3 py-2 bg-[#2a2a2a] rounded-lg text-sm text-gray-100 placeholder-gray-500 outline-none border border-gray-700/50 focus:border-gray-600 pr-10"
+                />
                 <button
-                  onClick={() => handleValidate('openai')}
-                  disabled={validating}
-                  className="mt-2 text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-700/50 rounded-md transition-colors"
                 >
-                  {validating ? '验证中...' : '验证密钥'}
+                  {showApiKey ? (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-gray-400" />
+                  )}
+                </button>
+              </div>
+              <div className="flex items-center gap-1 text-sm text-gray-400">
+                <span>Get your API key from</span>
+                <a
+                  href="https://platform.deepseek.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
+                >
+                  DeepSeek Platform
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Models */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-gray-100">Models</h3>
+                <button className="px-3 py-1.5 bg-[#2a2a2a] hover:bg-gray-700 rounded-md text-xs font-medium text-gray-100 transition-colors inline-flex items-center gap-1.5">
+                  <span>↓</span>
+                  Fetch
                 </button>
               </div>
 
-              {/* Base URL */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <h4 className="text-sm font-medium mb-3 text-gray-100">Base URL</h4>
-                <div className="p-3 bg-[#0a0a0a] rounded-lg border border-gray-700">
-                  <input
-                    type="text"
-                    value={openaiConfig.baseUrl}
-                    onChange={(e) => setOpenaiConfig({ ...openaiConfig, baseUrl: e.target.value })}
-                    placeholder="https://api.openai.com/v1"
-                    className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-500"
-                  />
-                </div>
-                <p className="mt-2 text-xs text-gray-500">支持兼容 OpenAI API 格式的服务</p>
+              {/* 模型搜索框 */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Search models..."
+                  className="w-full pl-9 pr-3 py-2 bg-[#2a2a2a] rounded-lg text-sm text-gray-100 placeholder-gray-500 outline-none border border-gray-700/50 focus:border-gray-600"
+                />
               </div>
 
-              {/* 模型设置 */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <h4 className="text-sm font-medium mb-3 text-gray-100">模型设置</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">默认模型</label>
-                    <input
-                      type="text"
-                      value={openaiConfig.model}
-                      onChange={(e) => setOpenaiConfig({ ...openaiConfig, model: e.target.value })}
-                      className="w-full p-2 bg-[#0a0a0a] rounded-lg text-sm border border-gray-700 text-gray-100"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">温度 (0.0-2.0)</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={openaiConfig.temperature}
-                      onChange={(e) =>
-                        setOpenaiConfig({
-                          ...openaiConfig,
-                          temperature: parseFloat(e.target.value)
-                        })
-                      }
-                      className="w-full"
-                    />
-                    <div className="text-xs text-gray-500 mt-1">
-                      当前: {openaiConfig.temperature}
+              {/* 模型统计信息 */}
+              <p className="text-xs text-gray-400">
+                Showing 2 of 2 models (enabled models shown first)
+              </p>
+
+              {/* 模型列表 */}
+              <div className="flex flex-col gap-2">
+                {/* deepseek-chat */}
+                <div className="p-3 bg-[#2a2a2a] rounded-lg border border-gray-700/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h4 className="text-sm font-medium text-gray-100">deepseek-chat</h4>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
+                            128K
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">deepseek-chat</p>
                     </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                    </label>
                   </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">最大令牌数</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="128000"
-                      value={openaiConfig.maxTokens}
-                      onChange={(e) =>
-                        setOpenaiConfig({ ...openaiConfig, maxTokens: parseInt(e.target.value) })
-                      }
-                      className="w-full p-2 bg-[#0a0a0a] rounded-lg text-sm border border-gray-700 text-gray-100"
-                    />
+                </div>
+
+                {/* deepseek-reasoner */}
+                <div className="p-3 bg-[#2a2a2a] rounded-lg border border-gray-700/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h4 className="text-sm font-medium text-gray-100">deepseek-reasoner</h4>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <span className="flex items-center gap-1">
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                              />
+                            </svg>
+                            128K
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">deepseek-reasoner</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-4 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -271,118 +281,81 @@ export default function ProvidersSettings(): ReactElement {
           </div>
         )}
 
-        {activeProvider === 'ollama' && (
-          <div className="max-w-4xl">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-100">Ollama 配置</h3>
-              <button
-                onClick={() => handleSave('ollama')}
-                disabled={saveStatus === 'saving'}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors disabled:opacity-50"
-              >
-                {saveStatus === 'saving'
-                  ? '保存中...'
-                  : saveStatus === 'success'
-                    ? '已保存'
-                    : '保存配置'}
-              </button>
+        {activeProvider === 'openai' && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-gray-100">OpenAI</h2>
+                {openaiEnabled && (
+                  <span className="px-2.5 py-0.5 bg-blue-500/20 text-blue-400 text-xs font-medium rounded-full border border-blue-500/30">
+                    Active
+                  </span>
+                )}
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={openaiEnabled}
+                  onChange={(e) => setOpenaiEnabled(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+              </label>
             </div>
 
-            <div className="space-y-4">
-              {/* 启用开关 */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-100">启用 Ollama</h4>
-                    <p className="text-xs text-gray-400 mt-1">启用后可使用本地 Ollama 服务</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={ollamaEnabled}
-                      onChange={(e) => setOllamaEnabled(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              </div>
+            <p className="text-gray-400 text-sm -mt-1">
+              OpenAI GPT models including GPT-4 and GPT-3.5
+            </p>
 
-              {/* Base URL */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <h4 className="text-sm font-medium mb-3 text-gray-100">Base URL</h4>
-                <div className="p-3 bg-[#0a0a0a] rounded-lg border border-gray-700">
-                  <input
-                    type="text"
-                    value={ollamaConfig.baseUrl}
-                    onChange={(e) => setOllamaConfig({ ...ollamaConfig, baseUrl: e.target.value })}
-                    placeholder="http://localhost:11434"
-                    className="w-full bg-transparent outline-none text-gray-100 placeholder-gray-500"
-                  />
-                </div>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-medium text-gray-100">API Key</h3>
+              <div className="relative">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={openaiConfig.apiKey}
+                  onChange={(e) => setOpenaiConfig({ ...openaiConfig, apiKey: e.target.value })}
+                  placeholder="sk-..."
+                  className="w-full px-3 py-2 bg-[#2a2a2a] rounded-lg text-sm text-gray-100 placeholder-gray-500 outline-none border border-gray-700/50 focus:border-gray-600 pr-10"
+                />
                 <button
-                  onClick={() => handleValidate('ollama')}
-                  disabled={validating}
-                  className="mt-2 text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-700/50 rounded-md transition-colors"
                 >
-                  {validating ? '验证中...' : '验证连接'}
+                  {showApiKey ? (
+                    <EyeOff className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <Eye className="w-4 h-4 text-gray-400" />
+                  )}
                 </button>
               </div>
-
-              {/* 模型设置 */}
-              <div className="p-4 bg-[#171717] rounded-xl">
-                <h4 className="text-sm font-medium mb-3 text-gray-100">模型设置</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">默认模型</label>
-                    <input
-                      type="text"
-                      value={ollamaConfig.model}
-                      onChange={(e) => setOllamaConfig({ ...ollamaConfig, model: e.target.value })}
-                      placeholder="llama2"
-                      className="w-full p-2 bg-[#0a0a0a] rounded-lg text-sm border border-gray-700 text-gray-100"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      请确保已使用 ollama pull 下载该模型
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-xs text-gray-400 mb-1 block">温度 (0.0-2.0)</label>
-                    <input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={ollamaConfig.temperature}
-                      onChange={(e) =>
-                        setOllamaConfig({
-                          ...ollamaConfig,
-                          temperature: parseFloat(e.target.value)
-                        })
-                      }
-                      className="w-full"
-                    />
-                    <div className="text-xs text-gray-500 mt-1">
-                      当前: {ollamaConfig.temperature}
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center gap-1 text-sm text-gray-400">
+                <span>Get your API key from</span>
+                <a
+                  href="https://platform.openai.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-400 hover:text-blue-300 inline-flex items-center gap-1"
+                >
+                  OpenAI Platform
+                  <ExternalLink className="w-3 h-3" />
+                </a>
               </div>
+            </div>
+          </div>
+        )}
 
-              {/* 提示信息 */}
-              <div className="p-4 bg-purple-500/10 rounded-xl border border-purple-400/20">
-                <h4 className="text-sm font-medium mb-2 text-gray-100">关于 Ollama</h4>
-                <p className="text-sm text-gray-300 mb-2">
-                  Ollama 是一个在本地运行大语言模型的工具,无需 API Key。
-                </p>
-                <p className="text-xs text-gray-400">
-                  安装:{' '}
-                  <code className="bg-[#0a0a0a] px-2 py-0.5 rounded">brew install ollama</code>
-                  <br />
-                  下载模型:{' '}
-                  <code className="bg-[#0a0a0a] px-2 py-0.5 rounded">ollama pull llama2</code>
-                </p>
-              </div>
+        {(activeProvider === 'anthropic' ||
+          activeProvider === 'google' ||
+          activeProvider === 'ollama') && (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center space-y-4">
+              <div className="text-6xl opacity-20">🚧</div>
+              <h3 className="text-xl font-medium text-gray-300">Coming Soon</h3>
+              <p className="text-gray-500 text-sm">
+                {activeProvider === 'anthropic' && 'Anthropic Claude 配置即将推出'}
+                {activeProvider === 'google' && 'Google Gemini 配置即将推出'}
+                {activeProvider === 'ollama' && 'OpenRouter 配置即将推出'}
+              </p>
             </div>
           </div>
         )}

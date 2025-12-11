@@ -1,7 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
-import { getMainWindow } from './mainWindow'
 
 let settingsWindow: BrowserWindow | null = null
 
@@ -17,15 +16,13 @@ export function createSettingsWindow(): void {
 
   // 创建设置窗口
   settingsWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    minWidth: 600,
-    minHeight: 500,
+    width: 1000,
+    height: 700,
+    minWidth: 900,
+    minHeight: 600,
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hiddenInset',
-    parent: getMainWindow() || undefined,
-    modal: false,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false

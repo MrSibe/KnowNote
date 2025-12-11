@@ -127,13 +127,13 @@ export default function NotebookList(): ReactElement {
           /* 有笔记本时显示列表 */
           <div className="max-w-7xl mx-auto">
             {/* 标题 */}
-            <div className="mb-16">
+            <div className="mb-4">
               <h1 className="text-3xl font-bold text-gray-100 mb-2">我的笔记本</h1>
               <p className="text-gray-400">共 {notebooks.length} 个笔记本</p>
             </div>
 
             {/* 笔记本网格 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
               {notebooks.map((notebook) => (
                 <NotebookCard
                   key={notebook.id}

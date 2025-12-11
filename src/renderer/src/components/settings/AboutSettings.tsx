@@ -12,7 +12,7 @@ export default function AboutSettings(): ReactElement {
         <p className="text-sm text-gray-400">版本 1.0.0</p>
       </div>
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="flex justify-between p-3 bg-[#171717] rounded-lg">
           <span className="text-sm text-gray-400">更新日志</span>
           <ChevronRight className="w-4 h-4 text-gray-500" />
