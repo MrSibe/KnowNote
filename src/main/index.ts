@@ -11,6 +11,8 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    minWidth: 1000,
+    minHeight: 700,
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hiddenInset',

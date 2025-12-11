@@ -1,6 +1,6 @@
 import { Home, Plus, X, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useNotebookStore } from '../store/notebookStore'
+import { useNotebookStore } from '../../store/notebookStore'
 
 interface TopNavigationBarProps {
   onCreateClick: () => void
@@ -21,7 +21,7 @@ export default function TopNavigationBar({
 
   const handleOpenedNotebookClick = (id: string) => {
     setCurrentNotebook(id)
-    navigate(`/chat/${id}`)
+    navigate(`/notebook/${id}`)
   }
 
   const handleCloseOpenedNotebook = (id: string) => {
@@ -36,7 +36,7 @@ export default function TopNavigationBar({
         const targetNotebook =
           currentIndex > 0 ? openedNotebooks[currentIndex - 1] : openedNotebooks[1]
         setCurrentNotebook(targetNotebook.id)
-        navigate(`/chat/${targetNotebook.id}`)
+        navigate(`/notebook/${targetNotebook.id}`)
       } else {
         // 没有其他笔记本，跳转到首页
         navigate('/')

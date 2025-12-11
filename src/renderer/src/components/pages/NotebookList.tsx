@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BookOpen, Plus } from 'lucide-react'
-import NotebookCard from './NotebookCard'
-import TopNavigationBar from './TopNavigationBar'
-import RenameDialog from './RenameDialog'
-import DeleteConfirmDialog from './DeleteConfirmDialog'
-import { useNotebookStore } from '../store/notebookStore'
+import NotebookCard from '../common/NotebookCard'
+import TopNavigationBar from '../common/TopNavigationBar'
+import RenameDialog from '../common/RenameDialog'
+import DeleteConfirmDialog from '../common/DeleteConfirmDialog'
+import { useNotebookStore } from '../../store/notebookStore'
 import {
   Empty,
   EmptyContent,
@@ -13,7 +13,7 @@ import {
   EmptyHeader,
   EmptyMedia,
   EmptyTitle
-} from './ui/empty'
+} from '../ui/empty'
 
 export default function NotebookList() {
   const navigate = useNavigate()
@@ -45,13 +45,13 @@ export default function NotebookList() {
 
     addOpenedNotebook(newId)
     setCurrentNotebook(newId)
-    navigate(`/chat/${newId}`)
+    navigate(`/notebook/${newId}`)
   }
 
   const handleNotebookClick = (id: string) => {
     addOpenedNotebook(id)
     setCurrentNotebook(id)
-    navigate(`/chat/${id}`)
+    navigate(`/notebook/${id}`)
   }
 
   const handleOpenDeleteDialog = (id: string) => {
