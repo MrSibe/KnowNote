@@ -53,7 +53,7 @@ export function registerChatHandlers(
       }))
 
       // 4. 调用 AI Provider 流式生成
-      const provider = providerManager.getActiveProvider()
+      const provider = await providerManager.getActiveProvider()
       if (!provider) {
         event.sender.send('message-error', {
           messageId: assistantMessage.id,

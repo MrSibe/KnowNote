@@ -8,6 +8,7 @@ interface AppSettings {
   theme: 'light' | 'dark'
   language: 'zh-CN' | 'en-US' | 'ja-JP'
   autoLaunch: boolean
+  defaultModel?: string
 }
 
 interface ProviderConfig {
@@ -110,7 +111,11 @@ export default function SettingsWindow(): ReactElement {
     switch (activeSection) {
       case 'general':
         return (
-          <GeneralSettings settings={pendingSettings} onSettingsChange={updatePendingSettings} />
+          <GeneralSettings
+            settings={pendingSettings}
+            onSettingsChange={updatePendingSettings}
+            providers={pendingProviders}
+          />
         )
       case 'provider':
         return (

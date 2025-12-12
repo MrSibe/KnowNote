@@ -1,22 +1,22 @@
 import { ipcMain } from 'electron'
-import { providersManager } from '../config/store'
 import { ProviderManager } from '../providers/ProviderManager'
+import { providersManager } from '../config/store'
 
 /**
  * 注册 Provider 配置相关的 IPC Handlers
  */
 export function registerProviderHandlers(providerManager: ProviderManager) {
-  // 保存提供商配置
+  // 保存提供商配置（直接使用 Electron Store，立即生效）
   ipcMain.handle('save-provider-config', async (_event, config: any) => {
     await providersManager.saveProviderConfig(config.providerName, config.config, config.enabled)
   })
 
-  // 获取单个提供商配置
+  // 获取单个提供商配置（从 Electron Store 读取）
   ipcMain.handle('get-provider-config', async (_event, providerName: string) => {
     return await providersManager.getProviderConfig(providerName)
   })
 
-  // 获取所有提供商配置
+  // 获取所有提供商配置（从 Electron Store 读取）
   ipcMain.handle('get-all-provider-configs', async () => {
     return await providersManager.getAllProviderConfigs()
   })
@@ -28,6 +28,38 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
       return false
     }
     return provider.validateConfig(config)
+  })
+
+  // 获取模型列表
+  ipcMain.handle('fetch-models', async (_event, providerName: string, apiKey: string) => {
+    try {
+      let url = ''
+      if (providerName === 'openai') {
+        url = 'https://api.openai.com/v1/models'
+      } else if (providerName === 'deepseek') {
+        url = 'https://api.deepseek.com/models'
+      } else {
+        throw new Error(`Unsupported provider: ${providerName}`)
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data.data || []
+    } catch (error) {
+      console.error('Failed to fetch models:', error)
+      throw error
+    }
   })
 
   console.log('[IPC] Provider handlers registered')

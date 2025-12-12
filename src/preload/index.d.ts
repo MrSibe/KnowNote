@@ -44,6 +44,7 @@ export interface AppSettings {
   theme: 'light' | 'dark'
   language: 'zh-CN' | 'en-US' | 'ja-JP'
   autoLaunch: boolean
+  defaultModel?: string
 }
 
 declare global {
@@ -92,6 +93,10 @@ declare global {
       getProviderConfig: (providerName: string) => Promise<ProviderConfig | null>
       getAllProviderConfigs: () => Promise<ProviderConfig[]>
       validateProviderConfig: (providerName: string, config: any) => Promise<boolean>
+      fetchModels: (
+        providerName: string,
+        apiKey: string
+      ) => Promise<{ id: string; object: string; owned_by?: string; created?: number }[]>
     }
   }
 }

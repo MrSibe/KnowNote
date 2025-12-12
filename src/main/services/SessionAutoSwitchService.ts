@@ -93,7 +93,7 @@ ${conversationText}
 请提供总结：`
 
     // 调用 AI 生成摘要
-    const provider = this.providerManager.getActiveProvider()
+    const provider = await this.providerManager.getActiveProvider()
     if (!provider) {
       // 如果没有配置 provider，返回一个基础的摘要
       return `本次对话包含 ${messages.length} 条消息。`

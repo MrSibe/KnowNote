@@ -7,6 +7,7 @@ export interface AppSettings {
   theme: 'light' | 'dark'
   language: 'zh-CN' | 'en-US' | 'ja-JP'
   autoLaunch: boolean
+  defaultModel?: string
 }
 
 /**
@@ -33,7 +34,8 @@ interface StoreSchema {
 const defaultSettings: AppSettings = {
   theme: 'dark',
   language: 'zh-CN',
-  autoLaunch: false
+  autoLaunch: false,
+  defaultModel: undefined
 }
 
 /**

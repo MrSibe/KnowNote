@@ -1,15 +1,24 @@
-import { ReactElement, useEffect, useState } from 'react'
+import { ReactElement, useEffect, useState, useMemo } from 'react'
 import { Sun, Moon, ChevronDown } from 'lucide-react'
 
 interface AppSettings {
   theme: 'light' | 'dark'
   language: 'zh-CN' | 'en-US' | 'ja-JP'
   autoLaunch: boolean
+  defaultModel?: string
+}
+
+interface ProviderConfig {
+  providerName: string
+  config: Record<string, any>
+  enabled: boolean
+  updatedAt: number
 }
 
 interface GeneralSettingsProps {
   settings: AppSettings
   onSettingsChange: (updates: Partial<AppSettings>) => void
+  providers: ProviderConfig[]
 }
 
 const languages = [
@@ -20,10 +29,33 @@ const languages = [
 
 export default function GeneralSettings({
   settings,
-  onSettingsChange
+  onSettingsChange,
+  providers
 }: GeneralSettingsProps): ReactElement {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
   const currentLanguage = languages.find((lang) => lang.value === settings.language) || languages[0]
+
+  // 获取所有启用的供应商的已选模型
+  const availableModels = useMemo(() => {
+    const models: Array<{ id: string; provider: string; label: string }> = []
+
+    providers.forEach((provider) => {
+      if (provider.enabled && provider.config.models && Array.isArray(provider.config.models)) {
+        provider.config.models.forEach((modelId: string) => {
+          models.push({
+            id: `${provider.providerName}:${modelId}`,
+            provider: provider.providerName,
+            label: `${modelId} (${provider.providerName})`
+          })
+        })
+      }
+    })
+
+    return models
+  }, [providers])
+
+  const currentModel = availableModels.find((model) => model.id === settings.defaultModel) || availableModels[0]
 
   // 当主题变化时，立即更新 DOM 以预览效果
   useEffect(() => {
@@ -41,16 +73,19 @@ export default function GeneralSettings({
       if (!target.closest('.language-dropdown')) {
         setIsDropdownOpen(false)
       }
+      if (!target.closest('.model-dropdown')) {
+        setIsModelDropdownOpen(false)
+      }
     }
 
-    if (isDropdownOpen) {
+    if (isDropdownOpen || isModelDropdownOpen) {
       document.addEventListener('click', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('click', handleClickOutside)
     }
-  }, [isDropdownOpen])
+  }, [isDropdownOpen, isModelDropdownOpen])
 
   return (
     <div className="max-w-2xl space-y-8">
@@ -166,6 +201,74 @@ export default function GeneralSettings({
             </div>
           )}
         </div>
+      </div>
+
+      {/* 默认模型设置 */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-foreground">默认模型</h2>
+        {availableModels.length > 0 ? (
+          <div className="relative model-dropdown">
+            <button
+              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              className="w-full flex items-center justify-between p-4 bg-card rounded-xl border border-border hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <div className="flex items-center gap-3">
+                <div>
+                  <div className="font-medium text-foreground">
+                    {currentModel ? currentModel.label : '请选择默认模型'}
+                  </div>
+                  {currentModel && (
+                    <div className="text-sm text-muted-foreground capitalize">
+                      {currentModel.provider}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-muted-foreground transition-transform ${
+                  isModelDropdownOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {isModelDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
+                <div className="py-2">
+                  {availableModels.map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => {
+                        onSettingsChange({ defaultModel: model.id })
+                        setIsModelDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center justify-between px-4 py-3 hover:bg-accent/50 transition-colors ${
+                        model.id === settings.defaultModel ? 'bg-accent' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <div className="font-medium text-foreground">{model.label}</div>
+                          <div className="text-sm text-muted-foreground capitalize">
+                            {model.provider}
+                          </div>
+                        </div>
+                      </div>
+                      {model.id === settings.defaultModel && (
+                        <div className="w-2 h-2 bg-primary rounded-full" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="p-4 bg-card rounded-xl border border-border">
+            <div className="text-sm text-muted-foreground">
+              没有可用的模型。请前往"提供商"页面启用供应商并选择模型。
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

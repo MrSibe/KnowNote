@@ -1,11 +1,13 @@
 import type { LLMProvider } from './types'
 import { OpenAIProvider } from './OpenAIProvider'
 import { OllamaProvider } from './OllamaProvider'
-import * as queries from '../db/queries'
+import { DeepSeekProvider } from './DeepSeekProvider'
+import { settingsManager, providersManager } from '../config/store'
 
 /**
  * Provider Manager
  * 管理所有 AI Provider 实例并提供统一的访问接口
+ * 使用 Electron Store 作为配置存储，修改后立即生效无需重启
  */
 export class ProviderManager {
   private providers: Map<string, LLMProvider> = new Map()
@@ -14,10 +16,9 @@ export class ProviderManager {
     // 注册所有 Provider
     this.registerProvider(new OpenAIProvider())
     this.registerProvider(new OllamaProvider())
+    this.registerProvider(new DeepSeekProvider())
 
-    // 未来可以在这里注册更多 Provider
-    // this.registerProvider(new DeepSeekProvider())
-    // this.registerProvider(new KimiProvider())
+    console.log(`[ProviderManager] 已注册 ${this.providers.size} 个 Provider`)
   }
 
   /**
@@ -37,13 +38,40 @@ export class ProviderManager {
 
   /**
    * 获取当前激活的 Provider
-   * 从数据库读取配置，返回第一个启用的 Provider
-   * 如果没有启用的 Provider，返回 null
+   * 优先使用用户在设置中选择的默认模型
+   * 如果没有默认模型，返回第一个启用的 Provider
    */
-  getActiveProvider(): LLMProvider | null {
+  async getActiveProvider(): Promise<LLMProvider | null> {
     try {
-      const configs = queries.getAllProviderConfigs()
-      const enabledConfig = configs.find((c) => c.enabled)
+      const settings = await settingsManager.getAllSettings()
+      const defaultModel = settings.defaultModel
+
+      // 如果用户设置了默认模型，解析并使用它
+      if (defaultModel && defaultModel.includes(':')) {
+        const [providerName, modelId] = defaultModel.split(':')
+        const config = await providersManager.getProviderConfig(providerName)
+
+        if (config && config.enabled) {
+          const provider = this.providers.get(providerName)
+          if (provider) {
+            // 配置 Provider，并指定模型
+            provider.configure({
+              ...config.config,
+              model: modelId
+            })
+            console.log(`[ProviderManager] 使用默认模型: ${providerName} - ${modelId}`)
+            return provider
+          }
+        } else {
+          console.warn(
+            `[ProviderManager] 默认模型对应的 Provider "${providerName}" 未启用或不存在`
+          )
+        }
+      }
+
+      // 如果没有默认模型或默认模型不可用，使用第一个启用的 Provider
+      const allConfigs = await providersManager.getAllProviderConfigs()
+      const enabledConfig = allConfigs.find((c) => c.enabled)
 
       if (!enabledConfig) {
         console.warn('[ProviderManager] 未找到启用的 Provider')

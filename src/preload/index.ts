@@ -64,7 +64,9 @@ const api = {
     ipcRenderer.invoke('get-provider-config', providerName),
   getAllProviderConfigs: () => ipcRenderer.invoke('get-all-provider-configs'),
   validateProviderConfig: (providerName: string, config: any) =>
-    ipcRenderer.invoke('validate-provider-config', providerName, config)
+    ipcRenderer.invoke('validate-provider-config', providerName, config),
+  fetchModels: (providerName: string, apiKey: string) =>
+    ipcRenderer.invoke('fetch-models', providerName, apiKey)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

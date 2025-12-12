@@ -1,6 +1,6 @@
 import { eq, desc, and } from 'drizzle-orm'
 import { getDatabase } from './index'
-import { chatSessions, chatMessages, providerSettings } from './schema'
+import { chatSessions, chatMessages } from './schema'
 
 // ==================== Chat Sessions ====================
 
@@ -188,57 +188,3 @@ export function updateMessageContent(messageId: string, content: string) {
   db.update(chatMessages).set({ content }).where(eq(chatMessages.id, messageId)).run()
 }
 
-// ==================== Provider Settings ====================
-
-/**
- * 保存或更新 Provider 配置
- */
-export function saveProviderConfig(
-  providerName: string,
-  config: Record<string, any>,
-  enabled: boolean
-) {
-  const db = getDatabase()
-
-  // 使用 onConflictDoUpdate 实现 upsert
-  db.insert(providerSettings)
-    .values({
-      providerName,
-      config,
-      enabled,
-      updatedAt: new Date()
-    })
-    .onConflictDoUpdate({
-      target: providerSettings.providerName,
-      set: {
-        config,
-        enabled,
-        updatedAt: new Date()
-      }
-    })
-    .run()
-}
-
-/**
- * 获取指定 Provider 的配置
- */
-export function getProviderConfig(providerName: string) {
-  const db = getDatabase()
-
-  const result = db
-    .select()
-    .from(providerSettings)
-    .where(eq(providerSettings.providerName, providerName))
-    .get()
-
-  return result || null
-}
-
-/**
- * 获取所有 Provider 配置
- */
-export function getAllProviderConfigs() {
-  const db = getDatabase()
-
-  return db.select().from(providerSettings).all()
-}

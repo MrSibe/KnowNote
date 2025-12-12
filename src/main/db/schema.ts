@@ -49,17 +49,6 @@ export const chatMessages = sqliteTable(
 )
 
 /**
- * AI Provider 配置表
- * 存储各个 AI Provider 的配置信息（API Key、模型参数等）
- */
-export const providerSettings = sqliteTable('provider_settings', {
-  providerName: text('provider_name').primaryKey(),
-  config: text('config', { mode: 'json' }).notNull().$type<Record<string, any>>(),
-  enabled: integer('enabled', { mode: 'boolean' }).notNull().default(false),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
-})
-
-/**
  * TypeScript 类型导出（从 Drizzle Schema 推导）
  */
 export type ChatSession = typeof chatSessions.$inferSelect
@@ -67,6 +56,3 @@ export type NewChatSession = typeof chatSessions.$inferInsert
 
 export type ChatMessage = typeof chatMessages.$inferSelect
 export type NewChatMessage = typeof chatMessages.$inferInsert
-
-export type ProviderSetting = typeof providerSettings.$inferSelect
-export type NewProviderSetting = typeof providerSettings.$inferInsert
