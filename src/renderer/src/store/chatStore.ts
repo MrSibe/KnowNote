@@ -153,7 +153,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       notebookId,
       role: 'user',
       content,
-      createdAt: Date.now()
+      createdAt: new Date()
     }
     get().addMessage(userMessage)
 
@@ -167,8 +167,8 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       notebookId,
       role: 'assistant',
       content: '',
-      reasoningContent: '',
-      createdAt: Date.now(),
+      reasoningContent: undefined,
+      createdAt: new Date(),
       isStreaming: true,
       isReasoningStreaming: true
     }
@@ -193,7 +193,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 export function setupChatListeners() {
   // 监听流式消息片段
   const cleanupChunk = window.api.onMessageChunk((data) => {
-    const { messageId, chunk, reasoningChunk, done } = data
+    const { messageId, chunk, reasoningChunk, done, reasoningDone } = data
     const store = useChatStore.getState()
 
     // 1. 先更新缓存（即使消息不在当前 messages 中也要缓存）
@@ -213,11 +213,20 @@ export function setupChatListeners() {
         }
       }))
 
-      // 2. 如果消息在当前 messages 中，也更新它
-      const message = store.messages.find((m) => m.id === messageId)
-      if (message) {
-        store.updateMessageContent(messageId, newContent)
-        store.updateMessageReasoningContent(messageId, newReasoningContent)
+      // 2. 如果消息在当前 messages 中，一次性更新所有字段
+      if (store.messages.some((m) => m.id === messageId)) {
+        useChatStore.setState((state) => ({
+          messages: state.messages.map((msg) =>
+            msg.id === messageId
+              ? {
+                  ...msg,
+                  content: newContent,
+                  reasoningContent: newReasoningContent,
+                  isReasoningStreaming: reasoningDone ? false : msg.isReasoningStreaming
+                }
+              : msg
+          )
+        }))
       }
     }
 

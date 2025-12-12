@@ -13,8 +13,7 @@ export function validateAndCleanMessages(messages: APIMessage[]): APIMessage[] {
     return true
   })
 
-  console.log(`[MessageValidator] 原始消息数: ${messages.length}`)
-  console.log(`[MessageValidator] 清理后消息数: ${cleaned.length}`)
+  // 仅在有移除操作时输出警告
   if (messages.length !== cleaned.length) {
     console.warn(`[MessageValidator] 已移除 ${messages.length - cleaned.length} 条无效消息`)
   }
@@ -30,6 +29,7 @@ export function removeConsecutiveSameRole(messages: APIMessage[]): APIMessage[] 
   if (messages.length === 0) return []
 
   const cleaned: APIMessage[] = []
+  let duplicateCount = 0
 
   for (const msg of messages) {
     const lastMsg = cleaned[cleaned.length - 1]
@@ -39,9 +39,14 @@ export function removeConsecutiveSameRole(messages: APIMessage[]): APIMessage[] 
       cleaned.push(msg)
     } else {
       // 相同角色，替换为最新的
-      console.warn(`[MessageValidator] 检测到连续的 ${msg.role} 消息，保留最后一条`)
+      duplicateCount++
       cleaned[cleaned.length - 1] = msg
     }
+  }
+
+  // 仅在有移除操作时输出警告
+  if (duplicateCount > 0) {
+    console.warn(`[MessageValidator] 移除了 ${duplicateCount} 条连续重复消息`)
   }
 
   return cleaned
@@ -75,12 +80,11 @@ export function validateMessageOrder(messages: APIMessage[]): { valid: boolean; 
  * 3. 确保消息符合 DeepSeek API 要求
  */
 export function cleanDeepSeekMessages(messages: APIMessage[]): APIMessage[] {
-  console.log(`[MessageValidator] DeepSeek 消息清理开始`)
-
   // 1. 移除 reasoning_content 字段
+  let removedReasoningCount = 0
   const withoutReasoning = messages.map((msg) => {
     if (msg.role === 'assistant' && 'reasoning_content' in msg) {
-      console.log(`[MessageValidator] 移除 assistant 消息的 reasoning_content 字段`)
+      removedReasoningCount++
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { reasoning_content, ...rest } = msg as any
       return rest
@@ -91,6 +95,12 @@ export function cleanDeepSeekMessages(messages: APIMessage[]): APIMessage[] {
   // 2. 移除连续的相同角色消息
   const cleaned = removeConsecutiveSameRole(withoutReasoning)
 
-  console.log(`[MessageValidator] DeepSeek 消息清理完成`)
+  // 仅在有实际清理操作时输出日志
+  if (removedReasoningCount > 0 || cleaned.length !== withoutReasoning.length) {
+    console.log(
+      `[MessageValidator] DeepSeek 消息清理: 移除 ${removedReasoningCount} 个推理字段, ${withoutReasoning.length - cleaned.length} 条重复消息`
+    )
+  }
+
   return cleaned
 }

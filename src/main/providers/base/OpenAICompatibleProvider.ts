@@ -74,6 +74,8 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
 
       const decoder = new TextDecoder()
       let buffer = ''
+      let hasReceivedReasoning = false // 跟踪是否收到过推理内容
+      let reasoningComplete = false // 跟踪推理是否已完成
 
       while (true) {
         const { done, value } = await reader.read()
@@ -100,13 +102,21 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
               const delta = json.choices?.[0]?.delta
               const finishReason = json.choices?.[0]?.finish_reason
 
+              // 跟踪推理内容的状态
+              if (delta?.reasoning_content) {
+                hasReceivedReasoning = true
+              } else if (hasReceivedReasoning && !reasoningComplete) {
+                // 之前有推理内容，现在没有了，说明推理阶段结束
+                reasoningComplete = true
+              }
+
               // 发送内容片段（包含推理内容）
               if (delta?.content || delta?.reasoning_content) {
                 onChunk({
                   content: delta.content || '',
                   reasoningContent: delta.reasoning_content,
                   done: false,
-                  reasoningDone: false
+                  reasoningDone: reasoningComplete
                 })
               }
 
