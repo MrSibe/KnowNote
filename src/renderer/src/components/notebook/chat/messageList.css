@@ -1,27 +1,3 @@
-/* 自定义滚动条样式 - 与对话界面背景一致 */
-.message-list-scroll::-webkit-scrollbar {
-  width: 8px;
-}
-
-.message-list-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.message-list-scroll::-webkit-scrollbar-thumb {
-  background: #374151;
-  border-radius: 4px;
-}
-
-.message-list-scroll::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
-}
-
-/* Firefox 滚动条样式 */
-.message-list-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: #374151 transparent;
-}
-
 /* 底部淡出效果 - 使用mask让文字淡出但背景清晰 */
 .message-list-fade {
   -webkit-mask-image: linear-gradient(

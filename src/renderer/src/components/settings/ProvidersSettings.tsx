@@ -1,6 +1,7 @@
 import { useState, ReactElement } from 'react'
 import { Search } from 'lucide-react'
 import ProviderConfigPanel from './ProviderConfigPanel'
+import { ScrollArea } from '../ui/scroll-area'
 
 interface ProviderConfig {
   providerName: string
@@ -162,7 +163,7 @@ export default function ProvidersSettings({
       </div>
 
       {/* 右侧配置区域 */}
-      <div className="flex-1 min-w-0 overflow-y-auto">
+      <ScrollArea className="flex-1 min-w-0">
         {activeProvider === 'deepseek' && (
           <ProviderConfigPanel
             displayName="DeepSeek"
@@ -190,7 +191,7 @@ export default function ProvidersSettings({
             onFetchModels={() => fetchModels('openai')}
           />
         )}
-      </div>
+      </ScrollArea>
     </div>
   )
 }

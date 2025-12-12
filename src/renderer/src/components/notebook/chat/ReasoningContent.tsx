@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeKatex from 'rehype-katex'
+import { ScrollArea } from '../../ui/scroll-area'
 
 interface ReasoningContentProps {
   content: string
@@ -70,34 +71,38 @@ export default function ReasoningContent({
 
       {/* 内容区域：展开时显示 */}
       {isExpanded && (
-        <div className="px-3 py-2 border-t border-border max-h-96 overflow-y-auto">
-          {content ? (
-            <div className="markdown-content text-xs text-muted-foreground">
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeHighlight, rehypeKatex]}
-                components={{
-                  a: ({ children, ...props }) => (
-                    <a target="_blank" rel="noopener noreferrer" {...props}>
-                      {children}
-                    </a>
-                  )
-                }}
-              >
-                {content}
-              </ReactMarkdown>
-              {/* 流式传输光标 */}
-              {isStreaming && (
-                <span className="inline-block w-2 h-3 ml-1 bg-muted-foreground/50 animate-pulse" />
+        <div className="border-t border-border">
+          <ScrollArea className="max-h-96">
+            <div className="px-3 py-2">
+              {content ? (
+                <div className="markdown-content text-xs text-muted-foreground">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeHighlight, rehypeKatex]}
+                    components={{
+                      a: ({ children, ...props }) => (
+                        <a target="_blank" rel="noopener noreferrer" {...props}>
+                          {children}
+                        </a>
+                      )
+                    }}
+                  >
+                    {content}
+                  </ReactMarkdown>
+                  {/* 流式传输光标 */}
+                  {isStreaming && (
+                    <span className="inline-block w-2 h-3 ml-1 bg-muted-foreground/50 animate-pulse" />
+                  )}
+                </div>
+              ) : (
+                // 空内容时显示占位符
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>思考中</span>
+                  <span className="inline-block w-2 h-3 bg-muted-foreground/50 animate-pulse" />
+                </div>
               )}
             </div>
-          ) : (
-            // 空内容时显示占位符
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>思考中</span>
-              <span className="inline-block w-2 h-3 bg-muted-foreground/50 animate-pulse" />
-            </div>
-          )}
+          </ScrollArea>
         </div>
       )}
     </div>

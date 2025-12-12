@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { useNoteStore } from '../../store/noteStore'
 import NoteEditor from './note/NoteEditor'
 import NoteList from './note/NoteList'
+import { ScrollArea } from '../ui/scroll-area'
 import type { Note } from '@/../../preload/index'
 
 // 编辑器面板子组件 - 管理编辑状态
@@ -156,9 +157,9 @@ export default function NotePanel(): ReactElement {
           </div>
 
           {/* 笔记列表 */}
-          <div className="flex-1 overflow-y-auto">
+          <ScrollArea className="flex-1">
             <NoteList notes={notes} currentNote={currentNote} onSelectNote={setCurrentNote} />
-          </div>
+          </ScrollArea>
         </>
       )}
     </div>

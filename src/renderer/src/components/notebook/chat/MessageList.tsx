@@ -2,6 +2,7 @@ import { ReactElement, useEffect, useRef } from 'react'
 import { MessageSquare } from 'lucide-react'
 import type { ChatMessage } from '../../../types/notebook'
 import MessageItem from './MessageItem'
+import { ScrollArea } from '../../ui/scroll-area'
 import './messageList.css'
 
 interface MessageListProps {
@@ -35,14 +36,16 @@ export default function MessageList({ messages }: MessageListProps): ReactElemen
 
   // 消息列表
   return (
-    <div className="h-full overflow-y-auto px-4 py-6 pb-32 message-list-scroll message-list-fade">
-      <div className="max-w-4xl mx-auto">
-        {messages.map((message) => (
-          <MessageItem key={message.id} message={message} />
-        ))}
-        {/* 滚动锚点 */}
-        <div ref={bottomRef} />
+    <ScrollArea className="h-full">
+      <div className="px-4 py-6 pb-32 message-list-fade">
+        <div className="max-w-4xl mx-auto">
+          {messages.map((message) => (
+            <MessageItem key={message.id} message={message} />
+          ))}
+          {/* 滚动锚点 */}
+          <div ref={bottomRef} />
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   )
 }

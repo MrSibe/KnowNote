@@ -3,6 +3,7 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import { Bold, Italic, Link as LinkIcon, Code, FileCode, List, ListOrdered } from 'lucide-react'
+import { ScrollArea } from '../../ui/scroll-area'
 
 interface NoteEditorProps {
   content: string
@@ -107,9 +108,11 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
       </div>
 
       {/* 编辑器内容 */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <EditorContent editor={editor} />
-      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-4">
+          <EditorContent editor={editor} />
+        </div>
+      </ScrollArea>
 
       <style>{`
         .note-editor-wrapper .toolbar-btn {

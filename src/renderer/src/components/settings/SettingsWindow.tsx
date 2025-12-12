@@ -4,6 +4,7 @@ import GeneralSettings from './GeneralSettings'
 import ProvidersSettings from './ProvidersSettings'
 import AboutSettings from './AboutSettings'
 import SettingsActionBar from './SettingsActionBar'
+import { ScrollArea } from '../ui/scroll-area'
 
 interface AppSettings {
   theme: 'light' | 'dark'
@@ -173,7 +174,9 @@ export default function SettingsWindow(): ReactElement {
         <div className="flex-1 min-w-0 flex flex-col gap-3">
           {/* 设置内容 - Island */}
           <div className="flex-1 min-h-0 bg-card rounded-xl overflow-hidden">
-            <div className="h-full overflow-y-auto p-6">{renderContent()}</div>
+            <ScrollArea className="h-full">
+              <div className="p-6">{renderContent()}</div>
+            </ScrollArea>
           </div>
 
           {/* 底部操作按钮 - Island */}
