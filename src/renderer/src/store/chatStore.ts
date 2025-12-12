@@ -174,10 +174,7 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
         // 更新消息为超时状态
         const message = state.messages.find((m) => m.id === messageId)
         if (message) {
-          state.updateMessageContent(
-            messageId,
-            cached.content || '⚠️ 消息接收超时，请重试'
-          )
+          state.updateMessageContent(messageId, cached.content || '⚠️ 消息接收超时，请重试')
         }
 
         // 清理缓存

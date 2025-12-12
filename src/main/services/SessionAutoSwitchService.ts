@@ -165,7 +165,7 @@ ${conversationText}
         (code >= 0xf900 && code <= 0xfaff) || // CJK兼容汉字
         (code >= 0x3040 && code <= 0x309f) || // 日文平假名
         (code >= 0x30a0 && code <= 0x30ff) || // 日文片假名
-        (code >= 0xac00 && code <= 0xd7af)    // 韩文
+        (code >= 0xac00 && code <= 0xd7af) // 韩文
       ) {
         chineseChars++
       } else {
@@ -174,9 +174,9 @@ ${conversationText}
     }
 
     // 分别计算各部分的token数
-    const chineseTokens = chineseChars / 1.5  // 中文：1.5字符≈1token
-    const englishTokens = englishChars / 4    // 英文：4字符≈1token
-    const codeTokens = codeChars / 3.5        // 代码：3.5字符≈1token
+    const chineseTokens = chineseChars / 1.5 // 中文：1.5字符≈1token
+    const englishTokens = englishChars / 4 // 英文：4字符≈1token
+    const codeTokens = codeChars / 3.5 // 代码：3.5字符≈1token
 
     return Math.ceil(chineseTokens + englishTokens + codeTokens)
   }

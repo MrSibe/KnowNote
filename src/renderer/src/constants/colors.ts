@@ -8,7 +8,7 @@ export const NOTEBOOK_COVER_COLORS = [
   '#ec4899', // 粉色
   '#f59e0b', // 橙色
   '#10b981', // 绿色
-  '#06b6d4'  // 青色
+  '#06b6d4' // 青色
 ] as const
 
 /**

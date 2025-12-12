@@ -63,9 +63,7 @@ export class ProviderManager {
             return provider
           }
         } else {
-          console.warn(
-            `[ProviderManager] 默认模型对应的 Provider "${providerName}" 未启用或不存在`
-          )
+          console.warn(`[ProviderManager] 默认模型对应的 Provider "${providerName}" 未启用或不存在`)
         }
       }
 

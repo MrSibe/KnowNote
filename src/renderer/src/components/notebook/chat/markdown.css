@@ -126,7 +126,7 @@
 }
 
 .markdown-content a:hover {
-  color: var(--primary)/80;
+  color: var(--primary) / 80;
 }
 
 /* 分割线 */

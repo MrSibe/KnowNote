@@ -187,4 +187,3 @@ export function updateMessageContent(messageId: string, content: string) {
 
   db.update(chatMessages).set({ content }).where(eq(chatMessages.id, messageId)).run()
 }
-
