@@ -2,6 +2,7 @@ import { ipcMain, IpcMainInvokeEvent } from 'electron'
 import * as queries from '../db/queries'
 import { ProviderManager } from '../providers/ProviderManager'
 import { SessionAutoSwitchService } from '../services/SessionAutoSwitchService'
+import { validateAndCleanMessages } from '../utils/messageValidator'
 
 /**
  * 注册聊天相关的 IPC Handlers
@@ -47,10 +48,22 @@ export function registerChatHandlers(
 
       // 3. 获取历史消息作为上下文
       const history = queries.getMessagesBySession(sessionId)
-      const messages = history.map((m: any) => ({
+      let messages = history.map((m: any) => ({
         role: m.role as 'user' | 'assistant' | 'system',
         content: m.content
       }))
+
+      // 3.1 通用消息清理（过滤空消息和无效格式）
+      messages = validateAndCleanMessages(messages)
+
+      // 验证清理后是否还有有效消息
+      if (messages.length === 0) {
+        event.sender.send('message-error', {
+          messageId: assistantMessage.id,
+          error: '没有有效的对话历史'
+        })
+        return assistantMessage.id
+      }
 
       // 4. 调用 AI Provider 流式生成
       const provider = await providerManager.getActiveProvider()
@@ -63,6 +76,7 @@ export function registerChatHandlers(
       }
 
       let fullContent = ''
+      let fullReasoningContent = ''
       let usageMetadata: any = null
 
       provider.sendMessageStream(
@@ -70,6 +84,11 @@ export function registerChatHandlers(
         // onChunk
         (chunk) => {
           fullContent += chunk.content
+
+          // 累积推理内容
+          if (chunk.reasoningContent) {
+            fullReasoningContent += chunk.reasoningContent
+          }
 
           // 保存 metadata（包含 token 使用信息）
           if (chunk.metadata) {
@@ -79,7 +98,9 @@ export function registerChatHandlers(
           event.sender.send('message-chunk', {
             messageId: assistantMessage.id,
             chunk: chunk.content,
-            done: chunk.done
+            reasoningChunk: chunk.reasoningContent,
+            done: chunk.done,
+            reasoningDone: chunk.reasoningDone
           })
         },
         // onError
@@ -92,8 +113,8 @@ export function registerChatHandlers(
         // onComplete
         async () => {
           try {
-            // 更新数据库中的完整内容
-            queries.updateMessageContent(assistantMessage.id, fullContent)
+            // 更新数据库中的完整内容（包含推理内容）
+            queries.updateMessageContent(assistantMessage.id, fullContent, fullReasoningContent)
 
             // 计算 token 使用量
             let tokensUsed = 0

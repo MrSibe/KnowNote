@@ -14,8 +14,11 @@ interface ChatStore {
   // 流式消息状态：按notebookId管理
   streamingMessages: Record<string, string>
 
-  // messageId -> {notebookId, content} 映射，用于切换notebook后仍能清理流式状态和恢复内容
-  messageToNotebook: Record<string, { notebookId: string; content: string }>
+  // messageId -> {notebookId, content, reasoningContent} 映射，用于切换notebook后仍能清理流式状态和恢复内容
+  messageToNotebook: Record<
+    string,
+    { notebookId: string; content: string; reasoningContent: string }
+  >
 
   // Actions
   setCurrentSession: (session: ChatSession | null) => void
@@ -24,6 +27,7 @@ interface ChatStore {
 
   addMessage: (message: ChatMessage) => void
   updateMessageContent: (messageId: string, content: string) => void
+  updateMessageReasoningContent: (messageId: string, reasoningContent: string) => void
   setStreamingMessage: (notebookId: string, messageId: string | null) => void
   isNotebookStreaming: (notebookId: string) => boolean
 
@@ -56,6 +60,13 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
       messages: state.messages.map((msg) => (msg.id === messageId ? { ...msg, content } : msg))
     })),
 
+  updateMessageReasoningContent: (messageId, reasoningContent) =>
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        msg.id === messageId ? { ...msg, reasoningContent } : msg
+      )
+    })),
+
   setStreamingMessage: (notebookId, messageId) =>
     set((state) => {
       const newStreamingMessages = { ...state.streamingMessages }
@@ -72,7 +83,8 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
         streamingMessages: newStreamingMessages,
         messages: state.messages.map((msg) => ({
           ...msg,
-          isStreaming: msg.id === messageId && !!messageId
+          isStreaming: msg.id === messageId && !!messageId,
+          isReasoningStreaming: msg.id === messageId && !!messageId
         }))
       }
     }),
@@ -148,24 +160,26 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
     // 3. 发送消息并获取 assistant messageId
     const messageId = await window.api.sendMessage(sessionId, content)
 
-    // 4. 添加 assistant 消息占位符
+    // 4. 添加 assistant 消息占位符（包含推理字段）
     const assistantMessage: ChatMessage = {
       id: messageId,
       sessionId,
       notebookId,
       role: 'assistant',
       content: '',
+      reasoningContent: '',
       createdAt: Date.now(),
-      isStreaming: true
+      isStreaming: true,
+      isReasoningStreaming: true
     }
     get().addMessage(assistantMessage)
     get().setStreamingMessage(notebookId, messageId)
 
-    // 5. 初始化缓存，记录 messageId -> {notebookId, content}
+    // 5. 初始化缓存，记录 messageId -> {notebookId, content, reasoningContent}
     set((state) => ({
       messageToNotebook: {
         ...state.messageToNotebook,
-        [messageId]: { notebookId, content: '' }
+        [messageId]: { notebookId, content: '', reasoningContent: '' }
       }
     }))
   }
@@ -179,17 +193,23 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 export function setupChatListeners() {
   // 监听流式消息片段
   const cleanupChunk = window.api.onMessageChunk((data) => {
-    const { messageId, chunk, done } = data
+    const { messageId, chunk, reasoningChunk, done } = data
     const store = useChatStore.getState()
 
     // 1. 先更新缓存（即使消息不在当前 messages 中也要缓存）
     const cached = store.messageToNotebook[messageId]
     if (cached) {
       const newContent = cached.content + chunk
+      const newReasoningContent = cached.reasoningContent + (reasoningChunk || '')
+
       useChatStore.setState((state) => ({
         messageToNotebook: {
           ...state.messageToNotebook,
-          [messageId]: { ...cached, content: newContent }
+          [messageId]: {
+            ...cached,
+            content: newContent,
+            reasoningContent: newReasoningContent
+          }
         }
       }))
 
@@ -197,6 +217,7 @@ export function setupChatListeners() {
       const message = store.messages.find((m) => m.id === messageId)
       if (message) {
         store.updateMessageContent(messageId, newContent)
+        store.updateMessageReasoningContent(messageId, newReasoningContent)
       }
     }
 

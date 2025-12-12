@@ -15,6 +15,13 @@
       "when": 1765432134663,
       "tag": "0001_boring_valkyrie",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1765523835472,
+      "tag": "0002_ambitious_blink",
+      "breakpoints": true
     }
   ]
 }

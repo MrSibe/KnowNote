@@ -5,6 +5,7 @@ import remarkMath from 'remark-math'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeKatex from 'rehype-katex'
 import type { ChatMessage } from '../../../types/notebook'
+import ReasoningContent from './ReasoningContent'
 import 'highlight.js/styles/github-dark.css'
 import 'katex/dist/katex.min.css'
 import './markdown.css'
@@ -106,6 +107,14 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
   return (
     <div className="flex justify-start mb-4 group">
       <div className="flex flex-col max-w-[90%]">
+        {/* 推理过程显示 - 只有当有 reasoning 内容时才显示 */}
+        {message.reasoningContent && (
+          <ReasoningContent
+            content={message.reasoningContent}
+            isStreaming={message.isReasoningStreaming || false}
+          />
+        )}
+
         {message.content ? (
           <div className="markdown-content text-foreground px-2">
             <ReactMarkdown

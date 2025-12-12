@@ -56,7 +56,13 @@ declare global {
 
       // 流式消息监听
       onMessageChunk: (
-        callback: (data: { messageId: string; chunk: string; done: boolean }) => void
+        callback: (data: {
+          messageId: string
+          chunk: string
+          reasoningChunk?: string
+          done: boolean
+          reasoningDone?: boolean
+        }) => void
       ) => () => void
       onMessageError: (callback: (data: { messageId: string; error: string }) => void) => () => void
 

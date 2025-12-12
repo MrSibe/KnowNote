@@ -39,6 +39,7 @@ export const chatMessages = sqliteTable(
       .references(() => chatSessions.id, { onDelete: 'cascade' }),
     role: text('role', { enum: ['user', 'assistant', 'system'] }).notNull(),
     content: text('content').notNull(),
+    reasoningContent: text('reasoning_content'), // DeepSeek Reasoner 推理过程内容
     metadata: text('metadata', { mode: 'json' }).$type<Record<string, any>>(),
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
   },

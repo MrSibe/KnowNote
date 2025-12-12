@@ -182,8 +182,17 @@ export function getMessagesBySession(sessionId: string) {
  * 更新消息内容
  * 主要用于更新流式消息的完整内容
  */
-export function updateMessageContent(messageId: string, content: string) {
+export function updateMessageContent(
+  messageId: string,
+  content: string,
+  reasoningContent?: string
+) {
   const db = getDatabase()
 
-  db.update(chatMessages).set({ content }).where(eq(chatMessages.id, messageId)).run()
+  const updateData: any = { content }
+  if (reasoningContent !== undefined) {
+    updateData.reasoningContent = reasoningContent
+  }
+
+  db.update(chatMessages).set(updateData).where(eq(chatMessages.id, messageId)).run()
 }

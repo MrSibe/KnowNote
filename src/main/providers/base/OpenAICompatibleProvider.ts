@@ -100,11 +100,13 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
               const delta = json.choices?.[0]?.delta
               const finishReason = json.choices?.[0]?.finish_reason
 
-              // 发送内容片段
-              if (delta?.content) {
+              // 发送内容片段（包含推理内容）
+              if (delta?.content || delta?.reasoning_content) {
                 onChunk({
-                  content: delta.content,
-                  done: false
+                  content: delta.content || '',
+                  reasoningContent: delta.reasoning_content,
+                  done: false,
+                  reasoningDone: false
                 })
               }
 
@@ -112,7 +114,9 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
               if (finishReason) {
                 onChunk({
                   content: '',
+                  reasoningContent: undefined,
                   done: true,
+                  reasoningDone: true,
                   metadata: {
                     model: json.model,
                     finishReason,
