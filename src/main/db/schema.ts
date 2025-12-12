@@ -83,3 +83,28 @@ export type NewChatSession = typeof chatSessions.$inferInsert
 
 export type ChatMessage = typeof chatMessages.$inferSelect
 export type NewChatMessage = typeof chatMessages.$inferInsert
+
+/**
+ * 笔记表
+ * 存储每个笔记本下的笔记
+ */
+export const notes = sqliteTable(
+  'notes',
+  {
+    id: text('id').primaryKey(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    content: text('content').notNull(),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    // 优化按笔记本查询笔记的性能
+    notebookIdx: index('idx_notes_notebook').on(table.notebookId, table.updatedAt)
+  })
+)
+
+export type Note = typeof notes.$inferSelect
+export type NewNote = typeof notes.$inferInsert

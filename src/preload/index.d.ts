@@ -16,6 +16,18 @@ export interface Notebook {
 }
 
 /**
+ * 笔记接口
+ */
+export interface Note {
+  id: string
+  notebookId: string
+  title: string
+  content: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
  * Provider 配置接口
  */
 export interface ProviderConfig {
@@ -63,6 +75,13 @@ declare global {
         updates: Partial<Pick<Notebook, 'title' | 'description'>>
       ) => Promise<void>
       deleteNotebook: (id: string) => Promise<void>
+
+      // Note 相关
+      createNote: (notebookId: string, content: string, customTitle?: string) => Promise<Note>
+      getNotes: (notebookId: string) => Promise<Note[]>
+      getNote: (id: string) => Promise<Note | null>
+      updateNote: (id: string, updates: Partial<Pick<Note, 'title' | 'content'>>) => Promise<void>
+      deleteNote: (id: string) => Promise<void>
 
       // Chat Session 相关
       createChatSession: (notebookId: string, title: string) => Promise<ChatSession>

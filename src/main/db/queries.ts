@@ -1,6 +1,6 @@
 import { eq, desc, and } from 'drizzle-orm'
 import { getDatabase, executeCheckpoint } from './index'
-import { chatSessions, chatMessages, notebooks } from './schema'
+import { chatSessions, chatMessages, notebooks, notes } from './schema'
 
 // ==================== Chat Sessions ====================
 
@@ -283,4 +283,74 @@ export function deleteNotebook(id: string) {
     console.error('[Database] Error deleting notebook:', error)
     throw error
   }
+}
+
+// ==================== Notes ====================
+
+/**
+ * 创建新笔记
+ */
+export function createNote(notebookId: string, title: string, content: string) {
+  const db = getDatabase()
+  const id = `note_${Date.now()}_${Math.random().toString(36).slice(2)}`
+  const now = new Date()
+
+  const note = db
+    .insert(notes)
+    .values({
+      id,
+      notebookId,
+      title,
+      content,
+      createdAt: now,
+      updatedAt: now
+    })
+    .returning()
+    .get()
+
+  console.log(`[Database] Created note: ${id}`)
+  return note
+}
+
+/**
+ * 获取指定笔记本的所有笔记
+ * 按更新时间倒序排列
+ */
+export function getNotesByNotebook(notebookId: string) {
+  const db = getDatabase()
+  return db
+    .select()
+    .from(notes)
+    .where(eq(notes.notebookId, notebookId))
+    .orderBy(desc(notes.updatedAt))
+    .all()
+}
+
+/**
+ * 根据ID获取单个笔记
+ */
+export function getNoteById(id: string) {
+  const db = getDatabase()
+  return db.select().from(notes).where(eq(notes.id, id)).get()
+}
+
+/**
+ * 更新笔记内容
+ */
+export function updateNote(id: string, updates: Partial<{ title: string; content: string }>) {
+  const db = getDatabase()
+  db.update(notes)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(notes.id, id))
+    .run()
+  console.log(`[Database] Updated note: ${id}`)
+}
+
+/**
+ * 删除笔记
+ */
+export function deleteNote(id: string) {
+  const db = getDatabase()
+  db.delete(notes).where(eq(notes.id, id)).run()
+  console.log(`[Database] Deleted note: ${id}`)
 }

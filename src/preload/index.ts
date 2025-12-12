@@ -47,6 +47,14 @@ const api = {
   updateNotebook: (id: string, updates: any) => ipcRenderer.invoke('update-notebook', id, updates),
   deleteNotebook: (id: string) => ipcRenderer.invoke('delete-notebook', id),
 
+  // Note 相关
+  createNote: (notebookId: string, content: string, customTitle?: string) =>
+    ipcRenderer.invoke('create-note', notebookId, content, customTitle),
+  getNotes: (notebookId: string) => ipcRenderer.invoke('get-notes', notebookId),
+  getNote: (id: string) => ipcRenderer.invoke('get-note', id),
+  updateNote: (id: string, updates: any) => ipcRenderer.invoke('update-note', id, updates),
+  deleteNote: (id: string) => ipcRenderer.invoke('delete-note', id),
+
   // Chat Session 相关
   createChatSession: (notebookId: string, title: string) =>
     ipcRenderer.invoke('create-chat-session', notebookId, title),

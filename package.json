@@ -27,6 +27,9 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@tiptap/pm": "^3.13.0",
+    "@tiptap/react": "^3.13.0",
+    "@tiptap/starter-kit": "^3.13.0",
     "better-sqlite3": "^12.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -43,6 +46,7 @@
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "tailwind-merge": "^3.4.0",
+    "tiptap-markdown": "^0.9.0",
     "zustand": "^5.0.9"
   },
   "devDependencies": {
@@ -75,6 +79,7 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "better-sqlite3",
       "electron",
       "esbuild"
     ]
