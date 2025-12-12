@@ -30,10 +30,10 @@ function NoteEditorPanel({ note, isSaving, onSave, onDelete, onBack }: NoteEdito
         className="h-14 flex items-center justify-between px-4 border-b border-border/50"
         style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       >
-        <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           <button
             onClick={onBack}
-            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors flex-shrink-0"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             title="返回列表"
           >
@@ -43,13 +43,13 @@ function NoteEditorPanel({ note, isSaving, onSave, onDelete, onBack }: NoteEdito
             type="text"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="flex-1 bg-transparent text-sm font-medium outline-none"
+            className="flex-1 min-w-0 bg-transparent text-sm font-medium outline-none"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             placeholder="笔记标题"
           />
         </div>
         <div
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 flex-shrink-0"
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
           <button
