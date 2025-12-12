@@ -1,6 +1,6 @@
 /* Markdown 内容样式 */
 .markdown-content {
-  color: rgb(229, 231, 235);
+  color: var(--foreground);
   font-size: 0.875rem;
   line-height: 1.75;
 }
@@ -83,11 +83,11 @@
 
 /* 引用块 */
 .markdown-content blockquote {
-  border-left: 4px solid rgb(75, 85, 99);
+  border-left: 4px solid var(--border);
   padding-left: 1rem;
   margin: 1rem 0;
   font-style: italic;
-  color: rgb(209, 213, 219);
+  color: var(--muted-foreground);
 }
 
 .markdown-content blockquote > p {
@@ -96,16 +96,16 @@
 
 /* 代码样式 */
 .markdown-content code {
-  background-color: #1a1a1a;
-  color: rgb(96, 165, 250);
+  background-color: var(--muted);
+  color: var(--primary);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .markdown-content pre {
-  background-color: #1a1a1a;
+  background-color: var(--muted);
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
@@ -121,18 +121,18 @@
 
 /* 链接样式 */
 .markdown-content a {
-  color: rgb(96, 165, 250);
+  color: var(--primary);
   text-decoration: underline;
 }
 
 .markdown-content a:hover {
-  color: rgb(147, 197, 253);
+  color: var(--primary)/80;
 }
 
 /* 分割线 */
 .markdown-content hr {
   border: 0;
-  border-top: 1px solid rgb(75, 85, 99);
+  border-top: 1px solid var(--border);
   margin: 1.5rem 0;
 }
 
@@ -141,21 +141,21 @@
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
-  border: 1px solid rgb(75, 85, 99);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   overflow: hidden;
 }
 
 .markdown-content th {
-  background-color: #1a1a1a;
-  border: 1px solid rgb(75, 85, 99);
+  background-color: var(--muted);
+  border: 1px solid var(--border);
   padding: 0.5rem 1rem;
   text-align: left;
   font-weight: 600;
 }
 
 .markdown-content td {
-  border: 1px solid rgb(75, 85, 99);
+  border: 1px solid var(--border);
   padding: 0.5rem 1rem;
 }
 

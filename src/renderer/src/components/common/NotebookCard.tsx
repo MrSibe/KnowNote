@@ -66,7 +66,7 @@ export default function NotebookCard({
   return (
     <div
       onClick={onClick}
-      className="group relative bg-[#1a1a1a] rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-[#222222] hover:scale-[1.02] border border-border/50 hover:border-gray-700 overflow-hidden"
+      className="group relative bg-card rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-card/90 hover:scale-[1.02] border border-border/50 hover:border-border overflow-hidden"
     >
       {/* 顶部彩色装饰条 */}
       <div
@@ -78,23 +78,23 @@ export default function NotebookCard({
       <div className="absolute top-4 right-4" ref={menuRef}>
         <button
           onClick={handleMenuClick}
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-card hover:bg-[#333333] transition-colors opacity-0 group-hover:opacity-100"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-card hover:bg-accent transition-colors opacity-0 group-hover:opacity-100"
         >
           <MoreVertical className="w-4 h-4 text-muted-foreground" />
         </button>
 
         {/* 下拉菜单 */}
         {showMenu && (
-          <div className="absolute top-10 right-0 w-40 bg-card rounded-lg shadow-lg border border-gray-700 overflow-hidden z-10">
+          <div className="absolute top-10 right-0 w-40 bg-card rounded-lg shadow-lg border border-border overflow-hidden z-10">
             <button
               onClick={handleRename}
-              className="w-full px-4 py-2.5 text-left text-sm text-gray-200 hover:bg-[#333333] transition-colors"
+              className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-accent transition-colors"
             >
               重命名笔记本
             </button>
             <button
               onClick={handleDelete}
-              className="w-full px-4 py-2.5 text-left text-sm text-red-400 hover:bg-[#333333] transition-colors"
+              className="w-full px-4 py-2.5 text-left text-sm text-destructive hover:bg-accent transition-colors"
             >
               删除笔记本
             </button>

@@ -69,7 +69,7 @@ export default function TopNavigationBar({
           disabled={isHomePage}
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
           className={`flex items-center gap-2 px-3 py-1 rounded-lg transition-colors text-sm h-7 ${
-            isHomePage ? 'bg-[#2a2a2a] cursor-default' : 'bg-[#2a2a2a] hover:bg-[#333333]'
+            isHomePage ? 'bg-card cursor-default' : 'bg-card hover:bg-accent'
           }`}
         >
           <Home className="w-4 h-4" />
@@ -85,7 +85,7 @@ export default function TopNavigationBar({
               onClick={() => handleOpenedNotebookClick(notebook.id)}
               style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
               className={`flex items-center gap-1 px-3 py-1 rounded-lg text-sm h-7 transition-colors ${
-                isActive && !isHomePage ? 'bg-[#2a2a2a]' : 'bg-[#2a2a2a] hover:bg-[#333333]'
+                isActive && !isHomePage ? 'bg-card' : 'bg-card hover:bg-accent'
               }`}
             >
               <span className="max-w-[200px] truncate">{notebook.title}</span>
@@ -95,10 +95,10 @@ export default function TopNavigationBar({
                   handleCloseOpenedNotebook(notebook.id)
                 }}
                 style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-                className="ml-2 p-1 hover:bg-[#3a3a3a] rounded transition-colors"
+                className="ml-2 p-1 hover:bg-accent rounded transition-colors"
                 title="关闭标签"
               >
-                <X className="w-3.5 h-3.5 text-muted-foreground hover:text-gray-200" />
+                <X className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
               </button>
             </button>
           )

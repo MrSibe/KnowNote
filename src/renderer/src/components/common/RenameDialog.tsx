@@ -49,7 +49,7 @@ export default function RenameDialog({
       onClick={onClose}
     >
       <div
-        className="bg-[#1a1a1a] rounded-2xl p-8 w-[440px] border border-gray-800/50 shadow-2xl"
+        className="bg-card rounded-2xl p-8 w-[440px] border border-border shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-xl font-semibold text-foreground mb-6">重命名笔记本</h3>
@@ -61,7 +61,7 @@ export default function RenameDialog({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full bg-card border border-border rounded-lg px-4 py-3 text-foreground text-base focus:outline-none focus:border-blue-500 transition-colors placeholder-gray-500"
+            className="w-full bg-card border border-border rounded-lg px-4 py-3 text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring transition-colors placeholder-muted-foreground"
             placeholder="请输入笔记本名称"
           />
 
@@ -69,14 +69,14 @@ export default function RenameDialog({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 bg-card hover:bg-[#333333] rounded-lg transition-colors text-gray-300 text-sm font-medium"
+              className="px-6 py-2.5 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors text-secondary-foreground text-sm font-medium"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={!title.trim() || title === currentTitle}
-              className="px-6 py-2.5 bg-primary hover:bg-primary/90 disabled:bg-secondary disabled:cursor-not-allowed disabled:text-muted-foreground rounded-lg transition-colors text-white text-sm font-medium"
+              className="px-6 py-2.5 bg-primary hover:bg-primary/90 disabled:bg-secondary disabled:cursor-not-allowed disabled:text-muted-foreground rounded-lg transition-colors text-primary-foreground text-sm font-medium"
             >
               确认
             </button>

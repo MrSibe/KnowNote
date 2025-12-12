@@ -150,7 +150,7 @@ export default function SettingsWindow(): ReactElement {
                   className={`w-full p-3 rounded-lg text-left transition-colors ${
                     activeSection === item.id
                       ? 'bg-accent text-foreground'
-                      : 'hover:bg-accent text-muted-foreground'
+                      : 'hover:bg-accent/50 text-muted-foreground'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -168,7 +168,7 @@ export default function SettingsWindow(): ReactElement {
           {/* 设置内容 - Island */}
           <div className="flex-1 bg-card rounded-xl overflow-hidden">
             <div className="h-full overflow-y-auto p-6">
-              <div className="max-w-4xl">{renderContent()}</div>
+              <div className="max-w-5xl">{renderContent()}</div>
             </div>
           </div>
 

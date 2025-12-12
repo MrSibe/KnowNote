@@ -43,12 +43,12 @@ export default function ProcessPanel(): ReactElement {
       <div className="absolute top-14 bottom-0 left-0 right-0">
         <MessageList messages={messages} />
         {/* 底部渐变遮罩 - 创造输入框浮动效果 */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#171717] via-[#171717]/80 to-transparent pointer-events-none z-10" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-10" />
       </div>
 
       {/* 底部输入区域 - 绝对定位浮动在底部 */}
       <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none flex-shrink-0 z-20">
-        <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:border-gray-600 shadow-xl pointer-events-auto">
+        <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:ring-2 focus-within:ring-ring shadow-xl pointer-events-auto">
           {/* 多行输入框 */}
           <textarea
             value={input}
@@ -66,7 +66,7 @@ export default function ProcessPanel(): ReactElement {
             disabled={!canSend}
             className="absolute right-2 bottom-3 p-2 bg-primary hover:bg-primary/90 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary"
           >
-            <Send className="w-4 h-4 text-white" />
+            <Send className="w-4 h-4 text-primary-foreground" />
           </button>
         </div>
       </div>

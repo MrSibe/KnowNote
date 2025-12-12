@@ -34,8 +34,8 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
   if (isSystem) {
     return (
       <div className="flex justify-center mb-4">
-        <div className="max-w-[90%] bg-amber-900/30 border border-amber-700/50 text-amber-200 rounded-xl px-4 py-3">
-          <div className="prose prose-invert prose-sm max-w-none">
+        <div className="max-w-[90%] bg-muted border border-border text-muted-foreground rounded-xl px-4 py-3">
+          <div className="prose prose-sm max-w-none">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -62,7 +62,7 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
     return (
       <div className="flex justify-end mb-4 group">
         <div className="flex flex-col max-w-[80%]">
-          <div className="bg-primary text-white rounded-2xl px-4 py-3">
+          <div className="bg-primary text-primary-foreground rounded-2xl px-4 py-3">
             <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
           </div>
           {/* 复制按钮 */}
@@ -124,14 +124,14 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
             </ReactMarkdown>
             {/* 流式消息光标 */}
             {isStreaming && (
-              <span className="inline-block w-2 h-4 ml-1 bg-gray-400 animate-pulse" />
+              <span className="inline-block w-2 h-4 ml-1 bg-muted-foreground animate-pulse" />
             )}
           </div>
         ) : (
           // 空消息时显示光标
           <div className="flex items-center gap-2 px-2">
             <span className="text-sm text-muted-foreground">正在思考</span>
-            <span className="inline-block w-2 h-4 bg-gray-400 animate-pulse" />
+            <span className="inline-block w-2 h-4 bg-muted-foreground animate-pulse" />
           </div>
         )}
         {/* 复制按钮 - 仅在回复完成且有内容时显示 */}
