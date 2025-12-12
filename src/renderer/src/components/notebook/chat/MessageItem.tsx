@@ -27,18 +27,18 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
   const { createNote } = useNoteStore()
   const { currentNotebook } = useNotebookStore()
 
-  // 复制消息内容
+  // Copy message content
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(message.content)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
-      console.error('复制失败:', error)
+      console.error('Failed to copy:', error)
     }
   }
 
-  // 添加到笔记
+  // Add to note
   const handleAddToNote = async () => {
     if (!currentNotebook) return
 
@@ -47,11 +47,11 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
       setAddedToNote(true)
       setTimeout(() => setAddedToNote(false), 2000)
     } catch (error) {
-      console.error('添加到笔记失败:', error)
+      console.error('Failed to add to note:', error)
     }
   }
 
-  // 系统消息：居中显示的提示框
+  // System message: centered notification box
   if (isSystem) {
     return (
       <div className="flex justify-center mb-4">
@@ -79,14 +79,14 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
   }
 
   if (isUser) {
-    // 用户消息:蓝色背景,右对齐
+    // User message: blue background, right-aligned
     return (
       <div className="flex justify-end mb-4 group">
         <div className="flex flex-col max-w-[80%]">
           <div className="bg-primary text-primary-foreground rounded-2xl px-4 py-3">
             <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
           </div>
-          {/* 复制按钮 */}
+          {/* Copy button */}
           <button
             onClick={handleCopy}
             className="self-end mt-1 px-2 py-1 text-xs text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
@@ -123,11 +123,11 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
     )
   }
 
-  // AI 消息:无背景,左对齐,Markdown 渲染
+  // AI message: no background, left-aligned, Markdown rendered
   return (
     <div className="flex justify-start mb-4 group">
       <div className="flex flex-col max-w-[90%]">
-        {/* 推理过程显示 - 只有当有 reasoning 内容时才显示 */}
+        {/* Reasoning process display - only shown when reasoning content exists */}
         {message.reasoningContent && (
           <ReasoningContent
             content={message.reasoningContent}
@@ -141,7 +141,7 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeHighlight, rehypeKatex]}
               components={{
-                // 链接：在新标签页打开
+                // Links: open in new tab
                 a: ({ children, ...props }) => (
                   <a target="_blank" rel="noopener noreferrer" {...props}>
                     {children}
@@ -151,22 +151,22 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
             >
               {message.content}
             </ReactMarkdown>
-            {/* 流式消息光标 */}
+            {/* Streaming message cursor */}
             {isStreaming && (
               <span className="inline-block w-2 h-4 ml-1 bg-muted-foreground animate-pulse" />
             )}
           </div>
         ) : (
-          // 空消息时显示光标
+          // Show cursor when message is empty
           <div className="flex items-center gap-2 px-2">
             <span className="text-sm text-muted-foreground">正在思考</span>
             <span className="inline-block w-2 h-4 bg-muted-foreground animate-pulse" />
           </div>
         )}
-        {/* 操作按钮 - 仅在回复完成且有内容时显示 */}
+        {/* Action buttons - only shown when reply is complete and has content */}
         {message.content && !isStreaming && (
           <div className="flex items-center gap-2 self-start ml-2 mt-1">
-            {/* 复制按钮 */}
+            {/* Copy button */}
             <button
               onClick={handleCopy}
               className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
@@ -199,7 +199,7 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
               )}
             </button>
 
-            {/* 添加到笔记按钮 */}
+            {/* Add to note button */}
             <button
               onClick={handleAddToNote}
               className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"

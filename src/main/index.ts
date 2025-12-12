@@ -5,10 +5,11 @@ import { ProviderManager } from './providers/ProviderManager'
 import { SessionAutoSwitchService } from './services/SessionAutoSwitchService'
 import { createMainWindow, createSettingsWindow, destroySettingsWindow } from './windows'
 import { registerAllHandlers } from './ipc'
+import Logger from '../shared/utils/logger'
 
 let providerManager: ProviderManager | null = null
 let sessionAutoSwitchService: SessionAutoSwitchService | null = null
-let isQuitting = false // 标记应用是否正在退出
+let isQuitting = false // Flag to indicate if app is quitting
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -24,34 +25,36 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // 初始化数据库
-  console.log('[Main] 初始化数据库...')
+  // Initialize database
+  Logger.info('Main', 'Initializing database...')
   initDatabase()
   runMigrations()
-  console.log('[Main] 数据库初始化完成')
+  Logger.info('Main', 'Database initialized')
 
-  // 初始化 Provider Manager
-  console.log('[Main] 初始化 Provider Manager...')
+  // Initialize Provider Manager
+  Logger.info('Main', 'Initializing Provider Manager...')
   providerManager = new ProviderManager()
-  console.log('[Main] Provider Manager 初始化完成')
+  Logger.info('Main', 'Provider Manager initialized')
 
-  // 初始化 Session 自动切换服务
-  console.log('[Main] 初始化 Session 自动切换服务...')
+  // Initialize Session Auto Switch Service
+  Logger.info('Main', 'Initializing Session Auto Switch Service...')
   sessionAutoSwitchService = new SessionAutoSwitchService(providerManager)
-  console.log('[Main] Session 自动切换服务初始化完成')
+  Logger.info('Main', 'Session Auto Switch Service initialized')
 
-  // 注册所有 IPC Handlers
+  // Register all IPC Handlers
   registerAllHandlers(providerManager, sessionAutoSwitchService)
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // IPC test (development only)
+  if (process.env.NODE_ENV === 'development') {
+    ipcMain.on('ping', () => console.log('pong'))
+  }
 
-  // 处理打开设置窗口的请求
+  // Handle open settings window request
   ipcMain.handle('open-settings', () => {
     createSettingsWindow()
   })
 
-  // 创建主窗口
+  // Create main window
   createMainWindow()
 
   app.on('activate', function () {
@@ -61,54 +64,54 @@ app.whenReady().then(() => {
   })
 })
 
-// 处理窗口全部关闭事件
+// Handle window all closed event
 app.on('window-all-closed', () => {
-  console.log('[Main] All windows closed')
+  Logger.info('Main', 'All windows closed')
 
   if (process.platform === 'darwin') {
-    // macOS 特殊处理：窗口关闭但应用不退出时，执行 checkpoint 保护数据
-    console.log('[Main] macOS: Executing checkpoint on window close...')
+    // macOS specific: Execute checkpoint when window closes but app stays running
+    Logger.debug('Main', 'macOS: Executing checkpoint on window close...')
     executeCheckpoint('PASSIVE')
 
-    // 可选：如果希望 macOS 上关闭窗口也退出应用，取消下面的注释
+    // Optional: Uncomment to also quit app when window closes on macOS
     // app.quit()
   } else {
-    // 其他平台：窗口关闭即退出应用
+    // Other platforms: Quit app when window closes
     app.quit()
   }
 })
 
-// 第一道防线：before-quit 事件（用户主动退出）
+// First line of defense: before-quit event (user initiated quit)
 app.on('before-quit', () => {
   if (isQuitting) return
 
-  console.log('[Main] before-quit event triggered')
+  Logger.info('Main', 'before-quit event triggered')
 
   isQuitting = true
   destroySettingsWindow()
 
-  console.log('[Main] 关闭数据库连接...')
+  Logger.info('Main', 'Closing database connection...')
   closeDatabase()
 })
 
-// 第二道防线：will-quit 事件（备份）
+// Second line of defense: will-quit event (backup)
 app.on('will-quit', () => {
   if (!isQuitting) {
-    console.log('[Main] will-quit event triggered (backup)')
+    Logger.warn('Main', 'will-quit event triggered (backup)')
     closeDatabase()
   }
 })
 
-// 第三道防线：进程信号处理（强制退出、系统关闭）
+// Third line of defense: Process signal handling (forced quit, system shutdown)
 const handleShutdown = (signal: string) => {
-  console.log(`[Main] Received ${signal}, shutting down gracefully...`)
+  Logger.warn('Main', `Received ${signal}, shutting down gracefully...`)
 
   if (!isQuitting) {
     isQuitting = true
     closeDatabase()
   }
 
-  // 给数据库 2 秒时间完成关闭
+  // Give database 2 seconds to finish closing
   setTimeout(() => {
     process.exit(0)
   }, 2000)
@@ -118,13 +121,13 @@ process.on('SIGINT', () => handleShutdown('SIGINT'))
 process.on('SIGTERM', () => handleShutdown('SIGTERM'))
 process.on('SIGHUP', () => handleShutdown('SIGHUP'))
 
-// 未捕获异常处理
+// Uncaught exception handling
 process.on('uncaughtException', (error) => {
-  console.error('[Main] Uncaught exception:', error)
+  Logger.error('Main', 'Uncaught exception:', error)
   closeDatabase()
   process.exit(1)
 })
 
 process.on('unhandledRejection', (reason) => {
-  console.error('[Main] Unhandled rejection:', reason)
+  Logger.error('Main', 'Unhandled rejection:', reason)
 })

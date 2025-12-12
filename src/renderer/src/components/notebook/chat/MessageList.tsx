@@ -22,15 +22,17 @@ export default function MessageList({ messages }: MessageListProps): ReactElemen
   // 空状态
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8">
-        <div className="flex flex-col items-center gap-4 text-muted-foreground">
-          <MessageSquare className="w-16 h-16 opacity-20" />
-          <div className="text-center">
-            <p className="text-lg font-medium mb-1">开始新对话</p>
-            <p className="text-sm">在下方输入框中输入消息开始聊天</p>
+      <ScrollArea className="h-full" viewportClassName="h-full">
+        <div className="flex min-h-full flex-col items-center justify-center p-8">
+          <div className="flex flex-col items-center gap-4 text-muted-foreground">
+            <MessageSquare className="w-16 h-16 opacity-20" />
+            <div className="text-center">
+              <p className="text-lg font-medium mb-1">开始新对话</p>
+              <p className="text-sm">在下方输入框中输入消息开始聊天</p>
+            </div>
           </div>
         </div>
-      </div>
+      </ScrollArea>
     )
   }
 

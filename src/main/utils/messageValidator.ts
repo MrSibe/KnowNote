@@ -1,8 +1,9 @@
 import type { APIMessage } from '../../shared/types/chat'
+import Logger from '../../shared/utils/logger'
 
 /**
- * 验证并清理消息数组
- * 过滤空内容的消息、undefined/null 消息，确保基本格式正确
+ * Validate and clean message array
+ * Filter empty content messages, undefined/null messages, ensure basic format is correct
  */
 export function validateAndCleanMessages(messages: APIMessage[]): APIMessage[] {
   const cleaned = messages.filter((msg) => {
@@ -13,17 +14,17 @@ export function validateAndCleanMessages(messages: APIMessage[]): APIMessage[] {
     return true
   })
 
-  // 仅在有移除操作时输出警告
+  // Only output warning when there are removals
   if (messages.length !== cleaned.length) {
-    console.warn(`[MessageValidator] 已移除 ${messages.length - cleaned.length} 条无效消息`)
+    Logger.warn('MessageValidator', `Removed ${messages.length - cleaned.length} invalid messages`)
   }
 
   return cleaned
 }
 
 /**
- * 移除连续的相同角色消息
- * 策略：保留最后一条（最新的消息）
+ * Remove consecutive same role messages
+ * Strategy: Keep the last one (newest message)
  */
 export function removeConsecutiveSameRole(messages: APIMessage[]): APIMessage[] {
   if (messages.length === 0) return []
@@ -35,37 +36,37 @@ export function removeConsecutiveSameRole(messages: APIMessage[]): APIMessage[] 
     const lastMsg = cleaned[cleaned.length - 1]
 
     if (!lastMsg || lastMsg.role !== msg.role) {
-      // 不同角色，直接添加
+      // Different roles, add directly
       cleaned.push(msg)
     } else {
-      // 相同角色，替换为最新的
+      // Same role, replace with newest
       duplicateCount++
       cleaned[cleaned.length - 1] = msg
     }
   }
 
-  // 仅在有移除操作时输出警告
+  // Only output warning when there are removals
   if (duplicateCount > 0) {
-    console.warn(`[MessageValidator] 移除了 ${duplicateCount} 条连续重复消息`)
+    Logger.warn('MessageValidator', `Removed ${duplicateCount} consecutive duplicate messages`)
   }
 
   return cleaned
 }
 
 /**
- * 验证消息顺序是否符合规范
- * 检查是否存在连续的相同角色消息
+ * Validate if message order complies with specification
+ * Check for consecutive same role messages
  */
 export function validateMessageOrder(messages: APIMessage[]): { valid: boolean; error?: string } {
   if (messages.length === 0) {
-    return { valid: false, error: '消息数组为空' }
+    return { valid: false, error: 'Message array is empty' }
   }
 
   for (let i = 1; i < messages.length; i++) {
     if (messages[i].role === messages[i - 1].role) {
       return {
         valid: false,
-        error: `消息索引 ${i} 处存在连续的 ${messages[i].role} 消息`
+        error: `Consecutive ${messages[i].role} messages found at index ${i}`
       }
     }
   }
@@ -74,13 +75,13 @@ export function validateMessageOrder(messages: APIMessage[]): { valid: boolean; 
 }
 
 /**
- * 清理 DeepSeek 消息
- * 1. 移除 reasoning_content 字段（如果存在）
- * 2. 移除连续的相同角色消息
- * 3. 确保消息符合 DeepSeek API 要求
+ * Clean DeepSeek messages
+ * 1. Remove reasoning_content field (if exists)
+ * 2. Remove consecutive same role messages
+ * 3. Ensure messages comply with DeepSeek API requirements
  */
 export function cleanDeepSeekMessages(messages: APIMessage[]): APIMessage[] {
-  // 1. 移除 reasoning_content 字段
+  // 1. Remove reasoning_content field
   let removedReasoningCount = 0
   const withoutReasoning = messages.map((msg) => {
     if (msg.role === 'assistant' && 'reasoning_content' in msg) {
@@ -92,13 +93,14 @@ export function cleanDeepSeekMessages(messages: APIMessage[]): APIMessage[] {
     return msg
   })
 
-  // 2. 移除连续的相同角色消息
+  // 2. Remove consecutive same role messages
   const cleaned = removeConsecutiveSameRole(withoutReasoning)
 
-  // 仅在有实际清理操作时输出日志
+  // Only output log when there are actual cleanup operations
   if (removedReasoningCount > 0 || cleaned.length !== withoutReasoning.length) {
-    console.log(
-      `[MessageValidator] DeepSeek 消息清理: 移除 ${removedReasoningCount} 个推理字段, ${withoutReasoning.length - cleaned.length} 条重复消息`
+    Logger.info(
+      'MessageValidator',
+      `DeepSeek message cleanup: removed ${removedReasoningCount} reasoning fields, ${withoutReasoning.length - cleaned.length} duplicate messages`
     )
   }
 

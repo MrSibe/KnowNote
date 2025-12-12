@@ -1,13 +1,14 @@
 import type { LLMProvider, ChatMessage, StreamChunk, LLMProviderConfig } from '../types'
+import Logger from '../../../shared/utils/logger'
 
 /**
- * OpenAI 兼容 API Provider 抽象基类
- * 用于所有兼容 OpenAI API 格式的 Provider（如 OpenAI、DeepSeek、Kimi 等）
+ * OpenAI Compatible API Provider Abstract Base Class
+ * Used for all providers compatible with OpenAI API format (e.g., OpenAI, DeepSeek, Kimi, etc.)
  *
- * 子类只需要定义以下属性：
- * - name: Provider 名称
- * - getDefaultBaseUrl(): 默认 API 基础 URL
- * - getDefaultModel(): 默认模型名称
+ * Subclasses only need to define the following properties:
+ * - name: Provider name
+ * - getDefaultBaseUrl(): Default API base URL
+ * - getDefaultModel(): Default model name
  */
 export abstract class OpenAICompatibleProvider implements LLMProvider {
   abstract readonly name: string
@@ -20,12 +21,12 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
   }
 
   /**
-   * 获取默认的 API 基础 URL
+   * Get default API base URL
    */
   protected abstract getDefaultBaseUrl(): string
 
   /**
-   * 获取默认的模型名称
+   * Get default model name
    */
   protected abstract getDefaultModel(): string
 
@@ -42,7 +43,7 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
     const { apiKey, baseUrl, model, temperature, maxTokens } = this.config
 
     if (!apiKey) {
-      onError(new Error(`${this.name} API Key 未配置`))
+      onError(new Error(`${this.name} API Key not configured`))
       return
     }
 
@@ -69,48 +70,48 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
 
       const reader = response.body?.getReader()
       if (!reader) {
-        throw new Error('无法读取响应流')
+        throw new Error('Unable to read response stream')
       }
 
       const decoder = new TextDecoder()
       let buffer = ''
-      let hasReceivedReasoning = false // 跟踪是否收到过推理内容
-      let reasoningComplete = false // 跟踪推理是否已完成
+      let hasReceivedReasoning = false // Track if reasoning content has been received
+      let reasoningComplete = false // Track if reasoning is complete
 
       while (true) {
         const { done, value } = await reader.read()
 
         if (done) break
 
-        // 将字节解码为文本并追加到缓冲区
+        // Decode bytes to text and append to buffer
         buffer += decoder.decode(value, { stream: true })
         const lines = buffer.split('\n')
 
-        // 保留最后一个未完成的行
+        // Keep the last incomplete line
         buffer = lines.pop() || ''
 
         for (const line of lines) {
           const trimmed = line.trim()
 
-          // 跳过空行和注释
+          // Skip empty lines and comments
           if (!trimmed || trimmed === 'data: [DONE]') continue
 
-          // 解析 SSE 数据
+          // Parse SSE data
           if (trimmed.startsWith('data: ')) {
             try {
               const json = JSON.parse(trimmed.slice(6))
               const delta = json.choices?.[0]?.delta
               const finishReason = json.choices?.[0]?.finish_reason
 
-              // 跟踪推理内容的状态
+              // Track reasoning content status
               if (delta?.reasoning_content) {
                 hasReceivedReasoning = true
               } else if (hasReceivedReasoning && !reasoningComplete) {
-                // 之前有推理内容，现在没有了，说明推理阶段结束
+                // Had reasoning content before, now none, means reasoning phase is over
                 reasoningComplete = true
               }
 
-              // 发送内容片段（包含推理内容）
+              // Send content chunk (including reasoning content)
               if (delta?.content || delta?.reasoning_content) {
                 onChunk({
                   content: delta.content || '',
@@ -120,7 +121,7 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
                 })
               }
 
-              // 完成标志
+              // Completion marker
               if (finishReason) {
                 onChunk({
                   content: '',
@@ -141,7 +142,7 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
                 })
               }
             } catch (e) {
-              console.error(`[${this.name}Provider] 解析 SSE 数据失败:`, e)
+              Logger.error(`${this.name}Provider`, 'Failed to parse SSE data:', e)
             }
           }
         }
@@ -154,7 +155,7 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
   }
 
   /**
-   * 验证 API Key 是否有效
+   * Validate if API Key is valid
    */
   async validateConfig(config: LLMProviderConfig): Promise<boolean> {
     try {

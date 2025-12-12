@@ -3,50 +3,51 @@ import { OpenAIProvider } from './OpenAIProvider'
 import { OllamaProvider } from './OllamaProvider'
 import { DeepSeekProvider } from './DeepSeekProvider'
 import { settingsManager, providersManager } from '../config'
+import Logger from '../../shared/utils/logger'
 
 /**
  * Provider Manager
- * 管理所有 AI Provider 实例并提供统一的访问接口
- * 使用 Electron Store 作为配置存储，修改后立即生效无需重启
+ * Manages all AI Provider instances and provides unified access interface
+ * Uses Electron Store as configuration storage, changes take effect immediately without restart
  */
 export class ProviderManager {
   private providers: Map<string, LLMProvider> = new Map()
 
   constructor() {
-    // 注册所有 Provider
+    // Register all providers
     this.registerProvider(new OpenAIProvider())
     this.registerProvider(new OllamaProvider())
     this.registerProvider(new DeepSeekProvider())
 
-    console.log(`[ProviderManager] 已注册 ${this.providers.size} 个 Provider`)
+    Logger.info('ProviderManager', `Registered ${this.providers.size} providers`)
   }
 
   /**
-   * 注册一个 Provider
+   * Register a provider
    */
   private registerProvider(provider: LLMProvider) {
     this.providers.set(provider.name, provider)
-    console.log(`[ProviderManager] 已注册 Provider: ${provider.name}`)
+    Logger.debug('ProviderManager', `Registered provider: ${provider.name}`)
   }
 
   /**
-   * 获取指定名称的 Provider
+   * Get provider by name
    */
   getProvider(name: string): LLMProvider | undefined {
     return this.providers.get(name)
   }
 
   /**
-   * 获取当前激活的 Provider
-   * 优先使用用户在设置中选择的默认模型
-   * 如果没有默认模型，返回第一个启用的 Provider
+   * Get currently active provider
+   * Priority: Use default model selected by user in settings
+   * If no default model, return first enabled provider
    */
   async getActiveProvider(): Promise<LLMProvider | null> {
     try {
       const settings = await settingsManager.getAllSettings()
       const defaultModel = settings.defaultModel
 
-      // 如果用户设置了默认模型，解析并使用它
+      // If user has set default model, parse and use it
       if (defaultModel && defaultModel.includes(':')) {
         const [providerName, modelId] = defaultModel.split(':')
         const config = await providersManager.getProviderConfig(providerName)
@@ -54,47 +55,50 @@ export class ProviderManager {
         if (config && config.enabled) {
           const provider = this.providers.get(providerName)
           if (provider) {
-            // 配置 Provider，并指定模型
+            // Configure provider with specified model
             provider.configure({
               ...config.config,
               model: modelId
             })
-            console.log(`[ProviderManager] 使用默认模型: ${providerName} - ${modelId}`)
+            Logger.info('ProviderManager', `Using default model: ${providerName} - ${modelId}`)
             return provider
           }
         } else {
-          console.warn(`[ProviderManager] 默认模型对应的 Provider "${providerName}" 未启用或不存在`)
+          Logger.warn(
+            'ProviderManager',
+            `Provider for default model "${providerName}" is not enabled or does not exist`
+          )
         }
       }
 
-      // 如果没有默认模型或默认模型不可用，使用第一个启用的 Provider
+      // If no default model or default model unavailable, use first enabled provider
       const allConfigs = await providersManager.getAllProviderConfigs()
       const enabledConfig = allConfigs.find((c) => c.enabled)
 
       if (!enabledConfig) {
-        console.warn('[ProviderManager] 未找到启用的 Provider')
+        Logger.warn('ProviderManager', 'No enabled provider found')
         return null
       }
 
       const provider = this.providers.get(enabledConfig.providerName)
       if (!provider) {
-        console.error(`[ProviderManager] Provider "${enabledConfig.providerName}" 未注册`)
+        Logger.error('ProviderManager', `Provider "${enabledConfig.providerName}" not registered`)
         return null
       }
 
-      // 配置 Provider
+      // Configure provider
       provider.configure(enabledConfig.config)
 
-      console.log(`[ProviderManager] 使用 Provider: ${provider.name}`)
+      Logger.info('ProviderManager', `Using provider: ${provider.name}`)
       return provider
     } catch (error) {
-      console.error('[ProviderManager] 获取激活 Provider 失败:', error)
+      Logger.error('ProviderManager', 'Failed to get active provider:', error)
       return null
     }
   }
 
   /**
-   * 列出所有已注册的 Provider 名称
+   * List all registered provider names
    */
   listProviders(): string[] {
     return Array.from(this.providers.keys())

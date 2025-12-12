@@ -158,7 +158,12 @@ export default function NotePanel(): ReactElement {
 
           {/* 笔记列表 */}
           <ScrollArea className="flex-1">
-            <NoteList notes={notes} currentNote={currentNote} onSelectNote={setCurrentNote} />
+            <NoteList
+              notes={notes}
+              currentNote={currentNote}
+              onSelectNote={setCurrentNote}
+              onDeleteNote={deleteNote}
+            />
           </ScrollArea>
         </>
       )}

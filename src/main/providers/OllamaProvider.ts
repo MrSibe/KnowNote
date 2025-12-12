@@ -1,8 +1,9 @@
 import type { LLMProvider, ChatMessage, StreamChunk, LLMProviderConfig } from './types'
+import Logger from '../../shared/utils/logger'
 
 /**
- * Ollama Provider 实现
- * 用于本地运行的 Ollama 服务
+ * Ollama Provider Implementation
+ * For locally running Ollama service
  */
 export class OllamaProvider implements LLMProvider {
   readonly name = 'ollama'
@@ -47,7 +48,7 @@ export class OllamaProvider implements LLMProvider {
 
       const reader = response.body?.getReader()
       if (!reader) {
-        throw new Error('无法读取响应流')
+        throw new Error('Unable to read response stream')
       }
 
       const decoder = new TextDecoder()
@@ -64,7 +65,7 @@ export class OllamaProvider implements LLMProvider {
           try {
             const json = JSON.parse(line)
 
-            // 发送内容片段
+            // Send content chunk
             if (json.message?.content) {
               onChunk({
                 content: json.message.content,
@@ -72,7 +73,7 @@ export class OllamaProvider implements LLMProvider {
               })
             }
 
-            // 完成标志
+            // Completion marker
             if (json.done) {
               onChunk({
                 content: '',
@@ -84,7 +85,7 @@ export class OllamaProvider implements LLMProvider {
               })
             }
           } catch (e) {
-            console.error('[OllamaProvider] 解析响应失败:', e)
+            Logger.error('OllamaProvider', 'Failed to parse response:', e)
           }
         }
       }
@@ -96,7 +97,7 @@ export class OllamaProvider implements LLMProvider {
   }
 
   /**
-   * 验证 Ollama 服务是否可用
+   * Validate if Ollama service is available
    */
   async validateConfig(config: LLMProviderConfig): Promise<boolean> {
     try {

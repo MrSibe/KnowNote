@@ -1,9 +1,10 @@
 import { ipcMain } from 'electron'
 import { createNote, getNotesByNotebook, getNoteById, updateNote, deleteNote } from '../db/queries'
 import { ProviderManager } from '../providers/ProviderManager'
+import Logger from '../../shared/utils/logger'
 
 /**
- * 使用AI生成笔记标题
+ * Generate note title using AI
  */
 async function generateNoteTitle(
   providerManager: ProviderManager,
@@ -12,7 +13,7 @@ async function generateNoteTitle(
   try {
     const provider = await providerManager.getActiveProvider()
     if (!provider) {
-      return '未命名笔记'
+      return 'Untitled Note'
     }
 
     let generatedTitle = ''
@@ -22,101 +23,101 @@ async function generateNoteTitle(
         {
           role: 'system',
           content:
-            '你是一个标题生成助手。请根据用户提供的内容生成一个简洁的标题，不超过20个字，不要使用引号或其他符号包裹。'
+            "You are a title generation assistant. Please generate a concise title based on the user's content, no more than 20 characters, without using quotes or other symbols to wrap it."
         },
         {
           role: 'user',
-          content: `请为以下内容生成标题:\n\n${content.slice(0, 500)}`
+          content: `Please generate a title for the following content:\n\n${content.slice(0, 500)}`
         }
       ],
       (chunk) => {
         generatedTitle += chunk.content
       },
       (error) => {
-        console.error('[generateNoteTitle] 生成标题失败:', error)
+        Logger.error('NoteHandlers', 'Failed to generate title:', error)
       },
       () => {
-        // 完成
+        // Complete
       }
     )
 
-    return generatedTitle.trim() || '未命名笔记'
+    return generatedTitle.trim() || 'Untitled Note'
   } catch (error) {
-    console.error('[generateNoteTitle] Error:', error)
-    return '未命名笔记'
+    Logger.error('NoteHandlers', 'Error in generateNoteTitle:', error)
+    return 'Untitled Note'
   }
 }
 
 /**
- * 注册笔记相关的 IPC handlers
+ * Register note-related IPC handlers
  */
 export function registerNoteHandlers(providerManager: ProviderManager) {
-  // 创建笔记
+  // Create note
   ipcMain.handle(
     'create-note',
     async (_event, notebookId: string, content: string, customTitle?: string) => {
-      console.log('[IPC] create-note:', { notebookId, hasCustomTitle: !!customTitle })
+      Logger.debug('NoteHandlers', 'create-note:', { notebookId, hasCustomTitle: !!customTitle })
 
       try {
-        // 如果没有提供标题，使用AI生成
+        // If no title provided, use AI to generate
         const title = customTitle || (await generateNoteTitle(providerManager, content))
         const note = createNote(notebookId, title, content)
-        console.log('[IPC] Note created successfully:', note.id)
+        Logger.debug('NoteHandlers', 'Note created successfully:', note.id)
         return note
       } catch (error) {
-        console.error('[IPC] Error creating note:', error)
+        Logger.error('NoteHandlers', 'Error creating note:', error)
         throw error
       }
     }
   )
 
-  // 获取笔记本的所有笔记
+  // Get all notes in notebook
   ipcMain.handle('get-notes', async (_event, notebookId: string) => {
-    console.log('[IPC] get-notes:', notebookId)
+    Logger.debug('NoteHandlers', 'get-notes:', notebookId)
     try {
       const notes = getNotesByNotebook(notebookId)
-      console.log(`[IPC] Retrieved ${notes.length} notes`)
+      Logger.debug('NoteHandlers', `Retrieved ${notes.length} notes`)
       return notes
     } catch (error) {
-      console.error('[IPC] Error getting notes:', error)
+      Logger.error('NoteHandlers', 'Error getting notes:', error)
       throw error
     }
   })
 
-  // 获取单个笔记
+  // Get single note
   ipcMain.handle('get-note', async (_event, id: string) => {
-    console.log('[IPC] get-note:', id)
+    Logger.debug('NoteHandlers', 'get-note:', id)
     try {
       const note = getNoteById(id)
       return note
     } catch (error) {
-      console.error('[IPC] Error getting note:', error)
+      Logger.error('NoteHandlers', 'Error getting note:', error)
       throw error
     }
   })
 
-  // 更新笔记
+  // Update note
   ipcMain.handle('update-note', async (_event, id: string, updates: any) => {
-    console.log('[IPC] update-note:', { id, updates })
+    Logger.debug('NoteHandlers', 'update-note:', { id, updates })
     try {
       updateNote(id, updates)
-      console.log('[IPC] Note updated successfully:', id)
+      Logger.debug('NoteHandlers', 'Note updated successfully:', id)
       return { success: true }
     } catch (error) {
-      console.error('[IPC] Error updating note:', error)
+      Logger.error('NoteHandlers', 'Error updating note:', error)
       throw error
     }
   })
 
-  // 删除笔记
+  // Delete note
   ipcMain.handle('delete-note', async (_event, id: string) => {
-    console.log('[IPC] delete-note:', id)
+    Logger.debug('NoteHandlers', 'delete-note:', id)
     try {
       deleteNote(id)
-      console.log('[IPC] Note deleted successfully:', id)
+      Logger.debug('NoteHandlers', 'Note deleted successfully:', id)
       return { success: true }
     } catch (error) {
-      console.error('[IPC] Error deleting note:', error)
+      Logger.error('NoteHandlers', 'Error deleting note:', error)
       throw error
     }
   })

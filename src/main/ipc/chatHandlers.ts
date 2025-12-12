@@ -3,9 +3,10 @@ import * as queries from '../db/queries'
 import { ProviderManager } from '../providers/ProviderManager'
 import { SessionAutoSwitchService } from '../services/SessionAutoSwitchService'
 import { validateAndCleanMessages } from '../utils/messageValidator'
+import Logger from '../../shared/utils/logger'
 
 /**
- * 注册聊天相关的 IPC Handlers
+ * Register chat-related IPC Handlers
  */
 export function registerChatHandlers(
   providerManager: ProviderManager,
@@ -62,7 +63,7 @@ export function registerChatHandlers(
       if (messages.length === 0) {
         event.sender.send('message-error', {
           messageId: assistantMessage.id,
-          error: '没有有效的对话历史'
+          error: 'No valid conversation history'
         })
         return assistantMessage.id
       }
@@ -72,7 +73,7 @@ export function registerChatHandlers(
       if (!provider) {
         event.sender.send('message-error', {
           messageId: assistantMessage.id,
-          error: '未配置 AI Provider，请在设置中配置'
+          error: 'AI Provider not configured, please configure in settings'
         })
         return assistantMessage.id
       }
@@ -130,37 +131,37 @@ export function registerChatHandlers(
               tokensUsed = userTokens + assistantTokens
             }
 
-            console.log(`[send-message] 本次对话使用 tokens: ${tokensUsed}`)
+            Logger.debug('ChatHandlers', `Tokens used in this conversation: ${tokensUsed}`)
 
-            // 检查是否需要自动切换 session
+            // Check if session auto-switch is needed
             const newSessionId = await sessionAutoSwitchService.recordTokenUsageAndCheckSwitch(
               sessionId,
               tokensUsed
             )
 
             if (newSessionId) {
-              // 通知前端切换到新 session
+              // Notify frontend to switch to new session
               event.sender.send('session-auto-switched', {
                 oldSessionId: sessionId,
                 newSessionId: newSessionId
               })
             }
 
-            // 发送完成事件，通知前端流式传输已完成
+            // Send completion event to notify frontend streaming is complete
             event.sender.send('message-complete', {
               messageId: assistantMessage.id
             })
           } catch (error) {
-            console.error('[send-message] 完成回调中发生错误:', error)
+            Logger.error('ChatHandlers', 'Error in completion callback:', error)
             event.sender.send('message-error', {
               messageId: assistantMessage.id,
-              error: '处理消息时发生错误'
+              error: 'Error occurred while processing message'
             })
           }
         }
       )
 
-      // 立即返回 messageId，让前端可以继续操作
+      // Return messageId immediately so frontend can continue
       return assistantMessage.id
     }
   )

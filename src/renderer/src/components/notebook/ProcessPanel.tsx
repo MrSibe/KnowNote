@@ -19,25 +19,25 @@ export default function ProcessPanel(): ReactElement {
     : false
   const canSend = currentSession && !isCurrentNotebookStreaming && input.trim() && hasProvider
 
-  // 检查是否有可用的Provider
+  // Check if there are available providers
   const checkProvider = async (): Promise<void> => {
     try {
       const providers = await window.api.getAllProviderConfigs()
       const hasEnabledProvider = providers.some((p) => p.enabled)
       setHasProvider(hasEnabledProvider)
     } catch (error) {
-      console.error('检查Provider配置失败:', error)
+      console.error('Failed to check Provider configuration:', error)
       setHasProvider(false)
     }
   }
 
-  // 添加useEffect监听
+  // Add useEffect listeners
   useEffect(() => {
-    // 1. 页面加载时检查
+    // 1. Check on page load
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void checkProvider()
 
-    // 2. 监听 Provider 配置变更事件
+    // 2. Listen for Provider configuration change events
     const cleanup = window.api.onProviderConfigChanged(() => {
       void checkProvider()
     })
@@ -59,7 +59,7 @@ export default function ProcessPanel(): ReactElement {
     }
   }
 
-  // 开始编辑标题
+  // Start editing title
   const handleStartEditTitle = (): void => {
     if (currentNotebook) {
       setEditingTitle(currentNotebook.title)
@@ -67,7 +67,7 @@ export default function ProcessPanel(): ReactElement {
     }
   }
 
-  // 保存标题
+  // Save title
   const handleSaveTitle = async (): Promise<void> => {
     if (!currentNotebook || !editingTitle.trim()) {
       setIsEditingTitle(false)
@@ -78,20 +78,20 @@ export default function ProcessPanel(): ReactElement {
       try {
         await updateNotebook(currentNotebook.id, { title: editingTitle.trim() })
       } catch (error) {
-        console.error('更新 Notebook 标题失败:', error)
+        console.error('Failed to update Notebook title:', error)
       }
     }
 
     setIsEditingTitle(false)
   }
 
-  // 取消编辑
+  // Cancel editing
   const handleCancelEditTitle = (): void => {
     setIsEditingTitle(false)
     setEditingTitle('')
   }
 
-  // 标题输入框按键处理
+  // Title input box key handler
   const handleTitleKeyDown = (e: React.KeyboardEvent): void => {
     if (e.key === 'Enter') {
       e.preventDefault()

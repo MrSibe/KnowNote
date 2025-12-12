@@ -2,19 +2,19 @@ import { create } from 'zustand'
 import type { ChatSession, ChatMessage } from '../types/notebook'
 
 interface ChatStore {
-  // 当前会话
+  // Current session
   currentSession: ChatSession | null
 
-  // 会话列表（按 notebook 分组）
+  // Session list (grouped by notebook)
   sessions: ChatSession[]
 
-  // 消息列表（当前会话）
+  // Message list (current session)
   messages: ChatMessage[]
 
-  // 流式消息状态：按notebookId管理
+  // Streaming message status: managed by notebookId
   streamingMessages: Record<string, string>
 
-  // messageId -> {notebookId, content, reasoningContent} 映射，用于切换notebook后仍能清理流式状态和恢复内容
+  // messageId -> {notebookId, content, reasoningContent} mapping, used to clean up streaming status and restore content after switching notebook
   messageToNotebook: Record<
     string,
     { notebookId: string; content: string; reasoningContent: string }
@@ -196,7 +196,7 @@ export function setupChatListeners() {
     const { messageId, chunk, reasoningChunk, done, reasoningDone } = data
     const store = useChatStore.getState()
 
-    // 1. 先更新缓存（即使消息不在当前 messages 中也要缓存）
+    // 1. First update cache (cache even if message not in current messages)
     const cached = store.messageToNotebook[messageId]
     if (cached) {
       const newContent = cached.content + chunk
@@ -213,7 +213,7 @@ export function setupChatListeners() {
         }
       }))
 
-      // 2. 如果消息在当前 messages 中，一次性更新所有字段
+      // 2. If message is in current messages, update all fields at once
       if (store.messages.some((m) => m.id === messageId)) {
         useChatStore.setState((state) => ({
           messages: state.messages.map((msg) =>
@@ -230,13 +230,13 @@ export function setupChatListeners() {
       }
     }
 
-    // 完成流式传输
+    // Complete streaming
     if (done) {
       const cached = store.messageToNotebook[messageId]
       if (cached) {
         store.setStreamingMessage(cached.notebookId, null)
 
-        // 清理缓存
+        // Clean up cache
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [messageId]: _removed, ...rest } = store.messageToNotebook
         useChatStore.setState({ messageToNotebook: rest })
@@ -249,9 +249,9 @@ export function setupChatListeners() {
     const { messageId, error } = data
     const store = useChatStore.getState()
 
-    const errorContent = `❌ 错误: ${error}`
+    const errorContent = `❌ Error: ${error}`
 
-    // 更新缓存
+    // Update cache
     const cached = store.messageToNotebook[messageId]
     if (cached) {
       useChatStore.setState((state) => ({
@@ -261,13 +261,13 @@ export function setupChatListeners() {
         }
       }))
 
-      // 如果消息在当前 messages 中，也更新它
+      // If message is in current messages, also update it
       const message = store.messages.find((m) => m.id === messageId)
       if (message) {
         store.updateMessageContent(messageId, errorContent)
       }
 
-      // 清除流式状态和缓存
+      // Clear streaming status and cache
       store.setStreamingMessage(cached.notebookId, null)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { [messageId]: _removed, ...rest } = store.messageToNotebook
@@ -275,25 +275,25 @@ export function setupChatListeners() {
     }
   })
 
-  // 监听 Session 自动切换
+  // Listen for session auto switch
   const cleanupAutoSwitch = window.api.onSessionAutoSwitched(async (data) => {
     const { newSessionId } = data
     const store = useChatStore.getState()
 
-    console.log(`[ChatStore] Session 自动切换到: ${newSessionId}`)
+    console.log(`[ChatStore] Session auto-switched to: ${newSessionId}`)
 
-    // 静默切换到新session
+    // Silently switch to new session
     if (store.currentSession) {
       const newSession = await window.api.getActiveSession(store.currentSession.notebookId)
 
       if (newSession && newSession.id === newSessionId) {
-        // 静默切换到新session，保持当前消息显示，用户无感知
+        // Silently switch to new session, keep current message display, user unaware
         store.setCurrentSession(newSession)
       }
     }
   })
 
-  // 返回清理函数
+  // Return cleanup function
   return () => {
     cleanupChunk()
     cleanupError()

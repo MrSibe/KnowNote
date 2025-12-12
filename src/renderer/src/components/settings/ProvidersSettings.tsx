@@ -31,7 +31,7 @@ export default function ProvidersSettings({
   const [models, setModels] = useState<Record<string, Model[]>>({})
   const [fetchingModels, setFetchingModels] = useState<Record<string, boolean>>({})
 
-  // 获取特定提供商的配置
+  // Get specific provider configuration
   const getProviderConfig = (providerName: string) => {
     return (
       providers.find((p) => p.providerName === providerName) || {
@@ -43,7 +43,7 @@ export default function ProvidersSettings({
     )
   }
 
-  // 更新提供商配置
+  // Update provider configuration
   const updateProviderConfig = (
     providerName: string,
     updates: Partial<Pick<ProviderConfig, 'config' | 'enabled'>>
@@ -59,7 +59,7 @@ export default function ProvidersSettings({
         updatedAt: Date.now()
       }
     } else {
-      // 如果不存在，创建新的配置
+      // If doesn't exist, create new configuration
       updatedProviders.push({
         providerName,
         config: updates.config || {},
@@ -71,13 +71,13 @@ export default function ProvidersSettings({
     onProvidersChange(updatedProviders)
   }
 
-  // 获取模型列表
+  // Fetch model list
   const fetchModels = async (providerName: string) => {
     const provider = getProviderConfig(providerName)
     const apiKey = provider.config.apiKey
 
     if (!apiKey) {
-      alert('请先输入 API Key')
+      alert('Please enter API Key first')
       return
     }
 
@@ -87,8 +87,10 @@ export default function ProvidersSettings({
       const modelList = await window.api.fetchModels(providerName, apiKey)
       setModels((prev) => ({ ...prev, [providerName]: modelList }))
     } catch (error) {
-      console.error('获取模型列表失败:', error)
-      alert(`获取模型列表失败: ${error instanceof Error ? error.message : '未知错误'}`)
+      console.error('Failed to fetch model list:', error)
+      alert(
+        `Failed to fetch model list: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     } finally {
       setFetchingModels((prev) => ({ ...prev, [providerName]: false }))
     }
