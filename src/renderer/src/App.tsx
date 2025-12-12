@@ -5,9 +5,11 @@ import NotebookList from './components/pages/NotebookList'
 import SettingsWindow from './components/settings/SettingsWindow'
 import { setupChatListeners } from './store/chatStore'
 import { useThemeStore } from './store/themeStore'
+import { useNotebookStore } from './store/notebookStore'
 
 function App(): React.JSX.Element {
   const initTheme = useThemeStore((state) => state.initTheme)
+  const loadNotebooks = useNotebookStore((state) => state.loadNotebooks)
 
   // 初始化聊天监听器
   useEffect(() => {
@@ -19,6 +21,14 @@ function App(): React.JSX.Element {
   useEffect(() => {
     initTheme()
   }, [initTheme])
+
+  // 初始化笔记本数据（从数据库加载）
+  useEffect(() => {
+    console.log('[App] Loading notebooks on startup...')
+    loadNotebooks().catch((error) => {
+      console.error('[App] Failed to load notebooks:', error)
+    })
+  }, [loadNotebooks])
 
   return (
     <HashRouter>

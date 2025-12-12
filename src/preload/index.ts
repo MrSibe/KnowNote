@@ -39,6 +39,14 @@ const api = {
     }
   },
 
+  // Notebook 相关
+  createNotebook: (title: string, description?: string) =>
+    ipcRenderer.invoke('create-notebook', title, description),
+  getAllNotebooks: () => ipcRenderer.invoke('get-all-notebooks'),
+  getNotebook: (id: string) => ipcRenderer.invoke('get-notebook', id),
+  updateNotebook: (id: string, updates: any) => ipcRenderer.invoke('update-notebook', id, updates),
+  deleteNotebook: (id: string) => ipcRenderer.invoke('delete-notebook', id),
+
   // Chat Session 相关
   createChatSession: (notebookId: string, title: string) =>
     ipcRenderer.invoke('create-chat-session', notebookId, title),

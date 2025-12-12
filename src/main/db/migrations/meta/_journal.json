@@ -22,6 +22,20 @@
       "when": 1765523835472,
       "tag": "0002_ambitious_blink",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1765612800000,
+      "tag": "0003_add_notebooks_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1765528311347,
+      "tag": "0004_brave_colonel_america",
+      "breakpoints": true
     }
   ]
 }

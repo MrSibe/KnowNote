@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { initDatabase, runMigrations, closeDatabase } from './db'
+import { initDatabase, runMigrations, closeDatabase, executeCheckpoint } from './db'
 import { ProviderManager } from './providers/ProviderManager'
 import { SessionAutoSwitchService } from './services/SessionAutoSwitchService'
 import { createMainWindow, createSettingsWindow, destroySettingsWindow } from './windows'
@@ -8,6 +8,7 @@ import { registerAllHandlers } from './ipc'
 
 let providerManager: ProviderManager | null = null
 let sessionAutoSwitchService: SessionAutoSwitchService | null = null
+let isQuitting = false // 标记应用是否正在退出
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -60,20 +61,70 @@ app.whenReady().then(() => {
   })
 })
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// 处理窗口全部关闭事件
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  console.log('[Main] All windows closed')
+
+  if (process.platform === 'darwin') {
+    // macOS 特殊处理：窗口关闭但应用不退出时，执行 checkpoint 保护数据
+    console.log('[Main] macOS: Executing checkpoint on window close...')
+    executeCheckpoint('PASSIVE')
+
+    // 可选：如果希望 macOS 上关闭窗口也退出应用，取消下面的注释
+    // app.quit()
+  } else {
+    // 其他平台：窗口关闭即退出应用
     app.quit()
   }
 })
 
-// 确保在应用退出前关闭所有窗口和数据库连接
+// 第一道防线：before-quit 事件（用户主动退出）
 app.on('before-quit', () => {
+  if (isQuitting) return
+
+  console.log('[Main] before-quit event triggered')
+
+  isQuitting = true
   destroySettingsWindow()
 
-  // 关闭数据库连接
   console.log('[Main] 关闭数据库连接...')
   closeDatabase()
+})
+
+// 第二道防线：will-quit 事件（备份）
+app.on('will-quit', () => {
+  if (!isQuitting) {
+    console.log('[Main] will-quit event triggered (backup)')
+    closeDatabase()
+  }
+})
+
+// 第三道防线：进程信号处理（强制退出、系统关闭）
+const handleShutdown = (signal: string) => {
+  console.log(`[Main] Received ${signal}, shutting down gracefully...`)
+
+  if (!isQuitting) {
+    isQuitting = true
+    closeDatabase()
+  }
+
+  // 给数据库 2 秒时间完成关闭
+  setTimeout(() => {
+    process.exit(0)
+  }, 2000)
+}
+
+process.on('SIGINT', () => handleShutdown('SIGINT'))
+process.on('SIGTERM', () => handleShutdown('SIGTERM'))
+process.on('SIGHUP', () => handleShutdown('SIGHUP'))
+
+// 未捕获异常处理
+process.on('uncaughtException', (error) => {
+  console.error('[Main] Uncaught exception:', error)
+  closeDatabase()
+  process.exit(1)
+})
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Main] Unhandled rejection:', reason)
 })

@@ -1,6 +1,25 @@
 import { sqliteTable, text, integer, index } from 'drizzle-orm/sqlite-core'
 
 /**
+ * 笔记本表
+ * 用于存储用户创建的笔记本
+ */
+export const notebooks = sqliteTable(
+  'notebooks',
+  {
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    description: text('description'),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    // 优化按更新时间查询笔记本的性能
+    updatedIdx: index('idx_notebooks_updated').on(table.updatedAt)
+  })
+)
+
+/**
  * 聊天会话表
  * 用于存储每个笔记本下的聊天会话
  */
@@ -8,7 +27,9 @@ export const chatSessions = sqliteTable(
   'chat_sessions',
   {
     id: text('id').primaryKey(),
-    notebookId: text('notebook_id').notNull(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
     title: text('title').notNull(),
     // 自动切换 session 相关字段
     summary: text('summary'), // 之前会话的摘要（如果是自动切换生成的）
@@ -16,7 +37,9 @@ export const chatSessions = sqliteTable(
     status: text('status', { enum: ['active', 'archived'] })
       .notNull()
       .default('active'), // 会话状态
-    parentSessionId: text('parent_session_id'), // 指向上一个被切换的 session
+    parentSessionId: text('parent_session_id').references(() => chatSessions.id, {
+      onDelete: 'set null'
+    }), // 指向上一个被切换的 session
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
     updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
   },
@@ -52,6 +75,9 @@ export const chatMessages = sqliteTable(
 /**
  * TypeScript 类型导出（从 Drizzle Schema 推导）
  */
+export type Notebook = typeof notebooks.$inferSelect
+export type NewNotebook = typeof notebooks.$inferInsert
+
 export type ChatSession = typeof chatSessions.$inferSelect
 export type NewChatSession = typeof chatSessions.$inferInsert
 

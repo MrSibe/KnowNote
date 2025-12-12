@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, ReactElement } from 'react'
-import { MessageSquare, MoreVertical } from 'lucide-react'
+import { MoreVertical } from 'lucide-react'
 import type { Notebook } from '../../types/notebook'
 
 interface NotebookCardProps {
@@ -127,11 +127,7 @@ export default function NotebookCard({
         </div>
 
         {/* 底部信息 - 自动靠底部对齐 */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t border-border/30">
-          <div className="flex items-center gap-1">
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>{notebook.chatCount} 条对话</span>
-          </div>
+        <div className="flex items-center justify-end text-xs text-muted-foreground pt-4 border-t border-border/30">
           <span>{formatDate(notebook.updatedAt)}</span>
         </div>
       </div>

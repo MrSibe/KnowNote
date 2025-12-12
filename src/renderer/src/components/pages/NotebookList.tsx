@@ -6,7 +6,6 @@ import TopNavigationBar from '../common/TopNavigationBar'
 import RenameDialog from '../common/RenameDialog'
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog'
 import { useNotebookStore } from '../../store/notebookStore'
-import { NOTEBOOK_COVER_COLORS } from '../../constants/colors'
 import {
   Empty,
   EmptyContent,
@@ -33,14 +32,14 @@ export default function NotebookList(): ReactElement {
   const [deleteNotebookTitle, setDeleteNotebookTitle] = useState('')
 
   const handleCreateNotebook = async (): Promise<void> => {
-    const randomColor =
-      NOTEBOOK_COVER_COLORS[Math.floor(Math.random() * NOTEBOOK_COVER_COLORS.length)]
+    // 随机选择一个 emoji 图标
+    const icons = ['📔', '📕', '📗', '📘', '📙', '📓', '📖', '📚']
+    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
 
     const newId = await addNotebook({
       title: `新笔记本 ${notebooks.length + 1}`,
       description: '开始你的笔记之旅',
-      coverColor: randomColor,
-      chatCount: 0
+      icon: randomIcon
     })
 
     addOpenedNotebook(newId)

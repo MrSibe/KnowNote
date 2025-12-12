@@ -26,10 +26,12 @@ export function registerChatHandlers(
 
   ipcMain.handle('update-session-title', async (_event, sessionId: string, title: string) => {
     queries.updateSessionTitle(sessionId, title)
+    return { success: true }
   })
 
   ipcMain.handle('delete-session', async (_event, sessionId: string) => {
     queries.deleteSession(sessionId)
+    return { success: true }
   })
 
   // ==================== Chat Message ====================

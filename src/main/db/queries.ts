@@ -1,6 +1,6 @@
 import { eq, desc, and } from 'drizzle-orm'
-import { getDatabase } from './index'
-import { chatSessions, chatMessages } from './schema'
+import { getDatabase, executeCheckpoint } from './index'
+import { chatSessions, chatMessages, notebooks } from './schema'
 
 // ==================== Chat Sessions ====================
 
@@ -79,7 +79,15 @@ export function updateSessionTitle(sessionId: string, title: string) {
 export function deleteSession(sessionId: string) {
   const db = getDatabase()
 
-  db.delete(chatSessions).where(eq(chatSessions.id, sessionId)).run()
+  try {
+    db.delete(chatSessions).where(eq(chatSessions.id, sessionId)).run()
+
+    // 删除会话后执行 checkpoint，确保数据及时持久化
+    executeCheckpoint('PASSIVE')
+  } catch (error) {
+    console.error('[Database] Error deleting session:', error)
+    throw error
+  }
 }
 
 /**
@@ -195,4 +203,84 @@ export function updateMessageContent(
   }
 
   db.update(chatMessages).set(updateData).where(eq(chatMessages.id, messageId)).run()
+}
+
+// ==================== Notebooks ====================
+
+/**
+ * 创建新笔记本
+ */
+export function createNotebook(title: string, description?: string) {
+  const db = getDatabase()
+  const id = `notebook_${Date.now()}_${Math.random().toString(36).slice(2)}`
+  const now = new Date()
+
+  const notebook = db
+    .insert(notebooks)
+    .values({
+      id,
+      title,
+      description,
+      createdAt: now,
+      updatedAt: now
+    })
+    .returning()
+    .get()
+
+  console.log(`[Database] Created notebook: ${id}`)
+  return notebook
+}
+
+/**
+ * 获取所有笔记本
+ * 按更新时间倒序排列
+ */
+export function getAllNotebooks() {
+  const db = getDatabase()
+  return db.select().from(notebooks).orderBy(desc(notebooks.updatedAt)).all()
+}
+
+/**
+ * 根据 ID 获取笔记本
+ */
+export function getNotebookById(id: string) {
+  const db = getDatabase()
+  return db.select().from(notebooks).where(eq(notebooks.id, id)).get()
+}
+
+/**
+ * 更新笔记本
+ */
+export function updateNotebook(
+  id: string,
+  updates: Partial<{ title: string; description: string | null }>
+) {
+  const db = getDatabase()
+
+  db.update(notebooks)
+    .set({ ...updates, updatedAt: new Date() })
+    .where(eq(notebooks.id, id))
+    .run()
+
+  console.log(`[Database] Updated notebook: ${id}`)
+}
+
+/**
+ * 删除笔记本
+ * 由于外键级联删除，会自动删除该笔记本下的所有会话和消息
+ */
+export function deleteNotebook(id: string) {
+  const db = getDatabase()
+
+  try {
+    // 删除笔记本（外键级联会自动删除所有关联的 sessions 和 messages）
+    db.delete(notebooks).where(eq(notebooks.id, id)).run()
+
+    // 执行 checkpoint 确保数据持久化
+    executeCheckpoint('PASSIVE')
+    console.log(`[Database] Deleted notebook: ${id}`)
+  } catch (error) {
+    console.error('[Database] Error deleting notebook:', error)
+    throw error
+  }
 }

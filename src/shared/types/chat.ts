@@ -11,11 +11,11 @@ export interface ChatSession {
   notebookId: string
   title: string
   summary?: string
-  totalTokens?: number
-  status?: 'active' | 'archived'
+  totalTokens: number
+  status: 'active' | 'archived'
   parentSessionId?: string
-  createdAt: number
-  updatedAt: number
+  createdAt: Date
+  updatedAt: Date
 }
 
 /**
@@ -29,7 +29,7 @@ export interface ChatMessage {
   content: string
   reasoningContent?: string // DeepSeek Reasoner 推理过程内容
   metadata?: any
-  createdAt: number
+  createdAt: Date
   isStreaming?: boolean // 前端扩展字段，标识流式消息
   isReasoningStreaming?: boolean // 前端扩展字段，推理过程是否在流式传输
 }

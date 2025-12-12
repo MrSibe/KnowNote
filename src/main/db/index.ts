@@ -1,5 +1,6 @@
 import { app } from 'electron'
 import { join } from 'path'
+import { stat } from 'fs/promises'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
@@ -7,6 +8,9 @@ import * as schema from './schema'
 
 let sqlite: Database.Database | null = null
 let db: ReturnType<typeof drizzle> | null = null
+let checkpointTimer: NodeJS.Timeout | null = null
+let truncateTimer: NodeJS.Timeout | null = null
+let isClosing = false // 防止重复关闭
 
 /**
  * 初始化数据库连接
@@ -18,18 +22,106 @@ export function initDatabase() {
 
   console.log('[Database] Initializing database at:', dbPath)
 
-  // 创建 SQLite 数据库实例
-  sqlite = new Database(dbPath)
+  try {
+    // 创建 SQLite 数据库实例
+    sqlite = new Database(dbPath)
 
-  // 启用 WAL 模式以提高性能
-  sqlite.pragma('journal_mode = WAL')
+    // 启用 WAL 模式以提高性能
+    sqlite.pragma('journal_mode = WAL')
 
-  // 创建 Drizzle 实例
-  db = drizzle(sqlite, { schema })
+    // 优化 WAL 配置
+    sqlite.pragma('wal_autocheckpoint = 100') // 每 100 页自动 checkpoint（降低默认值）
+    sqlite.pragma('synchronous = NORMAL') // WAL 模式推荐设置
+    sqlite.pragma('busy_timeout = 5000') // 5 秒超时，防止并发冲突
 
-  console.log('[Database] Database initialized successfully')
+    // 记录当前配置
+    const journalMode = sqlite.pragma('journal_mode', { simple: true })
+    const walCheckpoint = sqlite.pragma('wal_autocheckpoint', { simple: true })
+    const syncMode = sqlite.pragma('synchronous', { simple: true })
+    console.log('[Database] Configuration:', {
+      journal_mode: journalMode,
+      wal_autocheckpoint: walCheckpoint,
+      synchronous: syncMode
+    })
 
-  return db
+    // 创建 Drizzle 实例
+    db = drizzle(sqlite, { schema })
+
+    // 数据库完整性检查
+    const integrityCheck = sqlite.pragma('integrity_check', { simple: true })
+    if (integrityCheck !== 'ok') {
+      console.error('[Database] Integrity check failed:', integrityCheck)
+    } else {
+      console.log('[Database] Integrity check passed')
+    }
+
+    // 启动定期 checkpoint 机制
+    startPeriodicCheckpoint(dbPath)
+
+    console.log('[Database] Database initialized successfully')
+    return db
+  } catch (error) {
+    console.error('[Database] Failed to initialize database:', error)
+    throw error
+  }
+}
+
+/**
+ * 启动定期 checkpoint 机制
+ */
+function startPeriodicCheckpoint(dbPath: string) {
+  const walPath = `${dbPath}-wal`
+
+  // 每 30 秒检查 WAL 文件大小并执行 PASSIVE checkpoint
+  checkpointTimer = setInterval(async () => {
+    try {
+      if (!sqlite || isClosing) return
+
+      const stats = await stat(walPath).catch(() => null)
+      if (stats && stats.size > 1024 * 1024) {
+        // 1MB
+        console.log(
+          `[Database] WAL file size: ${(stats.size / 1024 / 1024).toFixed(2)}MB, executing PASSIVE checkpoint...`
+        )
+        const result = sqlite.pragma('wal_checkpoint(PASSIVE)')
+        console.log('[Database] PASSIVE checkpoint result:', result)
+      }
+    } catch (error) {
+      console.error('[Database] Error during periodic checkpoint:', error)
+    }
+  }, 30000) // 30 秒
+
+  checkpointTimer.unref() // 不阻止进程退出
+
+  // 每 5 分钟执行一次 TRUNCATE checkpoint，清理 WAL 文件
+  truncateTimer = setInterval(() => {
+    try {
+      if (!sqlite || isClosing) return
+
+      console.log('[Database] Executing scheduled TRUNCATE checkpoint...')
+      const result = sqlite.pragma('wal_checkpoint(TRUNCATE)')
+      console.log('[Database] TRUNCATE checkpoint result:', result)
+    } catch (error) {
+      console.error('[Database] Error during truncate checkpoint:', error)
+    }
+  }, 300000) // 5 分钟
+
+  truncateTimer.unref()
+}
+
+/**
+ * 执行主动 checkpoint（供外部调用）
+ */
+export function executeCheckpoint(mode: 'PASSIVE' | 'FULL' | 'RESTART' | 'TRUNCATE' = 'PASSIVE') {
+  if (!sqlite) return
+
+  try {
+    console.log(`[Database] Executing ${mode} checkpoint...`)
+    const result = sqlite.pragma(`wal_checkpoint(${mode})`)
+    console.log(`[Database] ${mode} checkpoint result:`, result)
+  } catch (error) {
+    console.error(`[Database] Error executing ${mode} checkpoint:`, error)
+  }
 }
 
 /**
@@ -67,16 +159,55 @@ export function getDatabase() {
 }
 
 /**
- * 关闭数据库连接
+ * 优雅关闭数据库连接
  * 在 Electron app.on('before-quit') 中调用
  */
 export function closeDatabase() {
-  if (sqlite) {
-    console.log('[Database] Closing database connection')
+  if (isClosing || !sqlite) {
+    console.log('[Database] Database already closed or closing')
+    return
+  }
+
+  isClosing = true
+  console.log('[Database] Starting graceful database closure...')
+
+  try {
+    // 清除定时器
+    if (checkpointTimer) {
+      clearInterval(checkpointTimer)
+      checkpointTimer = null
+    }
+    if (truncateTimer) {
+      clearInterval(truncateTimer)
+      truncateTimer = null
+    }
+
+    // 执行最终 checkpoint，强制合并所有 WAL 数据到主数据库
+    console.log('[Database] Executing final RESTART checkpoint before closing...')
+    const checkpointResult = sqlite.pragma('wal_checkpoint(RESTART)')
+    console.log('[Database] Final checkpoint result:', checkpointResult)
+
+    // 关闭数据库连接
     sqlite.close()
+    console.log('[Database] Database connection closed successfully')
+
     sqlite = null
     db = null
+  } catch (error) {
+    console.error('[Database] Error during database closure:', error)
+    // 即使出错也要清理引用
+    sqlite = null
+    db = null
+  } finally {
+    isClosing = false
   }
+}
+
+/**
+ * 获取原始 SQLite 实例（用于 pragma 等操作）
+ */
+export function getSqlite() {
+  return sqlite
 }
 
 // 导出类型供其他模块使用

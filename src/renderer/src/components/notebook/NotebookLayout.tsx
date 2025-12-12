@@ -7,7 +7,6 @@ import ProcessPanel from './ProcessPanel'
 import NotePanel from './NotePanel'
 import { useNotebookStore } from '../../store/notebookStore'
 import { useChatStore } from '../../store/chatStore'
-import { NOTEBOOK_COVER_COLORS } from '../../constants/colors'
 
 export default function NotebookLayout(): ReactElement {
   const navigate = useNavigate()
@@ -26,14 +25,14 @@ export default function NotebookLayout(): ReactElement {
   }, [id, addOpenedNotebook, setCurrentNotebook, loadActiveSession])
 
   const handleCreateNotebook = async (): Promise<void> => {
-    const randomColor =
-      NOTEBOOK_COVER_COLORS[Math.floor(Math.random() * NOTEBOOK_COVER_COLORS.length)]
+    // 随机选择一个 emoji 图标
+    const icons = ['📔', '📕', '📗', '📘', '📙', '📓', '📖', '📚']
+    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
 
     const newId = await addNotebook({
       title: `新笔记本 ${notebooks.length + 1}`,
       description: '开始你的笔记之旅',
-      coverColor: randomColor,
-      chatCount: 0
+      icon: randomIcon
     })
 
     navigate(`/notebook/${newId}`)

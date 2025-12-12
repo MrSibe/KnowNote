@@ -5,6 +5,17 @@ import type { ChatSession, ChatMessage } from '../shared/types/chat'
 export type { ChatSession, ChatMessage }
 
 /**
+ * 笔记本接口
+ */
+export interface Notebook {
+  id: string
+  title: string
+  description?: string | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
  * Provider 配置接口
  */
 export interface ProviderConfig {
@@ -42,6 +53,16 @@ declare global {
           callback: (newSettings: AppSettings, oldSettings: AppSettings) => void
         ) => () => void
       }
+
+      // Notebook 相关
+      createNotebook: (title: string, description?: string) => Promise<Notebook>
+      getAllNotebooks: () => Promise<Notebook[]>
+      getNotebook: (id: string) => Promise<Notebook | null>
+      updateNotebook: (
+        id: string,
+        updates: Partial<Pick<Notebook, 'title' | 'description'>>
+      ) => Promise<void>
+      deleteNotebook: (id: string) => Promise<void>
 
       // Chat Session 相关
       createChatSession: (notebookId: string, title: string) => Promise<ChatSession>
