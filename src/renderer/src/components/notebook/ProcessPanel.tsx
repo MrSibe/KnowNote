@@ -1,12 +1,17 @@
 import { useState, useEffect, ReactElement } from 'react'
 import { Send } from 'lucide-react'
 import { useChatStore } from '../../store/chatStore'
+import { useNotebookStore } from '../../store/notebookStore'
 import MessageList from './chat/MessageList'
 
 export default function ProcessPanel(): ReactElement {
   const [input, setInput] = useState('')
   const [hasProvider, setHasProvider] = useState(true)
   const { currentSession, messages, isNotebookStreaming, sendMessage } = useChatStore()
+  const { currentNotebook, updateNotebook } = useNotebookStore()
+
+  const [editingTitle, setEditingTitle] = useState('')
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
 
   const currentNotebookId = currentSession?.notebookId
   const isCurrentNotebookStreaming = currentNotebookId
@@ -54,16 +59,80 @@ export default function ProcessPanel(): ReactElement {
     }
   }
 
+  // 开始编辑标题
+  const handleStartEditTitle = (): void => {
+    if (currentNotebook) {
+      setEditingTitle(currentNotebook.title)
+      setIsEditingTitle(true)
+    }
+  }
+
+  // 保存标题
+  const handleSaveTitle = async (): Promise<void> => {
+    if (!currentNotebook || !editingTitle.trim()) {
+      setIsEditingTitle(false)
+      return
+    }
+
+    if (editingTitle.trim() !== currentNotebook.title) {
+      try {
+        await updateNotebook(currentNotebook.id, { title: editingTitle.trim() })
+      } catch (error) {
+        console.error('更新 Notebook 标题失败:', error)
+      }
+    }
+
+    setIsEditingTitle(false)
+  }
+
+  // 取消编辑
+  const handleCancelEditTitle = (): void => {
+    setIsEditingTitle(false)
+    setEditingTitle('')
+  }
+
+  // 标题输入框按键处理
+  const handleTitleKeyDown = (e: React.KeyboardEvent): void => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      void handleSaveTitle()
+    } else if (e.key === 'Escape') {
+      handleCancelEditTitle()
+    }
+  }
+
   return (
     <div className="relative flex flex-col bg-card rounded-xl overflow-hidden h-full mx-0">
       {/* 顶部标题栏 */}
       <div
-        className="h-14 flex items-center justify-center border-b border-border/50 flex-shrink-0"
+        className="h-14 flex items-center justify-center px-4 border-b border-border/50 flex-shrink-0"
         style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       >
-        <span className="text-sm text-muted-foreground">
-          {currentSession ? `${messages.length} 条消息` : '请选择或创建会话'}
-        </span>
+        {currentNotebook ? (
+          isEditingTitle ? (
+            <input
+              type="text"
+              value={editingTitle}
+              onChange={(e) => setEditingTitle(e.target.value)}
+              onBlur={handleSaveTitle}
+              onKeyDown={handleTitleKeyDown}
+              autoFocus
+              className="text-sm font-medium bg-transparent outline-none text-center min-w-0 max-w-full"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            />
+          ) : (
+            <button
+              onClick={handleStartEditTitle}
+              className="text-sm font-medium hover:text-primary transition-colors"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              title="点击编辑标题"
+            >
+              {currentNotebook.title}
+            </button>
+          )
+        ) : (
+          <span className="text-sm text-muted-foreground">请选择或创建笔记本</span>
+        )}
       </div>
 
       {/* 对话消息区域 - 使用 absolute 定位占满剩余空间 */}
