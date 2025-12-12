@@ -89,7 +89,7 @@ export default function GeneralSettings({
   }, [isDropdownOpen, isModelDropdownOpen])
 
   return (
-    <div className="max-w-2xl space-y-3">
+    <div className="max-w-2xl flex flex-col gap-4">
       {/* 主题模式设置 */}
       <SettingItem title="主题模式" description="选择应用的外观主题">
         <div className="flex items-center gap-2">
