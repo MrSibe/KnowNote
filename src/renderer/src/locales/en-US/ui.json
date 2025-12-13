@@ -89,6 +89,7 @@
   "failed": "Failed",
   "deleteDocument": "Delete Document",
   "confirmDeleteDocument": "Are you sure you want to delete this document?",
+  "embeddingFailed": "Failed to embed document {{title}}, please try again",
   "documentTitle": "Document Title",
   "documentContent": "Document Content",
   "urlPlaceholder": "Enter URL",

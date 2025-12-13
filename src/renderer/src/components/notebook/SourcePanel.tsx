@@ -1,23 +1,11 @@
 import { useState, useEffect, useCallback, ReactElement } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import {
-  Plus,
-  FileText,
-  Globe,
-  FileUp,
-  Trash2,
-  Loader2,
-  CheckCircle,
-  XCircle,
-  ChevronDown,
-  StickyNote,
-  X
-} from 'lucide-react'
+import { Plus, FileText, Globe, FileUp, Loader2, StickyNote, X } from 'lucide-react'
 import { useKnowledgeStore, setupKnowledgeListeners } from '../../store/knowledgeStore'
 import { useNoteStore } from '../../store/noteStore'
 import { ScrollArea } from '../ui/scroll-area'
-import type { KnowledgeDocument } from '../../../../shared/types/knowledge'
+import DocumentList from './source/DocumentList'
 
 // 添加来源类型
 type AddSourceType = 'file' | 'url' | 'text' | 'note'
@@ -148,95 +136,6 @@ function AddSourceModal({
           </div>
         </form>
       </div>
-    </div>
-  )
-}
-
-// 文档项组件
-interface DocumentItemProps {
-  document: KnowledgeDocument
-  onDelete: (id: string) => void
-}
-
-function DocumentItem({ document, onDelete }: DocumentItemProps) {
-  const { t } = useTranslation('ui')
-
-  const getStatusIcon = () => {
-    switch (document.status) {
-      case 'indexed':
-        return <CheckCircle className="w-3.5 h-3.5 text-green-500" />
-      case 'processing':
-        return <Loader2 className="w-3.5 h-3.5 text-yellow-500 animate-spin" />
-      case 'failed':
-        return <XCircle className="w-3.5 h-3.5 text-red-500" />
-      default:
-        return null
-    }
-  }
-
-  const getTypeIcon = () => {
-    switch (document.type) {
-      case 'file':
-        return <FileUp className="w-4 h-4" />
-      case 'url':
-        return <Globe className="w-4 h-4" />
-      case 'note':
-        return <StickyNote className="w-4 h-4" />
-      default:
-        return <FileText className="w-4 h-4" />
-    }
-  }
-
-  const handleDelete = () => {
-    if (confirm(t('confirmDeleteDocument'))) {
-      onDelete(document.id)
-    }
-  }
-
-  return (
-    <div className="group px-4 py-3 hover:bg-muted/50 transition-colors">
-      <div className="flex items-start gap-3">
-        <div className="p-1.5 rounded-lg bg-muted flex-shrink-0">{getTypeIcon()}</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium truncate">{document.title}</span>
-            {getStatusIcon()}
-          </div>
-          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-            <span>
-              {document.chunkCount} {t('chunks', { count: document.chunkCount })}
-            </span>
-            {document.status === 'indexed' && (
-              <span className="text-green-600">{t('indexed')}</span>
-            )}
-            {document.status === 'processing' && (
-              <span className="text-yellow-600">{t('indexing')}</span>
-            )}
-            {document.status === 'failed' && <span className="text-red-600">{t('failed')}</span>}
-          </div>
-        </div>
-        <button
-          onClick={handleDelete}
-          className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 text-destructive rounded-lg transition-all"
-          title={t('deleteDocument')}
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// 空状态组件
-function EmptyState() {
-  const { t } = useTranslation('ui')
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center px-8 py-12 text-muted-foreground">
-      <FileText className="w-12 h-12 opacity-20 mb-4" />
-      <h3 className="text-sm font-medium text-muted-foreground mb-1">{t('noDocuments')}</h3>
-      <p className="text-xs text-center text-muted-foreground/70 max-w-[200px]">
-        {t('noDocumentsDesc')}
-      </p>
     </div>
   )
 }
@@ -379,11 +278,10 @@ export default function SourcePanel(): ReactElement {
         <div className="relative" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
           <button
             onClick={() => setShowAddMenu(!showAddMenu)}
-            className="p-1.5 hover:bg-muted rounded-lg transition-colors flex items-center gap-1"
+            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
             title={t('addSource')}
           >
             <Plus className="w-4 h-4" />
-            <ChevronDown className="w-3 h-3" />
           </button>
 
           {/* 添加菜单 */}
@@ -439,15 +337,9 @@ export default function SourcePanel(): ReactElement {
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
-      ) : documents.length === 0 ? (
-        <EmptyState />
       ) : (
         <ScrollArea className="flex-1">
-          <div className="divide-y divide-border/50">
-            {documents.map((doc) => (
-              <DocumentItem key={doc.id} document={doc} onDelete={handleDelete} />
-            ))}
-          </div>
+          <DocumentList documents={documents} onDeleteDocument={handleDelete} />
         </ScrollArea>
       )}
 

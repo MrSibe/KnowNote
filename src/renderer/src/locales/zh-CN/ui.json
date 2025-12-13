@@ -37,6 +37,7 @@
   "failed": "索引失败",
   "deleteDocument": "删除文档",
   "confirmDeleteDocument": "确定要删除此文档吗？",
+  "embeddingFailed": "文档 {{title}} 嵌入失败，请重试",
   "documentTitle": "文档标题",
   "documentContent": "文档内容",
   "urlPlaceholder": "输入网页 URL",
