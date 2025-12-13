@@ -39,5 +39,7 @@
   "deepseekName": "DeepSeek",
   "deepseekDesc": "DeepSeek AI 模型，具备强大的推理能力",
   "openaiName": "OpenAI",
-  "openaiDesc": "OpenAI GPT 模型，包括 GPT-4 和 GPT-3.5"
+  "openaiDesc": "OpenAI GPT 模型，包括 GPT-4 和 GPT-3.5",
+  "siliconflowName": "硅基流动",
+  "siliconflowDesc": "硅基流动 AI 模型平台，提供多种开源和商用模型"
 }

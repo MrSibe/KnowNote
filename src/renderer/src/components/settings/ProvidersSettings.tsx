@@ -36,7 +36,7 @@ export default function ProvidersSettings({
   // 加载已缓存的模型列表
   useEffect(() => {
     const loadCachedModels = async () => {
-      const providerList = ['deepseek', 'openai']
+      const providerList = ['deepseek', 'openai', 'siliconflow']
       const loadedModels: Record<string, Model[]> = {}
 
       for (const providerName of providerList) {
@@ -119,6 +119,7 @@ export default function ProvidersSettings({
 
   const openaiProvider = getProviderConfig('openai')
   const deepseekProvider = getProviderConfig('deepseek')
+  const siliconflowProvider = getProviderConfig('siliconflow')
 
   const providerList = [
     {
@@ -134,6 +135,13 @@ export default function ProvidersSettings({
       description: t('openaiDesc'),
       platformUrl: 'https://platform.openai.com',
       enabled: openaiProvider.enabled
+    },
+    {
+      id: 'siliconflow',
+      name: t('siliconflowName'),
+      description: t('siliconflowDesc'),
+      platformUrl: 'https://siliconflow.cn',
+      enabled: siliconflowProvider.enabled
     }
   ]
 
@@ -212,6 +220,20 @@ export default function ProvidersSettings({
             onConfigChange={(config) => updateProviderConfig('openai', { config })}
             onEnabledChange={(enabled) => updateProviderConfig('openai', { enabled })}
             onFetchModels={() => fetchModels('openai')}
+          />
+        )}
+
+        {activeProvider === 'siliconflow' && (
+          <ProviderConfigPanel
+            displayName={t('siliconflowName')}
+            description={t('siliconflowDesc')}
+            platformUrl="https://siliconflow.cn"
+            provider={siliconflowProvider}
+            models={models.siliconflow || []}
+            isFetching={fetchingModels.siliconflow || false}
+            onConfigChange={(config) => updateProviderConfig('siliconflow', { config })}
+            onEnabledChange={(enabled) => updateProviderConfig('siliconflow', { enabled })}
+            onFetchModels={() => fetchModels('siliconflow')}
           />
         )}
       </ScrollArea>

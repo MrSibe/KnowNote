@@ -42,6 +42,8 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         url = 'https://api.openai.com/v1/models'
       } else if (providerName === 'deepseek') {
         url = 'https://api.deepseek.com/models'
+      } else if (providerName === 'siliconflow') {
+        url = 'https://api.siliconflow.cn/v1/models'
       } else {
         throw new Error(`Unsupported provider: ${providerName}`)
       }
