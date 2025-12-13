@@ -99,6 +99,8 @@ const api = {
     invokeWithTimeout('validate-provider-config', 15000, providerName, config), // 15秒超时（网络验证）
   fetchModels: (providerName: string, apiKey: string) =>
     invokeWithTimeout('fetch-models', 15000, providerName, apiKey), // 15秒超时（网络请求）
+  getProviderModels: (providerName: string) =>
+    ipcRenderer.invoke('get-provider-models', providerName),
 
   // Provider 配置变更监听
   onProviderConfigChanged: (callback: () => void) => {

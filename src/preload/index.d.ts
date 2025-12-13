@@ -1,51 +1,9 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { ChatSession, ChatMessage } from '../shared/types/chat'
+import type { Notebook, Note, ProviderConfig, AppSettings } from '../shared/types'
 
 // 重新导出共享类型
-export type { ChatSession, ChatMessage }
-
-/**
- * 笔记本接口
- */
-export interface Notebook {
-  id: string
-  title: string
-  description?: string | null
-  createdAt: Date
-  updatedAt: Date
-}
-
-/**
- * 笔记接口
- */
-export interface Note {
-  id: string
-  notebookId: string
-  title: string
-  content: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-/**
- * Provider 配置接口
- */
-export interface ProviderConfig {
-  providerName: string
-  config: any
-  enabled: boolean
-  updatedAt: number
-}
-
-/**
- * 应用设置接口
- */
-export interface AppSettings {
-  theme: 'light' | 'dark'
-  language: 'zh-CN' | 'en-US'
-  autoLaunch: boolean
-  defaultModel?: string
-}
+export type { ChatSession, ChatMessage, Notebook, Note, ProviderConfig, AppSettings }
 
 declare global {
   interface Window {
@@ -119,6 +77,9 @@ declare global {
       fetchModels: (
         providerName: string,
         apiKey: string
+      ) => Promise<{ id: string; object: string; owned_by?: string; created?: number }[]>
+      getProviderModels: (
+        providerName: string
       ) => Promise<{ id: string; object: string; owned_by?: string; created?: number }[]>
       onProviderConfigChanged: (callback: () => void) => () => void
     }

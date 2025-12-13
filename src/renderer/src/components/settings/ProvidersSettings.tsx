@@ -1,4 +1,4 @@
-import { useState, ReactElement } from 'react'
+import { useState, useEffect, ReactElement } from 'react'
 import { Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import ProviderConfigPanel from './ProviderConfigPanel'
@@ -32,6 +32,27 @@ export default function ProvidersSettings({
   const [searchQuery, setSearchQuery] = useState('')
   const [models, setModels] = useState<Record<string, Model[]>>({})
   const [fetchingModels, setFetchingModels] = useState<Record<string, boolean>>({})
+
+  // 加载已缓存的模型列表
+  useEffect(() => {
+    const loadCachedModels = async () => {
+      const providerList = ['deepseek', 'openai']
+      const loadedModels: Record<string, Model[]> = {}
+
+      for (const providerName of providerList) {
+        try {
+          const cachedModels = await window.api.getProviderModels(providerName)
+          loadedModels[providerName] = cachedModels
+        } catch (error) {
+          console.error(`Failed to load cached models for ${providerName}:`, error)
+        }
+      }
+
+      setModels(loadedModels)
+    }
+
+    loadCachedModels()
+  }, [])
 
   // Get specific provider configuration
   const getProviderConfig = (providerName: string) => {

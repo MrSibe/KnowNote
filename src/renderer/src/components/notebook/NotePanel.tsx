@@ -6,7 +6,7 @@ import { useNoteStore } from '../../store/noteStore'
 import NoteEditor from './note/NoteEditor'
 import NoteList from './note/NoteList'
 import { ScrollArea } from '../ui/scroll-area'
-import type { Note } from '@/../../preload/index'
+import type { Note } from '../../../../shared/types'
 
 // 编辑器面板子组件 - 管理编辑状态
 interface NoteEditorPanelProps {

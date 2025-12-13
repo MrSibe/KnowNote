@@ -1,7 +1,7 @@
 import { ReactElement } from 'react'
 import { FileText, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { Note } from '@/../../preload/index'
+import type { Note } from '../../../../../../shared/types'
 
 interface NoteListProps {
   notes: Note[]

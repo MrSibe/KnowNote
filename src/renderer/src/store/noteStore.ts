@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Note } from '@/../../preload/index'
+import type { Note } from '../../../shared/types'
 
 interface NoteStore {
   // 状态

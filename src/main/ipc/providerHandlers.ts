@@ -59,11 +59,21 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
       }
 
       const data = await response.json()
-      return data.data || []
+      const models = data.data || []
+
+      // 保存模型列表到持久化存储
+      await providersManager.saveProviderModels(providerName, models)
+
+      return models
     } catch (error) {
       console.error('Failed to fetch models:', error)
       throw error
     }
+  })
+
+  // 获取已缓存的模型列表
+  ipcMain.handle('get-provider-models', async (_event, providerName: string) => {
+    return await providersManager.getProviderModels(providerName)
   })
 
   console.log('[IPC] Provider handlers registered')
