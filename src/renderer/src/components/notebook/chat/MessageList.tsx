@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useRef } from 'react'
 import { MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ChatMessage } from '../../../types/notebook'
+import type { ChatMessage } from '../../../../../shared/types/chat'
 import MessageItem from './MessageItem'
 import { ScrollArea } from '../../ui/scroll-area'
 import './messageList.css'

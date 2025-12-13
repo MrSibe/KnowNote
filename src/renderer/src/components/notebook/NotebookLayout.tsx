@@ -22,19 +22,16 @@ export default function NotebookLayout(): ReactElement {
       addOpenedNotebook(id)
       setCurrentNotebook(id)
       // 关键改动：自动加载该Notebook的栈顶session
-      loadActiveSession(id)
+      loadActiveSession(id).catch((err) => {
+        console.error('[NotebookLayout] Failed to load session for notebook:', id, err)
+      })
     }
   }, [id, addOpenedNotebook, setCurrentNotebook, loadActiveSession])
 
   const handleCreateNotebook = async (): Promise<void> => {
-    // 随机选择一个 emoji 图标
-    const icons = ['📔', '📕', '📗', '📘', '📙', '📓', '📖', '📚']
-    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
-
     const newId = await addNotebook({
       title: t('newNotebook', { index: notebooks.length + 1 }),
-      description: t('notebookDescription'),
-      icon: randomIcon
+      description: t('notebookDescription')
     })
 
     navigate(`/notebook/${newId}`)

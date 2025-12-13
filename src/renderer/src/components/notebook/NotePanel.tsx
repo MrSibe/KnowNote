@@ -15,12 +15,27 @@ interface NoteEditorPanelProps {
   onSave: (title: string, content: string) => void
   onDelete: () => void
   onBack: () => void
+  hasUnsavedChanges: boolean
+  onUnsavedChange: (hasChanges: boolean) => void
 }
 
-function NoteEditorPanel({ note, isSaving, onSave, onDelete, onBack }: NoteEditorPanelProps) {
+function NoteEditorPanel({
+  note,
+  isSaving,
+  onSave,
+  onDelete,
+  onBack,
+  onUnsavedChange
+}: NoteEditorPanelProps) {
   const { t } = useTranslation('notebook')
   const [editTitle, setEditTitle] = useState(note.title)
   const [editContent, setEditContent] = useState(note.content)
+
+  // 检测是否有未保存的修改
+  useEffect(() => {
+    const hasChanges = editTitle !== note.title || editContent !== note.content
+    onUnsavedChange(hasChanges)
+  }, [editTitle, editContent, note.title, note.content, onUnsavedChange])
 
   const handleSave = () => {
     onSave(editTitle, editContent)
@@ -96,6 +111,19 @@ export default function NotePanel(): ReactElement {
     setCurrentNote
   } = useNoteStore()
 
+  // 管理未保存状态
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  // 监听Notebook切换，清空当前编辑状态
+  useEffect(() => {
+    if (notebookId) {
+      // 清空当前编辑状态，避免显示旧Notebook的内容
+      setCurrentNote(null)
+      // 使用 setTimeout 将状态更新推迟到下一个事件循环
+      setTimeout(() => setHasUnsavedChanges(false), 0)
+    }
+  }, [notebookId, setCurrentNote])
+
   // 加载笔记列表
   useEffect(() => {
     if (notebookId) {
@@ -125,7 +153,15 @@ export default function NotePanel(): ReactElement {
 
   // 返回列表页面
   const handleBack = () => {
+    // 如果有未保存的修改，提示用户
+    if (hasUnsavedChanges) {
+      const message = t('unsavedChangesWarning', '您有未保存的修改，确定要离开吗？')
+      if (!confirm(message)) {
+        return
+      }
+    }
     setCurrentNote(null)
+    setHasUnsavedChanges(false)
   }
 
   return (
@@ -139,6 +175,8 @@ export default function NotePanel(): ReactElement {
           onSave={handleSave}
           onDelete={handleDelete}
           onBack={handleBack}
+          hasUnsavedChanges={hasUnsavedChanges}
+          onUnsavedChange={setHasUnsavedChanges}
         />
       ) : (
         // 列表页面

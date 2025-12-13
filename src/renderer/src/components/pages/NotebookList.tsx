@@ -35,14 +35,9 @@ export default function NotebookList(): ReactElement {
   const [deleteNotebookTitle, setDeleteNotebookTitle] = useState('')
 
   const handleCreateNotebook = async (): Promise<void> => {
-    // 随机选择一个 emoji 图标
-    const icons = ['📔', '📕', '📗', '📘', '📙', '📓', '📖', '📚']
-    const randomIcon = icons[Math.floor(Math.random() * icons.length)]
-
     const newId = await addNotebook({
       title: t('newNotebook', { index: notebooks.length + 1 }),
-      description: t('notebookDescription'),
-      icon: randomIcon
+      description: t('notebookDescription')
     })
 
     addOpenedNotebook(newId)

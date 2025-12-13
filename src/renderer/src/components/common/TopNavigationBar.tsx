@@ -91,17 +91,17 @@ export default function TopNavigationBar({
               }`}
             >
               <span className="max-w-[200px] truncate">{notebook.title}</span>
-              <button
+              <span
                 onClick={(e) => {
                   e.stopPropagation()
                   handleCloseOpenedNotebook(notebook.id)
                 }}
                 style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-                className="ml-2 p-1 hover:bg-accent rounded transition-colors"
+                className="ml-2 p-1 hover:bg-accent rounded transition-colors cursor-pointer"
                 title={t('closeTab')}
               >
                 <X className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground" />
-              </button>
+              </span>
             </button>
           )
         })}

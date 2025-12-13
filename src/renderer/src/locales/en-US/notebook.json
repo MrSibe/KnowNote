@@ -52,5 +52,10 @@
   "save": "Save",
   "noNotesYet": "No notes yet",
   "noNotesYetDesc": "Click the \"+\" button in the top right to create a note",
-  "deleteNote": "Delete Note"
+  "deleteNote": "Delete Note",
+  "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to leave?",
+  "unsavedChangesTitle": "Unsaved Changes",
+  "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to switch to another Notebook?",
+  "cancel": "Cancel",
+  "leave": "Leave"
 }
