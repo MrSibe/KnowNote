@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-type Language = 'zh-CN' | 'en-US'
+export type Language = 'zh-CN' | 'en-US'
 
 interface I18nStore {
   language: Language

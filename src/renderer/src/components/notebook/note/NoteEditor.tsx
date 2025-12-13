@@ -1,8 +1,9 @@
 import { ReactElement, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
-import { Bold, Italic, Link as LinkIcon, Code, FileCode, List, ListOrdered } from 'lucide-react'
+import { Placeholder } from '@tiptap/extensions'
 import { ScrollArea } from '../../ui/scroll-area'
 
 interface NoteEditorProps {
@@ -11,8 +12,16 @@ interface NoteEditorProps {
 }
 
 export default function NoteEditor({ content, onChange }: NoteEditorProps): ReactElement {
+  const { t } = useTranslation('notebook')
+
   const editor = useEditor({
-    extensions: [StarterKit, Markdown],
+    extensions: [
+      StarterKit,
+      Markdown,
+      Placeholder.configure({
+        placeholder: t('startEditing', '输入笔记内容...')
+      })
+    ],
     content,
     editorProps: {
       attributes: {
@@ -20,13 +29,23 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
       }
     },
     onUpdate: ({ editor }) => {
-      const markdown = editor.storage.markdown.getMarkdown()
+      const markdown = (editor.storage as any).markdown.getMarkdown()
       onChange(markdown)
     }
   })
 
+  // 清理编辑器实例
   useEffect(() => {
-    if (editor && content !== editor.storage.markdown.getMarkdown()) {
+    return () => {
+      if (editor) {
+        editor.destroy()
+      }
+    }
+  }, [editor])
+
+  // 当外部 content 变化时同步到编辑器
+  useEffect(() => {
+    if (editor && content !== (editor.storage as any).markdown.getMarkdown()) {
       editor.commands.setContent(content)
     }
   }, [content, editor])
@@ -38,75 +57,7 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
   }
 
   return (
-    <div className="h-full flex flex-col note-editor-wrapper">
-      {/* 工具栏 */}
-      <div className="toolbar flex items-center gap-1 p-2 border-b border-border/50">
-        <button
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
-          title="加粗"
-        >
-          <Bold className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
-          title="斜体"
-        >
-          <Italic className="w-4 h-4" />
-        </button>
-
-        <div className="w-px h-4 bg-border/50 mx-1" />
-
-        <button
-          onClick={() => {
-            const url = window.prompt('输入链接地址:')
-            if (url) {
-              editor.chain().focus().setLink({ href: url }).run()
-            }
-          }}
-          className={`toolbar-btn ${editor.isActive('link') ? 'active' : ''}`}
-          title="链接"
-        >
-          <LinkIcon className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleCode().run()}
-          className={`toolbar-btn ${editor.isActive('code') ? 'active' : ''}`}
-          title="行内代码"
-        >
-          <Code className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          className={`toolbar-btn ${editor.isActive('codeBlock') ? 'active' : ''}`}
-          title="代码块"
-        >
-          <FileCode className="w-4 h-4" />
-        </button>
-
-        <div className="w-px h-4 bg-border/50 mx-1" />
-
-        <button
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`toolbar-btn ${editor.isActive('bulletList') ? 'active' : ''}`}
-          title="无序列表"
-        >
-          <List className="w-4 h-4" />
-        </button>
-
-        <button
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`toolbar-btn ${editor.isActive('orderedList') ? 'active' : ''}`}
-          title="有序列表"
-        >
-          <ListOrdered className="w-4 h-4" />
-        </button>
-      </div>
-
+    <div className="h-full flex flex-col">
       {/* 编辑器内容 */}
       <ScrollArea className="flex-1">
         <div className="p-4">
@@ -115,30 +66,7 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
       </ScrollArea>
 
       <style>{`
-        .note-editor-wrapper .toolbar-btn {
-          padding: 0.375rem;
-          color: hsl(var(--muted-foreground));
-          border-radius: 0.375rem;
-          transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-        }
-
-        .note-editor-wrapper .toolbar-btn:hover {
-          color: hsl(var(--foreground));
-          background-color: hsl(var(--muted));
-        }
-
-        .note-editor-wrapper .toolbar-btn.active {
-          color: hsl(var(--foreground));
-          background-color: hsl(var(--primary) / 0.1);
-        }
-
-        .note-editor-wrapper .ProseMirror {
+        .ProseMirror {
           color: hsl(var(--foreground));
           background: transparent;
           min-height: 100%;
@@ -147,33 +75,49 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
           line-height: 1.75;
         }
 
-        .note-editor-wrapper .ProseMirror p {
+        .ProseMirror p.is-empty::before {
+          color: hsl(var(--muted-foreground) / 0.5);
+          content: attr(data-placeholder);
+          pointer-events: none;
+          float: left;
+          height: 0;
+        }
+
+        .ProseMirror.is-editor-empty p::before {
+          color: hsl(var(--muted-foreground) / 0.5);
+          content: attr(data-placeholder);
+          pointer-events: none;
+          float: left;
+          height: 0;
+        }
+
+              .ProseMirror p {
           margin: 0.75rem 0;
           color: hsl(var(--foreground));
         }
 
-        .note-editor-wrapper .ProseMirror h1,
-        .note-editor-wrapper .ProseMirror h2,
-        .note-editor-wrapper .ProseMirror h3 {
+              .ProseMirror h1,
+              .ProseMirror h2,
+              .ProseMirror h3 {
           margin: 1rem 0 0.5rem;
           font-weight: 700;
           line-height: 1.4;
           color: hsl(var(--foreground));
         }
 
-        .note-editor-wrapper .ProseMirror h1 {
+              .ProseMirror h1 {
           font-size: 1.25rem;
         }
 
-        .note-editor-wrapper .ProseMirror h2 {
+              .ProseMirror h2 {
           font-size: 1.125rem;
         }
 
-        .note-editor-wrapper .ProseMirror h3 {
+              .ProseMirror h3 {
           font-size: 1rem;
         }
 
-        .note-editor-wrapper .ProseMirror code {
+              .ProseMirror code {
           background-color: hsl(var(--muted));
           color: hsl(var(--primary));
           padding: 0.125rem 0.375rem;
@@ -182,7 +126,7 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
           font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
         }
 
-        .note-editor-wrapper .ProseMirror pre {
+              .ProseMirror pre {
           background-color: hsl(var(--muted));
           color: hsl(var(--foreground));
           padding: 1rem;
@@ -191,59 +135,59 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
           margin: 1rem 0;
         }
 
-        .note-editor-wrapper .ProseMirror pre code {
+              .ProseMirror pre code {
           background: none;
           padding: 0;
           color: inherit;
           font-size: 0.875rem;
         }
 
-        .note-editor-wrapper .ProseMirror ul,
-        .note-editor-wrapper .ProseMirror ol {
+              .ProseMirror ul,
+              .ProseMirror ol {
           padding-left: 1.5rem;
           margin: 0.75rem 0;
           list-style-position: outside;
         }
 
-        .note-editor-wrapper .ProseMirror ul {
+              .ProseMirror ul {
           list-style-type: disc;
         }
 
-        .note-editor-wrapper .ProseMirror ol {
+              .ProseMirror ol {
           list-style-type: decimal;
         }
 
-        .note-editor-wrapper .ProseMirror li {
+              .ProseMirror li {
           margin: 0.25rem 0;
           color: hsl(var(--foreground));
         }
 
-        .note-editor-wrapper .ProseMirror li::marker {
+              .ProseMirror li::marker {
           color: hsl(var(--foreground));
         }
 
-        .note-editor-wrapper .ProseMirror a {
+              .ProseMirror a {
           color: hsl(var(--primary));
           text-decoration: underline;
         }
 
-        .note-editor-wrapper .ProseMirror a:hover {
+              .ProseMirror a:hover {
           opacity: 0.8;
         }
 
-        .note-editor-wrapper .ProseMirror blockquote {
+              .ProseMirror blockquote {
           border-left: 3px solid hsl(var(--border));
           padding-left: 1rem;
           margin: 0.75rem 0;
           color: hsl(var(--muted-foreground));
         }
 
-        .note-editor-wrapper .ProseMirror strong {
+              .ProseMirror strong {
           font-weight: 600;
           color: hsl(var(--foreground));
         }
 
-        .note-editor-wrapper .ProseMirror em {
+              .ProseMirror em {
           font-style: italic;
           color: hsl(var(--foreground));
         }

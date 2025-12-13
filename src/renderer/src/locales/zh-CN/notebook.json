@@ -6,7 +6,7 @@
   "notes": "笔记",
   "createNote": "创建笔记",
   "newNote": "新笔记",
-  "newNoteContent": "# 新笔记\n\n开始编辑...",
+  "newNoteContent": "",
   "noteTitle": "笔记标题",
   "backToList": "返回列表",
   "save": "保存",
@@ -19,5 +19,6 @@
   "unsavedChangesTitle": "有未保存的修改",
   "unsavedChangesMessage": "您有未保存的修改，确定要切换到其他Notebook吗？",
   "cancel": "取消",
-  "leave": "离开"
+  "leave": "离开",
+  "startEditing": "输入笔记内容..."
 }

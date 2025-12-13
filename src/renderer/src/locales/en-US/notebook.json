@@ -47,7 +47,7 @@
   "enterNotebookName": "Enter notebook name",
   "deleteConfirm": "Are you sure you want to delete notebook \"{{name}}\"?\nThis action cannot be undone.",
   "newNote": "New Note",
-  "newNoteContent": "# New Note\n\nStart editing...",
+  "newNoteContent": "",
   "backToList": "Back to List",
   "save": "Save",
   "noNotesYet": "No notes yet",
@@ -57,5 +57,6 @@
   "unsavedChangesTitle": "Unsaved Changes",
   "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to switch to another Notebook?",
   "cancel": "Cancel",
-  "leave": "Leave"
+  "leave": "Leave",
+  "startEditing": "Type your note here..."
 }
