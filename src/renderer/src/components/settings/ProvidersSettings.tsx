@@ -109,6 +109,14 @@ export default function ProvidersSettings({
     try {
       const modelList = await window.api.fetchModels(providerName, apiKey)
       setModels((prev) => ({ ...prev, [providerName]: modelList }))
+
+      // 保存完整的模型信息到 config，这样 GeneralSettings 可以访问到模型的 type 字段
+      updateProviderConfig(providerName, {
+        config: {
+          ...provider.config,
+          modelDetails: modelList
+        }
+      })
     } catch (error) {
       console.error('Failed to fetch model list:', error)
       alert(`${t('fetchModelFailed')}${error instanceof Error ? error.message : 'Unknown error'}`)

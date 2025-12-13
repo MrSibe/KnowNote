@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { ProviderManager } from '../providers/ProviderManager'
 import { providersManager } from '../config'
+import { enrichModelsWithType } from '../../shared/utils/modelClassifier'
 
 /**
  * 注册 Provider 配置相关的 IPC Handlers
@@ -61,12 +62,15 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
       }
 
       const data = await response.json()
-      const models = data.data || []
+      const rawModels = data.data || []
 
-      // 保存模型列表到持久化存储
-      await providersManager.saveProviderModels(providerName, models)
+      // 为模型添加类型信息
+      const modelsWithType = enrichModelsWithType(rawModels)
 
-      return models
+      // 保存带类型的模型列表到持久化存储
+      await providersManager.saveProviderModels(providerName, modelsWithType)
+
+      return modelsWithType
     } catch (error) {
       console.error('Failed to fetch models:', error)
       throw error

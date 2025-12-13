@@ -35,31 +35,44 @@ export default function GeneralSettings({
   const [isEmbeddingModelDropdownOpen, setIsEmbeddingModelDropdownOpen] = useState(false)
   const currentLanguage = languages.find((lang) => lang.value === settings.language) || languages[0]
 
-  // 获取所有启用的供应商的已选模型
-  const availableModels = useMemo(() => {
-    const models: Array<{ id: string; provider: string; label: string }> = []
+  // 分别获取对话模型和嵌入模型
+  const { availableChatModels, availableEmbeddingModels } = useMemo(() => {
+    const chatModels: Array<{ id: string; provider: string; label: string }> = []
+    const embeddingModels: Array<{ id: string; provider: string; label: string }> = []
 
     providers.forEach((provider) => {
       if (provider.enabled && provider.config.models && Array.isArray(provider.config.models)) {
+        // 从 modelDetails 获取完整的模型信息（包含 type 字段）
+        const modelDetails = provider.config.modelDetails || []
+
         provider.config.models.forEach((modelId: string) => {
-          models.push({
+          const modelDetail = modelDetails.find((m: any) => m.id === modelId)
+          const modelObj = {
             id: `${provider.providerName}:${modelId}`,
             provider: provider.providerName,
             label: modelId
-          })
+          }
+
+          // 根据类型分类
+          if (modelDetail?.type === 'chat') {
+            chatModels.push(modelObj)
+          } else if (modelDetail?.type === 'embedding') {
+            embeddingModels.push(modelObj)
+          }
         })
       }
     })
 
-    return models
+    return { availableChatModels: chatModels, availableEmbeddingModels: embeddingModels }
   }, [providers])
 
   const currentChatModel =
-    availableModels.find((model) => model.id === settings.defaultChatModel) || availableModels[0]
+    availableChatModels.find((model) => model.id === settings.defaultChatModel) ||
+    availableChatModels[0]
 
   const currentEmbeddingModel =
-    availableModels.find((model) => model.id === settings.defaultEmbeddingModel) ||
-    availableModels[0]
+    availableEmbeddingModels.find((model) => model.id === settings.defaultEmbeddingModel) ||
+    availableEmbeddingModels[0]
 
   // 当主题变化时，立即更新 DOM 以预览效果
   useEffect(() => {
@@ -194,9 +207,11 @@ export default function GeneralSettings({
       {/* 默认对话模型设置 */}
       <SettingItem
         title={t('defaultChatModel')}
-        description={availableModels.length > 0 ? t('defaultChatModelDesc') : t('noAvailableModel')}
+        description={
+          availableChatModels.length > 0 ? t('defaultChatModelDesc') : t('noAvailableModel')
+        }
       >
-        {availableModels.length > 0 ? (
+        {availableChatModels.length > 0 && (
           <div className="relative chat-model-dropdown w-56">
             <button
               onClick={() => setIsChatModelDropdownOpen(!isChatModelDropdownOpen)}
@@ -222,7 +237,7 @@ export default function GeneralSettings({
             {isChatModelDropdownOpen && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
                 <div className="py-1">
-                  {availableModels.map((model) => (
+                  {availableChatModels.map((model) => (
                     <button
                       key={model.id}
                       onClick={() => {
@@ -250,8 +265,6 @@ export default function GeneralSettings({
               </div>
             )}
           </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">{t('noAvailableModel')}</div>
         )}
       </SettingItem>
 
@@ -259,10 +272,12 @@ export default function GeneralSettings({
       <SettingItem
         title={t('defaultEmbeddingModel')}
         description={
-          availableModels.length > 0 ? t('defaultEmbeddingModelDesc') : t('noAvailableModel')
+          availableEmbeddingModels.length > 0
+            ? t('defaultEmbeddingModelDesc')
+            : t('noAvailableModel')
         }
       >
-        {availableModels.length > 0 ? (
+        {availableEmbeddingModels.length > 0 && (
           <div className="relative embedding-model-dropdown w-56">
             <button
               onClick={() => setIsEmbeddingModelDropdownOpen(!isEmbeddingModelDropdownOpen)}
@@ -288,7 +303,7 @@ export default function GeneralSettings({
             {isEmbeddingModelDropdownOpen && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
                 <div className="py-1">
-                  {availableModels.map((model) => (
+                  {availableEmbeddingModels.map((model) => (
                     <button
                       key={model.id}
                       onClick={() => {
@@ -316,8 +331,6 @@ export default function GeneralSettings({
               </div>
             )}
           </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">{t('noAvailableModel')}</div>
         )}
       </SettingItem>
     </div>

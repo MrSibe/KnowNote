@@ -1,5 +1,6 @@
 import type Store from 'electron-store'
 import type { ProviderConfig } from './types'
+import { enrichModelsWithType } from '../../shared/utils/modelClassifier'
 
 /**
  * 提供商配置管理器
@@ -92,13 +93,25 @@ export class ProvidersManager {
   }
 
   /**
-   * 获取提供商模型列表
+   * 获取提供商模型列表（带向后兼容）
    */
   async getProviderModels(providerName: string): Promise<any[]> {
     const store = await this.getStore()
     const modelsData = store.get('models', {})
     const providerModels = modelsData[providerName]
 
-    return providerModels?.models || []
+    let models = providerModels?.models || []
+
+    // 向后兼容：如果模型没有 type 字段，自动添加
+    const hasTypeField = models.length > 0 && models.some((m) => m.type)
+
+    if (!hasTypeField && models.length > 0) {
+      console.log(`[ProvidersManager] Migrating models for ${providerName} - adding type field`)
+      models = enrichModelsWithType(models)
+      // 更新存储
+      await this.saveProviderModels(providerName, models)
+    }
+
+    return models
   }
 }

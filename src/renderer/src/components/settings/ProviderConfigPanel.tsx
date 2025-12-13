@@ -1,19 +1,14 @@
-import { ReactElement, useState } from 'react'
+import { ReactElement, useState, useMemo } from 'react'
 import { Search, Eye, EyeOff, ExternalLink, Download, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { type Model, ModelType } from '../../../../shared/types'
+import { categorizeModels } from '../../../../shared/utils/modelClassifier'
 
 interface ProviderConfig {
   providerName: string
   config: Record<string, any>
   enabled: boolean
   updatedAt: number
-}
-
-interface Model {
-  id: string
-  object: string
-  owned_by?: string
-  created?: number
 }
 
 interface ProviderConfigPanelProps {
@@ -42,6 +37,7 @@ export default function ProviderConfigPanel({
   const { t } = useTranslation('settings')
   const [showApiKey, setShowApiKey] = useState(false)
   const [modelSearchQuery, setModelSearchQuery] = useState('')
+  const [showCategory, setShowCategory] = useState<'all' | 'chat' | 'embedding' | 'other'>('all')
 
   const handleApiKeyChange = (apiKey: string) => {
     onConfigChange({ ...provider.config, apiKey })
@@ -55,8 +51,28 @@ export default function ProviderConfigPanel({
     onConfigChange({ ...provider.config, models: newModels })
   }
 
-  const filteredModels =
-    models?.filter((model) => model.id.toLowerCase().includes(modelSearchQuery.toLowerCase())) || []
+  // 对模型进行分类
+  const categorized = useMemo(() => categorizeModels(models || []), [models])
+
+  // 根据选中的分类和搜索条件过滤模型
+  const filteredModels = useMemo(() => {
+    let modelsToShow: Model[] = []
+
+    if (showCategory === 'all') {
+      modelsToShow = models || []
+    } else if (showCategory === 'chat') {
+      modelsToShow = categorized.chat
+    } else if (showCategory === 'embedding') {
+      modelsToShow = categorized.embedding
+    } else if (showCategory === 'other') {
+      modelsToShow = [...categorized.reranker, ...categorized.other]
+    }
+
+    // 应用搜索过滤
+    return modelsToShow.filter((model) =>
+      model.id.toLowerCase().includes(modelSearchQuery.toLowerCase())
+    )
+  }, [models, categorized, showCategory, modelSearchQuery])
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -145,6 +161,52 @@ export default function ProviderConfigPanel({
 
         {models && models.length > 0 && (
           <>
+            {/* 分类标签 */}
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setShowCategory('all')}
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                  showCategory === 'all'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {t('allModels')} ({models.length})
+              </button>
+              <button
+                onClick={() => setShowCategory('chat')}
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                  showCategory === 'chat'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {t('chatModels')} ({categorized.chat.length})
+              </button>
+              <button
+                onClick={() => setShowCategory('embedding')}
+                className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                  showCategory === 'embedding'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {t('embeddingModels')} ({categorized.embedding.length})
+              </button>
+              {(categorized.reranker.length > 0 || categorized.other.length > 0) && (
+                <button
+                  onClick={() => setShowCategory('other')}
+                  className={`px-3 py-1 text-xs rounded-md transition-colors ${
+                    showCategory === 'other'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {t('otherModels')} ({categorized.reranker.length + categorized.other.length})
+                </button>
+              )}
+            </div>
+
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -158,7 +220,9 @@ export default function ProviderConfigPanel({
 
             <div className="max-h-60 overflow-y-auto space-y-2 border border-border rounded-lg p-2">
               <p className="text-xs text-muted-foreground px-2 py-1">
-                {t('totalModels', { count: models.length })}
+                {showCategory === 'all'
+                  ? t('totalModels', { count: models.length })
+                  : t('showingModels', { count: filteredModels.length, total: models.length })}
               </p>
               {filteredModels.map((model) => (
                 <label
@@ -172,7 +236,25 @@ export default function ProviderConfigPanel({
                     className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">{model.id}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium text-foreground truncate">{model.id}</div>
+                      {/* 显示模型类型标签 */}
+                      {model.type && (
+                        <span
+                          className={`px-1.5 py-0.5 text-xs rounded ${
+                            model.type === ModelType.CHAT
+                              ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+                              : model.type === ModelType.EMBEDDING
+                                ? 'bg-green-500/20 text-green-600 dark:text-green-400'
+                                : model.type === ModelType.RERANKER
+                                  ? 'bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                                  : 'bg-gray-500/20 text-gray-600 dark:text-gray-400'
+                          }`}
+                        >
+                          {model.type}
+                        </span>
+                      )}
+                    </div>
                     {model.owned_by && (
                       <div className="text-xs text-muted-foreground">by {model.owned_by}</div>
                     )}

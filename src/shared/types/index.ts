@@ -39,6 +39,40 @@ export interface ProviderConfig {
 }
 
 /**
+ * 模型类型枚举
+ */
+export enum ModelType {
+  CHAT = 'chat',
+  EMBEDDING = 'embedding',
+  RERANKER = 'reranker',
+  IMAGE = 'image',
+  AUDIO = 'audio',
+  VIDEO = 'video',
+  UNKNOWN = 'unknown'
+}
+
+/**
+ * 模型接口
+ */
+export interface Model {
+  id: string
+  object: string
+  owned_by?: string
+  created?: number
+  type?: ModelType
+}
+
+/**
+ * 分类后的模型列表接口
+ */
+export interface CategorizedModels {
+  chat: Model[]
+  embedding: Model[]
+  reranker: Model[]
+  other: Model[]
+}
+
+/**
  * 应用设置接口
  */
 export interface AppSettings {
