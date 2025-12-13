@@ -1,4 +1,11 @@
-import type { LLMProvider, ChatMessage, StreamChunk, LLMProviderConfig } from '../types'
+import type {
+  LLMProvider,
+  ChatMessage,
+  StreamChunk,
+  LLMProviderConfig,
+  EmbeddingConfig,
+  EmbeddingResult
+} from '../types'
 import Logger from '../../../shared/utils/logger'
 
 /**
@@ -167,6 +174,130 @@ export abstract class OpenAICompatibleProvider implements LLMProvider {
       return response.ok
     } catch {
       return false
+    }
+  }
+
+  // ==================== Embedding API ====================
+
+  /**
+   * 获取默认 Embedding 模型
+   * 子类可以覆盖此方法以使用不同的默认模型
+   */
+  getDefaultEmbeddingModel(): string {
+    return 'text-embedding-3-small'
+  }
+
+  /**
+   * 检查是否支持 Embedding
+   * 默认所有 OpenAI 兼容的 Provider 都支持
+   */
+  supportsEmbedding(): boolean {
+    return true
+  }
+
+  /**
+   * 生成单个文本的 Embedding
+   */
+  async createEmbedding(text: string, config?: EmbeddingConfig): Promise<EmbeddingResult> {
+    const { apiKey, baseUrl } = this.config
+    const model = config?.model || this.config.model || this.getDefaultEmbeddingModel()
+
+    if (!apiKey) {
+      throw new Error(`${this.name} API Key not configured`)
+    }
+
+    try {
+      const requestBody: Record<string, unknown> = {
+        model,
+        input: text
+      }
+
+      // 部分模型支持指定维度
+      if (config?.dimensions) {
+        requestBody.dimensions = config.dimensions
+      }
+
+      const response = await fetch(`${baseUrl}/embeddings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`${this.name} Embedding API Error: ${response.status} - ${errorText}`)
+      }
+
+      const data = await response.json()
+      const embeddingData = data.data[0].embedding as number[]
+
+      return {
+        embedding: new Float32Array(embeddingData),
+        model: data.model,
+        dimensions: embeddingData.length,
+        tokensUsed: data.usage?.total_tokens || 0
+      }
+    } catch (error) {
+      Logger.error(`${this.name}Provider`, 'Failed to create embedding:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 批量生成 Embedding
+   */
+  async createEmbeddings(texts: string[], config?: EmbeddingConfig): Promise<EmbeddingResult[]> {
+    const { apiKey, baseUrl } = this.config
+    const model = config?.model || this.config.model || this.getDefaultEmbeddingModel()
+
+    if (!apiKey) {
+      throw new Error(`${this.name} API Key not configured`)
+    }
+
+    if (texts.length === 0) {
+      return []
+    }
+
+    try {
+      const requestBody: Record<string, unknown> = {
+        model,
+        input: texts
+      }
+
+      // 部分模型支持指定维度
+      if (config?.dimensions) {
+        requestBody.dimensions = config.dimensions
+      }
+
+      const response = await fetch(`${baseUrl}/embeddings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`${this.name} Embedding API Error: ${response.status} - ${errorText}`)
+      }
+
+      const data = await response.json()
+      const tokensPerText = Math.ceil((data.usage?.total_tokens || 0) / texts.length)
+
+      return data.data.map((item: { embedding: number[]; index: number }) => ({
+        embedding: new Float32Array(item.embedding),
+        model: data.model,
+        dimensions: item.embedding.length,
+        tokensUsed: tokensPerText
+      }))
+    } catch (error) {
+      Logger.error(`${this.name}Provider`, 'Failed to create embeddings:', error)
+      throw error
     }
   }
 }

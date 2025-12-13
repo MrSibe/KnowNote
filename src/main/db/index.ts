@@ -4,6 +4,7 @@ import { stat } from 'fs/promises'
 import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
+import * as sqliteVec from 'sqlite-vec'
 import * as schema from './schema'
 
 let sqlite: Database.Database | null = null
@@ -25,6 +26,16 @@ export function initDatabase() {
   try {
     // 创建 SQLite 数据库实例
     sqlite = new Database(dbPath)
+
+    // 加载 sqlite-vec 扩展
+    sqliteVec.load(sqlite)
+    console.log('[Database] sqlite-vec extension loaded')
+
+    // 验证 sqlite-vec 版本
+    const vecVersion = sqlite.prepare('SELECT vec_version() as version').get() as {
+      version: string
+    }
+    console.log('[Database] sqlite-vec version:', vecVersion?.version)
 
     // 启用 WAL 模式以提高性能
     sqlite.pragma('journal_mode = WAL')
@@ -143,6 +154,37 @@ export function runMigrations() {
     console.log('[Database] Migrations completed successfully')
   } catch (error) {
     console.error('[Database] Migration failed:', error)
+    throw error
+  }
+}
+
+/**
+ * 初始化向量存储表
+ * 创建 sqlite-vec 的 vec0 虚拟表用于向量检索
+ * 在 runMigrations 后调用
+ */
+export function initVectorStore() {
+  if (!sqlite) {
+    throw new Error('[Database] Database not initialized. Call initDatabase() first.')
+  }
+
+  console.log('[Database] Initializing vector store...')
+
+  try {
+    // 创建向量索引虚拟表（如果不存在）
+    // 使用 cosine 距离度量，1024 维度（BAAI/bge-m3 默认维度）
+    sqlite.exec(`
+      CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings USING vec0(
+        embedding_id TEXT PRIMARY KEY,
+        chunk_id TEXT,
+        notebook_id TEXT,
+        embedding FLOAT[1024] distance_metric=cosine
+      );
+    `)
+
+    console.log('[Database] Vector store initialized successfully')
+  } catch (error) {
+    console.error('[Database] Failed to initialize vector store:', error)
     throw error
   }
 }

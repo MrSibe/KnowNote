@@ -1,14 +1,22 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { initDatabase, runMigrations, closeDatabase, executeCheckpoint } from './db'
+import {
+  initDatabase,
+  runMigrations,
+  initVectorStore,
+  closeDatabase,
+  executeCheckpoint
+} from './db'
 import { ProviderManager } from './providers/ProviderManager'
 import { SessionAutoSwitchService } from './services/SessionAutoSwitchService'
+import { KnowledgeService } from './services/KnowledgeService'
 import { createMainWindow, createSettingsWindow, destroySettingsWindow } from './windows'
 import { registerAllHandlers } from './ipc'
 import Logger from '../shared/utils/logger'
 
 let providerManager: ProviderManager | null = null
 let sessionAutoSwitchService: SessionAutoSwitchService | null = null
+let knowledgeService: KnowledgeService | null = null
 let isQuitting = false // Flag to indicate if app is quitting
 
 // This method will be called when Electron has finished
@@ -29,6 +37,7 @@ app.whenReady().then(() => {
   Logger.info('Main', 'Initializing database...')
   initDatabase()
   runMigrations()
+  initVectorStore()
   Logger.info('Main', 'Database initialized')
 
   // Initialize Provider Manager
@@ -41,8 +50,13 @@ app.whenReady().then(() => {
   sessionAutoSwitchService = new SessionAutoSwitchService(providerManager)
   Logger.info('Main', 'Session Auto Switch Service initialized')
 
+  // Initialize Knowledge Service
+  Logger.info('Main', 'Initializing Knowledge Service...')
+  knowledgeService = new KnowledgeService(providerManager)
+  Logger.info('Main', 'Knowledge Service initialized')
+
   // Register all IPC Handlers
-  registerAllHandlers(providerManager, sessionAutoSwitchService)
+  registerAllHandlers(providerManager, sessionAutoSwitchService, knowledgeService)
 
   // IPC test (development only)
   if (process.env.NODE_ENV === 'development') {

@@ -2,15 +2,40 @@ import { ipcMain, IpcMainInvokeEvent } from 'electron'
 import * as queries from '../db/queries'
 import { ProviderManager } from '../providers/ProviderManager'
 import { SessionAutoSwitchService } from '../services/SessionAutoSwitchService'
+import { KnowledgeService } from '../services/KnowledgeService'
 import { validateAndCleanMessages } from '../utils/messageValidator'
 import Logger from '../../shared/utils/logger'
+
+/**
+ * 构建 RAG 上下文 prompt
+ */
+function buildRAGContext(
+  searchResults: Array<{
+    documentTitle: string
+    content: string
+    score: number
+  }>
+): string {
+  if (searchResults.length === 0) return ''
+
+  const contextParts = searchResults.map((result, index) => {
+    return `[来源 ${index + 1}: ${result.documentTitle}]\n${result.content}`
+  })
+
+  return `以下是与用户问题相关的背景知识，请参考这些信息来回答：
+
+${contextParts.join('\n\n---\n\n')}
+
+请基于以上背景知识回答用户的问题。如果背景知识不足以回答问题，请说明并尽力提供有帮助的回答。`
+}
 
 /**
  * Register chat-related IPC Handlers
  */
 export function registerChatHandlers(
   providerManager: ProviderManager,
-  sessionAutoSwitchService: SessionAutoSwitchService
+  sessionAutoSwitchService: SessionAutoSwitchService,
+  knowledgeService: KnowledgeService
 ) {
   // ==================== Chat Session ====================
   ipcMain.handle('create-chat-session', async (_event, notebookId: string, title: string) => {
@@ -66,6 +91,34 @@ export function registerChatHandlers(
           error: 'No valid conversation history'
         })
         return assistantMessage.id
+      }
+
+      // 3.2 RAG 增强：检索相关知识并注入上下文
+      try {
+        const session = queries.getSessionById(sessionId)
+        if (session?.notebookId) {
+          const searchResults = await knowledgeService.search(session.notebookId, content, {
+            topK: 3,
+            threshold: 0.5
+          })
+
+          if (searchResults.length > 0) {
+            const ragContext = buildRAGContext(searchResults)
+            Logger.debug(
+              'ChatHandlers',
+              `RAG: Found ${searchResults.length} relevant chunks for query`
+            )
+
+            // 将 RAG 上下文作为 system message 插入到消息列表开头
+            messages.unshift({
+              role: 'system',
+              content: ragContext
+            })
+          }
+        }
+      } catch (error) {
+        // RAG 失败不应该阻止对话，只记录警告
+        Logger.warn('ChatHandlers', 'RAG search failed:', error)
       }
 
       // 4. 调用 AI Provider 流式生成

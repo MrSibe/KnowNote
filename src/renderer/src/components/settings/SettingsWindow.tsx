@@ -6,13 +6,7 @@ import ProvidersSettings from './ProvidersSettings'
 import AboutSettings from './AboutSettings'
 import SettingsActionBar from './SettingsActionBar'
 import { ScrollArea } from '../ui/scroll-area'
-
-interface AppSettings {
-  theme: 'light' | 'dark'
-  language: 'zh-CN' | 'en-US'
-  autoLaunch: boolean
-  defaultModel?: string
-}
+import type { AppSettings } from '../../../../shared/types'
 
 interface ProviderConfig {
   providerName: string

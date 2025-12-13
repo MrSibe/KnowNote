@@ -43,6 +43,13 @@
       "when": 1765531418777,
       "tag": "0005_chief_ogun",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1765631347368,
+      "tag": "0006_magenta_namorita",
+      "breakpoints": true
     }
   ]
 }

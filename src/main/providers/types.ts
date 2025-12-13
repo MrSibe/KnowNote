@@ -21,6 +21,24 @@ export interface LLMProviderConfig {
 }
 
 /**
+ * Embedding 配置
+ */
+export interface EmbeddingConfig {
+  model?: string // embedding 模型名称
+  dimensions?: number // 向量维度（部分模型支持）
+}
+
+/**
+ * Embedding 结果
+ */
+export interface EmbeddingResult {
+  embedding: Float32Array // 向量数据
+  model: string // 使用的模型
+  dimensions: number // 向量维度
+  tokensUsed: number // 消耗的 token 数
+}
+
+/**
  * AI Provider 接口
  */
 export interface LLMProvider {
@@ -55,4 +73,29 @@ export interface LLMProvider {
    * @returns Promise<boolean> - 配置是否有效
    */
   validateConfig?(config: LLMProviderConfig): Promise<boolean>
+
+  /**
+   * 检查是否支持 Embedding（可选）
+   * @returns boolean - 是否支持 Embedding
+   */
+  supportsEmbedding?(): boolean
+
+  /**
+   * 生成单个文本的 Embedding（可选）
+   * @param text - 输入文本
+   * @param config - Embedding 配置
+   */
+  createEmbedding?(text: string, config?: EmbeddingConfig): Promise<EmbeddingResult>
+
+  /**
+   * 批量生成 Embedding（可选）
+   * @param texts - 输入文本数组
+   * @param config - Embedding 配置
+   */
+  createEmbeddings?(texts: string[], config?: EmbeddingConfig): Promise<EmbeddingResult[]>
+
+  /**
+   * 获取默认 Embedding 模型（可选）
+   */
+  getDefaultEmbeddingModel?(): string
 }

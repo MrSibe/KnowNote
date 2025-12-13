@@ -108,3 +108,101 @@ export const notes = sqliteTable(
 
 export type Note = typeof notes.$inferSelect
 export type NewNote = typeof notes.$inferInsert
+
+// ==================== RAG 相关表 ====================
+
+/**
+ * 知识库文档表
+ * 存储上传的文档元信息（知识来源）
+ */
+export const documents = sqliteTable(
+  'documents',
+  {
+    id: text('id').primaryKey(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    type: text('type', { enum: ['file', 'note', 'url', 'text'] }).notNull(),
+    sourceUri: text('source_uri'), // 文件路径或 URL
+    sourceNoteId: text('source_note_id').references(() => notes.id, { onDelete: 'set null' }),
+    content: text('content'), // 原始内容（可选存储）
+    contentHash: text('content_hash'), // 内容哈希，用于检测变更
+    mimeType: text('mime_type'), // 文件类型
+    fileSize: integer('file_size'), // 文件大小（字节）
+    metadata: text('metadata', { mode: 'json' }).$type<Record<string, any>>(),
+    status: text('status', { enum: ['pending', 'processing', 'indexed', 'failed'] })
+      .notNull()
+      .default('pending'),
+    errorMessage: text('error_message'),
+    chunkCount: integer('chunk_count').default(0),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    notebookIdx: index('idx_documents_notebook').on(table.notebookId, table.updatedAt),
+    statusIdx: index('idx_documents_status').on(table.status)
+  })
+)
+
+export type Document = typeof documents.$inferSelect
+export type NewDocument = typeof documents.$inferInsert
+
+/**
+ * 文档分块表
+ * 存储分块后的文本内容（RAG 的最小知识单元）
+ */
+export const chunks = sqliteTable(
+  'chunks',
+  {
+    id: text('id').primaryKey(),
+    documentId: text('document_id')
+      .notNull()
+      .references(() => documents.id, { onDelete: 'cascade' }),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    content: text('content').notNull(),
+    chunkIndex: integer('chunk_index').notNull(), // 在文档中的顺序
+    startOffset: integer('start_offset'), // 原文起始位置
+    endOffset: integer('end_offset'), // 原文结束位置
+    metadata: text('metadata', { mode: 'json' }).$type<Record<string, any>>(),
+    tokenCount: integer('token_count'), // token 估算值
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    documentIdx: index('idx_chunks_document').on(table.documentId),
+    notebookIdx: index('idx_chunks_notebook').on(table.notebookId)
+  })
+)
+
+export type Chunk = typeof chunks.$inferSelect
+export type NewChunk = typeof chunks.$inferInsert
+
+/**
+ * 向量嵌入表（元数据）
+ * 存储 chunk 的向量元信息，实际向量存储在 vec0 虚拟表中
+ */
+export const embeddings = sqliteTable(
+  'embeddings',
+  {
+    id: text('id').primaryKey(),
+    chunkId: text('chunk_id')
+      .notNull()
+      .references(() => chunks.id, { onDelete: 'cascade' }),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    model: text('model').notNull(), // embedding 模型名称
+    dimensions: integer('dimensions').notNull(), // 向量维度
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    chunkIdx: index('idx_embeddings_chunk').on(table.chunkId),
+    notebookIdx: index('idx_embeddings_notebook').on(table.notebookId),
+    modelIdx: index('idx_embeddings_model').on(table.model)
+  })
+)
+
+export type Embedding = typeof embeddings.$inferSelect
+export type NewEmbedding = typeof embeddings.$inferInsert

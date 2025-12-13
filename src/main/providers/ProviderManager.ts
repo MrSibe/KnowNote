@@ -41,17 +41,17 @@ export class ProviderManager {
 
   /**
    * Get currently active provider
-   * Priority: Use default model selected by user in settings
+   * Priority: Use default chat model selected by user in settings
    * If no default model, return first enabled provider
    */
   async getActiveProvider(): Promise<LLMProvider | null> {
     try {
       const settings = await settingsManager.getAllSettings()
-      const defaultModel = settings.defaultModel
+      const defaultChatModel = settings.defaultChatModel
 
-      // If user has set default model, parse and use it
-      if (defaultModel && defaultModel.includes(':')) {
-        const [providerName, modelId] = defaultModel.split(':')
+      // If user has set default chat model, parse and use it
+      if (defaultChatModel && defaultChatModel.includes(':')) {
+        const [providerName, modelId] = defaultChatModel.split(':')
         const config = await providersManager.getProviderConfig(providerName)
 
         if (config && config.enabled) {
@@ -62,13 +62,13 @@ export class ProviderManager {
               ...config.config,
               model: modelId
             })
-            Logger.info('ProviderManager', `Using default model: ${providerName} - ${modelId}`)
+            Logger.info('ProviderManager', `Using default chat model: ${providerName} - ${modelId}`)
             return provider
           }
         } else {
           Logger.warn(
             'ProviderManager',
-            `Provider for default model "${providerName}" is not enabled or does not exist`
+            `Provider for default chat model "${providerName}" is not enabled or does not exist`
           )
         }
       }
@@ -95,6 +95,56 @@ export class ProviderManager {
       return provider
     } catch (error) {
       Logger.error('ProviderManager', 'Failed to get active provider:', error)
+      return null
+    }
+  }
+
+  /**
+   * Get embedding provider
+   * Priority: Use default embedding model selected by user in settings
+   * If no default embedding model, use the chat model provider
+   * If no chat model, return first enabled provider
+   */
+  async getEmbeddingProvider(): Promise<LLMProvider | null> {
+    try {
+      const settings = await settingsManager.getAllSettings()
+      const defaultEmbeddingModel = settings.defaultEmbeddingModel
+
+      // If user has set default embedding model, parse and use it
+      if (defaultEmbeddingModel && defaultEmbeddingModel.includes(':')) {
+        const [providerName, modelId] = defaultEmbeddingModel.split(':')
+        const config = await providersManager.getProviderConfig(providerName)
+
+        if (config && config.enabled) {
+          const provider = this.providers.get(providerName)
+          if (provider) {
+            // Configure provider with specified model
+            provider.configure({
+              ...config.config,
+              model: modelId
+            })
+            Logger.info(
+              'ProviderManager',
+              `Using default embedding model: ${providerName} - ${modelId}`
+            )
+            return provider
+          }
+        } else {
+          Logger.warn(
+            'ProviderManager',
+            `Provider for default embedding model "${providerName}" is not enabled or does not exist`
+          )
+        }
+      }
+
+      // Fallback: use chat provider
+      Logger.info(
+        'ProviderManager',
+        'No embedding model specified, using chat provider for embeddings'
+      )
+      return this.getActiveProvider()
+    } catch (error) {
+      Logger.error('ProviderManager', 'Failed to get embedding provider:', error)
       return null
     }
   }

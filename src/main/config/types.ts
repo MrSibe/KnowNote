@@ -5,7 +5,8 @@ export interface AppSettings {
   theme: 'light' | 'dark'
   language: 'zh-CN' | 'en-US'
   autoLaunch: boolean
-  defaultModel?: string
+  defaultChatModel?: string // 默认对话模型
+  defaultEmbeddingModel?: string // 默认嵌入模型
 }
 
 /**

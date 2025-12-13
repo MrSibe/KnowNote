@@ -1,9 +1,25 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import type { ChatSession, ChatMessage } from '../shared/types/chat'
 import type { Notebook, Note, ProviderConfig, AppSettings } from '../shared/types'
+import type {
+  KnowledgeDocument,
+  KnowledgeSearchResult,
+  KnowledgeStats,
+  AddDocumentOptions,
+  SearchOptions,
+  IndexProgress
+} from '../shared/types/knowledge'
 
 // 重新导出共享类型
 export type { ChatSession, ChatMessage, Notebook, Note, ProviderConfig, AppSettings }
+export type {
+  KnowledgeDocument,
+  KnowledgeSearchResult,
+  KnowledgeStats,
+  AddDocumentOptions,
+  SearchOptions,
+  IndexProgress
+}
 
 declare global {
   interface Window {
@@ -82,6 +98,49 @@ declare global {
         providerName: string
       ) => Promise<{ id: string; object: string; owned_by?: string; created?: number }[]>
       onProviderConfigChanged: (callback: () => void) => () => void
+
+      // 知识库相关
+      knowledge: {
+        // 添加文档
+        addDocument: (
+          notebookId: string,
+          options: AddDocumentOptions
+        ) => Promise<{ success: boolean; documentId?: string; error?: string }>
+        addDocumentFromFile: (
+          notebookId: string,
+          filePath: string
+        ) => Promise<{ success: boolean; documentId?: string; error?: string }>
+        addDocumentFromUrl: (
+          notebookId: string,
+          url: string
+        ) => Promise<{ success: boolean; documentId?: string; error?: string }>
+        addNote: (
+          notebookId: string,
+          noteId: string
+        ) => Promise<{ success: boolean; documentId?: string; error?: string }>
+
+        // 搜索
+        search: (
+          notebookId: string,
+          query: string,
+          options?: SearchOptions
+        ) => Promise<{ success: boolean; results: KnowledgeSearchResult[]; error?: string }>
+
+        // 文档管理
+        getDocuments: (notebookId: string) => Promise<KnowledgeDocument[]>
+        getDocument: (documentId: string) => Promise<KnowledgeDocument | null>
+        deleteDocument: (documentId: string) => Promise<{ success: boolean; error?: string }>
+        reindexDocument: (documentId: string) => Promise<{ success: boolean; error?: string }>
+
+        // 统计
+        getStats: (notebookId: string) => Promise<KnowledgeStats>
+
+        // 文件选择对话框
+        selectFiles: () => Promise<string[]>
+
+        // 索引进度监听
+        onIndexProgress: (callback: (progress: IndexProgress) => void) => () => void
+      }
     }
   }
 }

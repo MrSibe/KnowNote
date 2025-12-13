@@ -3,13 +3,7 @@ import { Sun, Moon, ChevronDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import SettingItem from './SettingItem'
 import { useI18nStore } from '../../store/i18nStore'
-
-interface AppSettings {
-  theme: 'light' | 'dark'
-  language: 'zh-CN' | 'en-US'
-  autoLaunch: boolean
-  defaultModel?: string
-}
+import type { AppSettings } from '../../../../shared/types'
 
 interface ProviderConfig {
   providerName: string
@@ -37,7 +31,8 @@ export default function GeneralSettings({
   const { t } = useTranslation('settings')
   const { changeLanguage } = useI18nStore()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false)
+  const [isChatModelDropdownOpen, setIsChatModelDropdownOpen] = useState(false)
+  const [isEmbeddingModelDropdownOpen, setIsEmbeddingModelDropdownOpen] = useState(false)
   const currentLanguage = languages.find((lang) => lang.value === settings.language) || languages[0]
 
   // 获取所有启用的供应商的已选模型
@@ -59,8 +54,12 @@ export default function GeneralSettings({
     return models
   }, [providers])
 
-  const currentModel =
-    availableModels.find((model) => model.id === settings.defaultModel) || availableModels[0]
+  const currentChatModel =
+    availableModels.find((model) => model.id === settings.defaultChatModel) || availableModels[0]
+
+  const currentEmbeddingModel =
+    availableModels.find((model) => model.id === settings.defaultEmbeddingModel) ||
+    availableModels[0]
 
   // 当主题变化时，立即更新 DOM 以预览效果
   useEffect(() => {
@@ -78,19 +77,22 @@ export default function GeneralSettings({
       if (!target.closest('.language-dropdown')) {
         setIsDropdownOpen(false)
       }
-      if (!target.closest('.model-dropdown')) {
-        setIsModelDropdownOpen(false)
+      if (!target.closest('.chat-model-dropdown')) {
+        setIsChatModelDropdownOpen(false)
+      }
+      if (!target.closest('.embedding-model-dropdown')) {
+        setIsEmbeddingModelDropdownOpen(false)
       }
     }
 
-    if (isDropdownOpen || isModelDropdownOpen) {
+    if (isDropdownOpen || isChatModelDropdownOpen || isEmbeddingModelDropdownOpen) {
       document.addEventListener('click', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('click', handleClickOutside)
     }
-  }, [isDropdownOpen, isModelDropdownOpen])
+  }, [isDropdownOpen, isChatModelDropdownOpen, isEmbeddingModelDropdownOpen])
 
   return (
     <div className="max-w-2xl flex flex-col gap-4">
@@ -189,46 +191,46 @@ export default function GeneralSettings({
         </div>
       </SettingItem>
 
-      {/* 默认模型设置 */}
+      {/* 默认对话模型设置 */}
       <SettingItem
-        title={t('defaultModel')}
-        description={availableModels.length > 0 ? t('defaultModelDesc') : t('noAvailableModel')}
+        title={t('defaultChatModel')}
+        description={availableModels.length > 0 ? t('defaultChatModelDesc') : t('noAvailableModel')}
       >
         {availableModels.length > 0 ? (
-          <div className="relative model-dropdown w-56">
+          <div className="relative chat-model-dropdown w-56">
             <button
-              onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
+              onClick={() => setIsChatModelDropdownOpen(!isChatModelDropdownOpen)}
               className="w-full flex items-center justify-between px-3 py-2 bg-secondary rounded-lg border border-border hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <div className="flex-1 text-left">
                 <div className="text-sm font-medium text-foreground">
-                  {currentModel ? currentModel.label : t('pleaseSelectModel')}
+                  {currentChatModel ? currentChatModel.label : t('pleaseSelectModel')}
                 </div>
-                {currentModel && (
+                {currentChatModel && (
                   <div className="text-xs text-muted-foreground capitalize">
-                    {currentModel.provider}
+                    {currentChatModel.provider}
                   </div>
                 )}
               </div>
               <ChevronDown
                 className={`w-5 h-5 text-muted-foreground transition-transform flex-shrink-0 ${
-                  isModelDropdownOpen ? 'rotate-180' : ''
+                  isChatModelDropdownOpen ? 'rotate-180' : ''
                 }`}
               />
             </button>
 
-            {isModelDropdownOpen && (
+            {isChatModelDropdownOpen && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
                 <div className="py-1">
                   {availableModels.map((model) => (
                     <button
                       key={model.id}
                       onClick={() => {
-                        onSettingsChange({ defaultModel: model.id })
-                        setIsModelDropdownOpen(false)
+                        onSettingsChange({ defaultChatModel: model.id })
+                        setIsChatModelDropdownOpen(false)
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 hover:bg-accent transition-colors ${
-                        model.id === settings.defaultModel ? 'bg-accent' : ''
+                        model.id === settings.defaultChatModel ? 'bg-accent' : ''
                       }`}
                     >
                       <div className="flex-1 text-left">
@@ -237,7 +239,73 @@ export default function GeneralSettings({
                           {model.provider}
                         </div>
                       </div>
-                      {model.id === settings.defaultModel ? (
+                      {model.id === settings.defaultChatModel ? (
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0" />
+                      ) : (
+                        <div className="w-1.5 h-1.5 flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">{t('noAvailableModel')}</div>
+        )}
+      </SettingItem>
+
+      {/* 默认嵌入模型设置 */}
+      <SettingItem
+        title={t('defaultEmbeddingModel')}
+        description={
+          availableModels.length > 0 ? t('defaultEmbeddingModelDesc') : t('noAvailableModel')
+        }
+      >
+        {availableModels.length > 0 ? (
+          <div className="relative embedding-model-dropdown w-56">
+            <button
+              onClick={() => setIsEmbeddingModelDropdownOpen(!isEmbeddingModelDropdownOpen)}
+              className="w-full flex items-center justify-between px-3 py-2 bg-secondary rounded-lg border border-border hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <div className="flex-1 text-left">
+                <div className="text-sm font-medium text-foreground">
+                  {currentEmbeddingModel ? currentEmbeddingModel.label : t('pleaseSelectModel')}
+                </div>
+                {currentEmbeddingModel && (
+                  <div className="text-xs text-muted-foreground capitalize">
+                    {currentEmbeddingModel.provider}
+                  </div>
+                )}
+              </div>
+              <ChevronDown
+                className={`w-5 h-5 text-muted-foreground transition-transform flex-shrink-0 ${
+                  isEmbeddingModelDropdownOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+
+            {isEmbeddingModelDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
+                <div className="py-1">
+                  {availableModels.map((model) => (
+                    <button
+                      key={model.id}
+                      onClick={() => {
+                        onSettingsChange({ defaultEmbeddingModel: model.id })
+                        setIsEmbeddingModelDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2 hover:bg-accent transition-colors ${
+                        model.id === settings.defaultEmbeddingModel ? 'bg-accent' : ''
+                      }`}
+                    >
+                      <div className="flex-1 text-left">
+                        <div className="text-sm font-medium text-foreground">{model.label}</div>
+                        <div className="text-xs text-muted-foreground capitalize">
+                          {model.provider}
+                        </div>
+                      </div>
+                      {model.id === settings.defaultEmbeddingModel ? (
                         <div className="w-1.5 h-1.5 bg-primary rounded-full flex-shrink-0" />
                       ) : (
                         <div className="w-1.5 h-1.5 flex-shrink-0" />

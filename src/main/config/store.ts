@@ -8,7 +8,8 @@ const defaultSettings: AppSettings = {
   theme: 'dark',
   language: 'zh-CN',
   autoLaunch: false,
-  defaultModel: undefined
+  defaultChatModel: undefined,
+  defaultEmbeddingModel: undefined
 }
 
 /**

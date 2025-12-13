@@ -107,6 +107,46 @@ const api = {
     const listener = () => callback()
     ipcRenderer.on('provider-config-changed', listener)
     return () => ipcRenderer.removeListener('provider-config-changed', listener)
+  },
+
+  // Knowledge 知识库相关
+  knowledge: {
+    // 添加文档
+    addDocument: (notebookId: string, options: any) =>
+      ipcRenderer.invoke('knowledge:add-document', notebookId, options),
+    addDocumentFromFile: (notebookId: string, filePath: string) =>
+      ipcRenderer.invoke('knowledge:add-document-from-file', notebookId, filePath),
+    addDocumentFromUrl: (notebookId: string, url: string) =>
+      ipcRenderer.invoke('knowledge:add-document-from-url', notebookId, url),
+    addNote: (notebookId: string, noteId: string) =>
+      ipcRenderer.invoke('knowledge:add-note', notebookId, noteId),
+
+    // 搜索
+    search: (notebookId: string, query: string, options?: any) =>
+      ipcRenderer.invoke('knowledge:search', notebookId, query, options),
+
+    // 文档管理
+    getDocuments: (notebookId: string) => ipcRenderer.invoke('knowledge:get-documents', notebookId),
+    getDocument: (documentId: string) => ipcRenderer.invoke('knowledge:get-document', documentId),
+    getDocumentChunks: (documentId: string) =>
+      ipcRenderer.invoke('knowledge:get-document-chunks', documentId),
+    deleteDocument: (documentId: string) =>
+      ipcRenderer.invoke('knowledge:delete-document', documentId),
+    reindexDocument: (documentId: string) =>
+      ipcRenderer.invoke('knowledge:reindex-document', documentId),
+
+    // 统计
+    getStats: (notebookId: string) => ipcRenderer.invoke('knowledge:get-stats', notebookId),
+
+    // 文件选择
+    selectFiles: () => ipcRenderer.invoke('knowledge:select-files'),
+
+    // 进度监听
+    onIndexProgress: (callback: (data: any) => void) => {
+      const listener = (_event: any, data: any) => callback(data)
+      ipcRenderer.on('knowledge:index-progress', listener)
+      return () => ipcRenderer.removeListener('knowledge:index-progress', listener)
+    }
   }
 }
 
