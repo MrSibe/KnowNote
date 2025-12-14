@@ -21,7 +21,8 @@ export default function ProcessPanel(): ReactElement {
   const isCurrentNotebookStreaming = currentNotebookId
     ? isNotebookStreaming(currentNotebookId)
     : false
-  const canSend = currentSession && !isCurrentNotebookStreaming && input.trim() && hasProvider && defaultChatModel
+  const canSend =
+    currentSession && !isCurrentNotebookStreaming && input.trim() && hasProvider && defaultChatModel
   const canStop = currentSession && isCurrentNotebookStreaming
 
   // Check if there are available providers and get default model
@@ -184,7 +185,9 @@ export default function ProcessPanel(): ReactElement {
                     ? t('noDefaultModel')
                     : t('inputMessage')
             }
-            disabled={!currentSession || isCurrentNotebookStreaming || !hasProvider || !defaultChatModel}
+            disabled={
+              !currentSession || isCurrentNotebookStreaming || !hasProvider || !defaultChatModel
+            }
             rows={3}
             className="w-full bg-transparent pl-4 pr-14 py-3 text-sm outline-none text-foreground placeholder-muted-foreground resize-none disabled:opacity-50 disabled:cursor-not-allowed"
           />

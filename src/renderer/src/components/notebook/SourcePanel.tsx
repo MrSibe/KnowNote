@@ -449,9 +449,7 @@ export default function SourcePanel(): ReactElement {
                 onClick={() => setShowAddMenu(!showAddMenu)}
                 disabled={!defaultEmbeddingModel}
                 className={`p-1.5 rounded-lg transition-colors ${
-                  !defaultEmbeddingModel
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:bg-muted'
+                  !defaultEmbeddingModel ? 'opacity-50 cursor-not-allowed' : 'hover:bg-muted'
                 }`}
                 title={!defaultEmbeddingModel ? t('noEmbeddingModelConfigured') : t('addSource')}
               >

@@ -91,7 +91,7 @@ export default function GeneralSettings({
   useEffect(() => {
     // 检查默认对话模型
     const isChatModelAvailable = settings.defaultChatModel
-      ? availableChatModels.some(model => model.id === settings.defaultChatModel)
+      ? availableChatModels.some((model) => model.id === settings.defaultChatModel)
       : true
 
     if (!isChatModelAvailable && settings.defaultChatModel) {
@@ -100,13 +100,19 @@ export default function GeneralSettings({
 
     // 检查默认嵌入模型
     const isEmbeddingModelAvailable = settings.defaultEmbeddingModel
-      ? availableEmbeddingModels.some(model => model.id === settings.defaultEmbeddingModel)
+      ? availableEmbeddingModels.some((model) => model.id === settings.defaultEmbeddingModel)
       : true
 
     if (!isEmbeddingModelAvailable && settings.defaultEmbeddingModel) {
       onSettingsChange({ defaultEmbeddingModel: '' })
     }
-  }, [settings.defaultChatModel, settings.defaultEmbeddingModel, availableChatModels, availableEmbeddingModels, onSettingsChange])
+  }, [
+    settings.defaultChatModel,
+    settings.defaultEmbeddingModel,
+    availableChatModels,
+    availableEmbeddingModels,
+    onSettingsChange
+  ])
 
   // 当主题变化时，立即更新 DOM 以预览效果
   useEffect(() => {
