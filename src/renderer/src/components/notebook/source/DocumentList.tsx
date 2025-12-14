@@ -76,9 +76,7 @@ function DocumentItem({ document, onDelete, onSelect }: DocumentItemProps): Reac
   return (
     <div
       onClick={() => onSelect(document)}
-      className={`group relative p-3 pr-12 rounded-lg transition-colors cursor-pointer select-none ${
-        document.status === 'processing' ? 'bg-muted/50' : 'hover:bg-muted'
-      }`}
+      className="group relative p-3 pr-12 rounded-lg transition-colors cursor-pointer select-none hover:bg-muted"
     >
       <div className="flex items-start gap-2 min-w-0">
         {getTypeIcon()}
