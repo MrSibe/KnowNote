@@ -447,8 +447,13 @@ export default function SourcePanel(): ReactElement {
             <div className="relative" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
               <button
                 onClick={() => setShowAddMenu(!showAddMenu)}
-                className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                title={t('addSource')}
+                disabled={!defaultEmbeddingModel}
+                className={`p-1.5 rounded-lg transition-colors ${
+                  !defaultEmbeddingModel
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-muted'
+                }`}
+                title={!defaultEmbeddingModel ? t('noEmbeddingModelConfigured') : t('addSource')}
               >
                 <Plus className="w-4 h-4" />
               </button>

@@ -9,6 +9,7 @@ export default function ProcessPanel(): ReactElement {
   const { t } = useTranslation('ui')
   const [input, setInput] = useState('')
   const [hasProvider, setHasProvider] = useState(true)
+  const [defaultChatModel, setDefaultChatModel] = useState<string | null>(null)
   const { currentSession, messages, isNotebookStreaming, sendMessage, abortMessage } =
     useChatStore()
   const { currentNotebook, updateNotebook } = useNotebookStore()
@@ -20,18 +21,23 @@ export default function ProcessPanel(): ReactElement {
   const isCurrentNotebookStreaming = currentNotebookId
     ? isNotebookStreaming(currentNotebookId)
     : false
-  const canSend = currentSession && !isCurrentNotebookStreaming && input.trim() && hasProvider
+  const canSend = currentSession && !isCurrentNotebookStreaming && input.trim() && hasProvider && defaultChatModel
   const canStop = currentSession && isCurrentNotebookStreaming
 
-  // Check if there are available providers
+  // Check if there are available providers and get default model
   const checkProvider = async (): Promise<void> => {
     try {
       const providers = await window.api.getAllProviderConfigs()
       const hasEnabledProvider = providers.some((p) => p.enabled)
       setHasProvider(hasEnabledProvider)
+
+      // Get default chat model
+      const defaultModel = await window.api.settings.get('defaultChatModel')
+      setDefaultChatModel(defaultModel || null)
     } catch (error) {
       console.error('Failed to check Provider configuration:', error)
       setHasProvider(false)
+      setDefaultChatModel(null)
     }
   }
 
@@ -46,7 +52,15 @@ export default function ProcessPanel(): ReactElement {
       void checkProvider()
     })
 
-    return cleanup
+    // 3. Listen for settings change events
+    const cleanupSettings = window.api.settings.onSettingsChange((newSettings) => {
+      setDefaultChatModel(newSettings.defaultChatModel || null)
+    })
+
+    return () => {
+      cleanup()
+      cleanupSettings()
+    }
   }, [])
 
   const handleSend = (): void => {
@@ -166,9 +180,11 @@ export default function ProcessPanel(): ReactElement {
                 ? t('selectSession')
                 : !hasProvider
                   ? t('noProviderConfigured')
-                  : t('inputMessage')
+                  : !defaultChatModel
+                    ? t('noDefaultModel')
+                    : t('inputMessage')
             }
-            disabled={!currentSession || isCurrentNotebookStreaming || !hasProvider}
+            disabled={!currentSession || isCurrentNotebookStreaming || !hasProvider || !defaultChatModel}
             rows={3}
             className="w-full bg-transparent pl-4 pr-14 py-3 text-sm outline-none text-foreground placeholder-muted-foreground resize-none disabled:opacity-50 disabled:cursor-not-allowed"
           />

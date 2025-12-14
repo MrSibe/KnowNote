@@ -40,6 +40,19 @@ export default function GeneralSettings({
     const chatModels: Array<{ id: string; provider: string; label: string }> = []
     const embeddingModels: Array<{ id: string; provider: string; label: string }> = []
 
+    // 添加空模型选项
+    chatModels.push({
+      id: '',
+      provider: '',
+      label: t('none')
+    })
+
+    embeddingModels.push({
+      id: '',
+      provider: '',
+      label: t('none')
+    })
+
     providers.forEach((provider) => {
       if (provider.enabled && provider.config.models && Array.isArray(provider.config.models)) {
         // 从 modelDetails 获取完整的模型信息（包含 type 字段）
@@ -64,7 +77,7 @@ export default function GeneralSettings({
     })
 
     return { availableChatModels: chatModels, availableEmbeddingModels: embeddingModels }
-  }, [providers])
+  }, [providers, t])
 
   const currentChatModel =
     availableChatModels.find((model) => model.id === settings.defaultChatModel) ||
@@ -73,6 +86,27 @@ export default function GeneralSettings({
   const currentEmbeddingModel =
     availableEmbeddingModels.find((model) => model.id === settings.defaultEmbeddingModel) ||
     availableEmbeddingModels[0]
+
+  // 检查默认模型是否仍然可用，如果不可用则清空
+  useEffect(() => {
+    // 检查默认对话模型
+    const isChatModelAvailable = settings.defaultChatModel
+      ? availableChatModels.some(model => model.id === settings.defaultChatModel)
+      : true
+
+    if (!isChatModelAvailable && settings.defaultChatModel) {
+      onSettingsChange({ defaultChatModel: '' })
+    }
+
+    // 检查默认嵌入模型
+    const isEmbeddingModelAvailable = settings.defaultEmbeddingModel
+      ? availableEmbeddingModels.some(model => model.id === settings.defaultEmbeddingModel)
+      : true
+
+    if (!isEmbeddingModelAvailable && settings.defaultEmbeddingModel) {
+      onSettingsChange({ defaultEmbeddingModel: '' })
+    }
+  }, [settings.defaultChatModel, settings.defaultEmbeddingModel, availableChatModels, availableEmbeddingModels, onSettingsChange])
 
   // 当主题变化时，立即更新 DOM 以预览效果
   useEffect(() => {

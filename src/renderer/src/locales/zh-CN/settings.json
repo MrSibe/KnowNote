@@ -18,6 +18,7 @@
   "defaultEmbeddingModelDesc": "选择知识库索引时使用的嵌入模型",
   "noAvailableModel": "没有可用的模型，请前往提供商页面启用供应商并选择模型",
   "pleaseSelectModel": "请选择默认模型",
+  "none": "无",
   "about": "关于",
   "changelog": "更新日志",
   "userManual": "用户手册",

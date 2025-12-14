@@ -62,6 +62,7 @@
   "defaultEmbeddingModelDesc": "Select the embedding model for knowledge base indexing",
   "noAvailableModel": "No available models, please go to provider page to enable providers and select models",
   "pleaseSelectModel": "Please select default model",
+  "none": "None",
   "about": "About",
   "changelog": "Changelog",
   "userManual": "User Manual",
