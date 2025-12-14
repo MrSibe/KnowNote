@@ -17,7 +17,10 @@ export default function ReasoningContent({
   isStreaming
 }: ReasoningContentProps): ReactElement {
   const { t } = useTranslation('chat')
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [manualExpanded, setManualExpanded] = useState(false)
+
+  // 派生状态：思考时自动展开，思考结束后由用户控制
+  const isExpanded = isStreaming || manualExpanded
 
   // 如果没有内容且不在流式传输，不显示
   if (!content && !isStreaming) {
@@ -28,7 +31,7 @@ export default function ReasoningContent({
     <div className="border border-border rounded-lg overflow-hidden bg-muted/30 shadow-sm">
       {/* 头部：展开/折叠按钮 */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => setManualExpanded(!manualExpanded)}
         className="w-full flex items-center justify-between px-3 py-1.5 text-xs hover:bg-muted/50 transition-colors"
       >
         <div className="flex items-center gap-1.5">
@@ -74,7 +77,7 @@ export default function ReasoningContent({
       {/* 内容区域：展开时显示 */}
       {isExpanded && (
         <div className="border-t border-border">
-          <ScrollArea className="max-h-96">
+          <ScrollArea>
             <div className="px-3 py-2">
               {content ? (
                 <div className="markdown-content text-xs text-muted-foreground">

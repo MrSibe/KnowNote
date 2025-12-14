@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef } from 'react'
+import { ReactElement, useEffect, useRef, useState } from 'react'
 import { MessageSquare } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ChatMessage } from '../../../../../shared/types/chat'
@@ -12,14 +12,28 @@ interface MessageListProps {
 
 export default function MessageList({ messages }: MessageListProps): ReactElement {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollViewportRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
+  const [autoScroll, setAutoScroll] = useState(true)
 
-  // 自动滚动到底部
+  // 检查是否在底部附近（距离底部20px内）
+  const checkIfNearBottom = (element: HTMLElement): boolean => {
+    const threshold = 20
+    return element.scrollHeight - element.scrollTop - element.clientHeight < threshold
+  }
+
+  // 监听滚动事件
+  const handleScroll = (element: HTMLElement) => {
+    const isNearBottom = checkIfNearBottom(element)
+    setAutoScroll(isNearBottom)
+  }
+
+  // 自动滚动到底部（仅在启用自动滚动时）
   useEffect(() => {
-    if (bottomRef.current) {
+    if (autoScroll && bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages])
+  }, [messages, autoScroll])
 
   // 空状态
   if (messages.length === 0) {
@@ -40,7 +54,12 @@ export default function MessageList({ messages }: MessageListProps): ReactElemen
 
   // 消息列表
   return (
-    <ScrollArea className="h-full" viewportClassName="message-list-fade">
+    <ScrollArea
+      className="h-full"
+      viewportClassName="message-list-fade"
+      viewportRef={scrollViewportRef}
+      onScrollChange={handleScroll}
+    >
       <div className="px-4 py-6 pb-32">
         <div className="max-w-4xl mx-auto">
           {messages.map((message) => (
