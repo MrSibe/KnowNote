@@ -79,6 +79,13 @@ export default function SettingsWindow(): ReactElement {
     setPendingProviders(updatedProviders)
   }
 
+  // 刷新提供商配置（用于新增/删除后同步状态）
+  const refreshProviders = async () => {
+    const providers = await window.api.getAllProviderConfigs()
+    setOriginalProviders(providers)
+    setPendingProviders(providers)
+  }
+
   // 确认保存
   const handleConfirm = async () => {
     // 保存通用设置
@@ -87,7 +94,7 @@ export default function SettingsWindow(): ReactElement {
       setOriginalSettings(pendingSettings)
     }
 
-    // 保存提供商配置
+    // 保存提供商配置（新增/删除已经立即保存，这里只保存修改）
     for (const provider of pendingProviders) {
       await window.api.saveProviderConfig(provider)
     }
@@ -121,6 +128,7 @@ export default function SettingsWindow(): ReactElement {
           <ProvidersSettings
             providers={pendingProviders}
             onProvidersChange={updatePendingProviders}
+            onRefresh={refreshProviders}
           />
         )
       case 'about':

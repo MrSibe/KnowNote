@@ -1,5 +1,5 @@
 import { ReactElement, useState, useMemo } from 'react'
-import { Search, Eye, EyeOff, ExternalLink, Download, Loader2 } from 'lucide-react'
+import { Search, Eye, EyeOff, ExternalLink, Download, Loader2, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { type Model, ModelType } from '../../../../shared/types'
 import { categorizeModels } from '../../../../shared/utils/modelClassifier'
@@ -25,6 +25,7 @@ interface ProviderConfigPanelProps {
   onConfigChange: (config: Record<string, any>) => void
   onEnabledChange: (enabled: boolean) => void
   onFetchModels: () => void
+  onDelete?: () => void // 可选：删除供应商回调（仅自定义供应商）
 }
 
 export default function ProviderConfigPanel({
@@ -36,15 +37,28 @@ export default function ProviderConfigPanel({
   isFetching,
   onConfigChange,
   onEnabledChange,
-  onFetchModels
+  onFetchModels,
+  onDelete
 }: ProviderConfigPanelProps): ReactElement {
   const { t } = useTranslation('settings')
   const [showApiKey, setShowApiKey] = useState(false)
   const [modelSearchQuery, setModelSearchQuery] = useState('')
   const [showCategory, setShowCategory] = useState<'all' | 'chat' | 'embedding' | 'other'>('all')
+  const [apiUrlError, setApiUrlError] = useState<string>('')
 
   const handleApiKeyChange = (apiKey: string) => {
     onConfigChange({ ...provider.config, apiKey })
+  }
+
+  const handleApiUrlChange = (apiUrl: string) => {
+    // 检查是否包含非 ASCII 字符
+    // eslint-disable-next-line no-control-regex
+    if (apiUrl && /[^\x00-\x7F]/.test(apiUrl)) {
+      setApiUrlError(t('apiUrlInvalid'))
+    } else {
+      setApiUrlError('')
+    }
+    onConfigChange({ ...provider.config, apiUrl })
   }
 
   const handleModelToggle = (modelId: string, checked: boolean) => {
@@ -90,7 +104,14 @@ export default function ProviderConfigPanel({
             </span>
           )}
         </div>
-        <Switch checked={provider.enabled} onCheckedChange={onEnabledChange} />
+        <div className="flex items-center gap-2">
+          {onDelete && (
+            <Button onClick={onDelete} variant="ghost" size="icon" className="w-8 h-8">
+              <Trash2 className="w-4 h-4 text-destructive" />
+            </Button>
+          )}
+          <Switch checked={provider.enabled} onCheckedChange={onEnabledChange} />
+        </div>
       </div>
 
       {/* 描述 */}
@@ -133,6 +154,24 @@ export default function ProviderConfigPanel({
           </a>
         </div>
       </div>
+
+      {/* API URL - 仅自定义供应商显示 */}
+      {provider.config.apiUrl !== undefined && (
+        <div className="flex flex-col gap-2">
+          <h3 className="text-sm font-medium text-foreground">{t('apiUrl')}</h3>
+          <Input
+            value={provider.config.apiUrl || ''}
+            onChange={(e) => handleApiUrlChange(e.target.value)}
+            placeholder="https://api.example.com/v1"
+            className={apiUrlError ? 'border-destructive' : ''}
+          />
+          {apiUrlError ? (
+            <p className="text-sm text-destructive">{apiUrlError}</p>
+          ) : (
+            <p className="text-xs text-muted-foreground">{t('apiUrlHint')}</p>
+          )}
+        </div>
+      )}
 
       {/* Models */}
       <div className="flex flex-col gap-2">

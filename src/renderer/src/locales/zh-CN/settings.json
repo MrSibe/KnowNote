@@ -48,5 +48,19 @@
   "openaiName": "OpenAI",
   "openaiDesc": "OpenAI GPT 模型，包括 GPT-4 和 GPT-3.5",
   "siliconflowName": "硅基流动",
-  "siliconflowDesc": "硅基流动 AI 模型平台，提供多种开源和商用模型"
+  "siliconflowDesc": "硅基流动 AI 模型平台，提供多种开源和商用模型",
+  "addProviderDesc": "添加自定义 AI 提供商以扩展功能",
+  "providerName": "供应商名称",
+  "providerNamePlaceholder": "例如：my-provider",
+  "providerNameRequired": "供应商名称不能为空",
+  "providerNameExists": "该供应商名称已存在",
+  "apiUrl": "API 地址",
+  "apiUrlRequired": "API 地址不能为空",
+  "apiUrlInvalid": "请输入有效的 URL 地址（仅支持英文字符）",
+  "apiKeyRequired": "API Key 不能为空",
+  "customProviderDesc": "自定义 AI 提供商",
+  "enterApiKeyAndUrl": "请先输入 API Key 和 API 地址",
+  "apiUrlHint": "自定义供应商的 API 端点地址",
+  "deleteProvider": "删除供应商",
+  "deleteProviderConfirm": "确定要删除供应商 \"{{name}}\" 吗？此操作无法撤销。"
 }

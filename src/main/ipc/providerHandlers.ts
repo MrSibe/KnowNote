@@ -33,6 +33,18 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
     return await providersManager.getAllProviderConfigs()
   })
 
+  // 删除提供商配置（带参数验证）
+  ipcMain.handle(
+    'delete-provider-config',
+    validate(ProviderSchemas.deleteProviderConfig, async (args) => {
+      await providersManager.deleteProviderConfig(args.providerName)
+      // 广播 Provider 配置变更事件到所有窗口
+      BrowserWindow.getAllWindows().forEach((win) => {
+        win.webContents.send('provider-config-changed')
+      })
+    })
+  )
+
   // 验证提供商配置（带参数验证）
   ipcMain.handle(
     'validate-provider-config',
@@ -51,6 +63,8 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
     validate(ProviderSchemas.fetchModels, async (args) => {
       try {
         let url = ''
+
+        // 内置供应商使用硬编码的 URL
         if (args.providerName === 'openai') {
           url = 'https://api.openai.com/v1/models'
         } else if (args.providerName === 'deepseek') {
@@ -58,7 +72,13 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         } else if (args.providerName === 'siliconflow') {
           url = 'https://api.siliconflow.cn/v1/models'
         } else {
-          throw new Error(`Unsupported provider: ${args.providerName}`)
+          // 自定义供应商：从配置中获取 apiUrl
+          const providerConfig = await providersManager.getProviderConfig(args.providerName)
+          if (!providerConfig || !providerConfig.config.apiUrl) {
+            throw new Error(`Custom provider ${args.providerName} has no apiUrl configured`)
+          }
+          const apiUrl = providerConfig.config.apiUrl
+          url = apiUrl.endsWith('/') ? `${apiUrl}models` : `${apiUrl}/models`
         }
 
         const response = await fetch(url, {
@@ -74,7 +94,7 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         }
 
         const data = await response.json()
-        const rawModels = data.data || []
+        const rawModels = data.data || data.models || []
 
         // 为模型添加类型信息
         const modelsWithType = enrichModelsWithType(rawModels)

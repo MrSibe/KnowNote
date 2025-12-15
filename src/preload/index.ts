@@ -98,6 +98,8 @@ const api = {
   getProviderConfig: (providerName: string) =>
     ipcRenderer.invoke('get-provider-config', { providerName }),
   getAllProviderConfigs: () => ipcRenderer.invoke('get-all-provider-configs'),
+  deleteProviderConfig: (providerName: string) =>
+    ipcRenderer.invoke('delete-provider-config', { providerName }),
   validateProviderConfig: (providerName: string, config: any) =>
     invokeWithTimeout('validate-provider-config', 15000, { providerName, config }), // 15秒超时（网络验证）
   fetchModels: (providerName: string, apiKey: string) =>

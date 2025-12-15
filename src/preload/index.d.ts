@@ -92,6 +92,7 @@ declare global {
       saveProviderConfig: (config: ProviderConfig) => Promise<void>
       getProviderConfig: (providerName: string) => Promise<ProviderConfig | null>
       getAllProviderConfigs: () => Promise<ProviderConfig[]>
+      deleteProviderConfig: (providerName: string) => Promise<void>
       validateProviderConfig: (providerName: string, config: any) => Promise<boolean>
       fetchModels: (
         providerName: string,
