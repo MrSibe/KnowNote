@@ -1,6 +1,12 @@
 import type Store from 'electron-store'
 import type { ProviderConfig } from './types'
 import { enrichModelsWithType } from '../../shared/utils/modelClassifier'
+import {
+  encryptProviderConfig,
+  decryptProviderConfig,
+  isEncryptionAvailable
+} from './secureStorage'
+import Logger from '../../shared/utils/logger'
 
 /**
  * 提供商配置管理器
@@ -13,7 +19,7 @@ export class ProvidersManager {
   }
 
   /**
-   * 保存提供商配置
+   * 保存提供商配置（自动加密敏感字段）
    */
   async saveProviderConfig(
     providerName: string,
@@ -23,9 +29,21 @@ export class ProvidersManager {
     const store = await this.getStore()
     const providers = store.get('providers', {})
 
+    // 加密敏感字段（如 apiKey）
+    let encryptedConfig = config
+    if (isEncryptionAvailable()) {
+      encryptedConfig = encryptProviderConfig(config)
+      Logger.info('ProvidersManager', `Config encrypted for ${providerName}`)
+    } else {
+      Logger.warn(
+        'ProvidersManager',
+        `Encryption not available, storing config in plain text for ${providerName}`
+      )
+    }
+
     providers[providerName] = {
       providerName,
-      config,
+      config: encryptedConfig,
       enabled,
       updatedAt: Date.now()
     }
@@ -34,21 +52,38 @@ export class ProvidersManager {
   }
 
   /**
-   * 获取提供商配置
+   * 获取提供商配置（自动解密敏感字段）
    */
   async getProviderConfig(providerName: string): Promise<ProviderConfig | null> {
     const store = await this.getStore()
     const providers = store.get('providers', {})
-    return providers[providerName] || null
+    const providerConfig = providers[providerName]
+
+    if (!providerConfig) {
+      return null
+    }
+
+    // 解密敏感字段
+    const decryptedConfig = decryptProviderConfig(providerConfig.config)
+
+    return {
+      ...providerConfig,
+      config: decryptedConfig
+    }
   }
 
   /**
-   * 获取所有提供商配置
+   * 获取所有提供商配置（自动解密敏感字段）
    */
   async getAllProviderConfigs(): Promise<ProviderConfig[]> {
     const store = await this.getStore()
     const providers = store.get('providers', {})
-    return Object.values(providers)
+
+    // 解密每个配置
+    return Object.values(providers).map((providerConfig: any) => ({
+      ...providerConfig,
+      config: decryptProviderConfig(providerConfig.config)
+    }))
   }
 
   /**

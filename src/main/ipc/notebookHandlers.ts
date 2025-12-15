@@ -6,23 +6,27 @@ import {
   updateNotebook,
   deleteNotebook
 } from '../db/queries'
+import { NotebookSchemas, validate } from './validation'
 
 /**
  * 注册笔记本相关的 IPC handlers
  */
 export function registerNotebookHandlers() {
-  // 创建笔记本
-  ipcMain.handle('create-notebook', async (_event, title: string, description?: string) => {
-    console.log('[IPC] create-notebook:', { title, description })
-    try {
-      const notebook = createNotebook(title, description)
-      console.log('[IPC] Notebook created successfully:', notebook.id)
-      return notebook
-    } catch (error) {
-      console.error('[IPC] Error creating notebook:', error)
-      throw error
-    }
-  })
+  // 创建笔记本（带参数验证）
+  ipcMain.handle(
+    'create-notebook',
+    validate(NotebookSchemas.createNotebook, async (args) => {
+      console.log('[IPC] create-notebook:', args)
+      try {
+        const notebook = createNotebook(args.title, args.description)
+        console.log('[IPC] Notebook created successfully:', notebook.id)
+        return notebook
+      } catch (error) {
+        console.error('[IPC] Error creating notebook:', error)
+        throw error
+      }
+    })
+  )
 
   // 获取所有笔记本
   ipcMain.handle('get-all-notebooks', async () => {
@@ -52,29 +56,35 @@ export function registerNotebookHandlers() {
     }
   })
 
-  // 更新笔记本
-  ipcMain.handle('update-notebook', async (_event, id: string, updates: any) => {
-    console.log('[IPC] update-notebook:', { id, updates })
-    try {
-      updateNotebook(id, updates)
-      console.log('[IPC] Notebook updated successfully:', id)
-      return { success: true }
-    } catch (error) {
-      console.error('[IPC] Error updating notebook:', error)
-      throw error
-    }
-  })
+  // 更新笔记本（带参数验证）
+  ipcMain.handle(
+    'update-notebook',
+    validate(NotebookSchemas.updateNotebook, async (args) => {
+      console.log('[IPC] update-notebook:', args)
+      try {
+        updateNotebook(args.id, args.updates)
+        console.log('[IPC] Notebook updated successfully:', args.id)
+        return { success: true }
+      } catch (error) {
+        console.error('[IPC] Error updating notebook:', error)
+        throw error
+      }
+    })
+  )
 
-  // 删除笔记本
-  ipcMain.handle('delete-notebook', async (_event, id: string) => {
-    console.log('[IPC] delete-notebook:', id)
-    try {
-      await deleteNotebook(id)
-      console.log('[IPC] Notebook deleted successfully:', id)
-      return { success: true }
-    } catch (error) {
-      console.error('[IPC] Error deleting notebook:', error)
-      throw error
-    }
-  })
+  // 删除笔记本（带参数验证）
+  ipcMain.handle(
+    'delete-notebook',
+    validate(NotebookSchemas.deleteNotebook, async (args) => {
+      console.log('[IPC] delete-notebook:', args.id)
+      try {
+        await deleteNotebook(args.id)
+        console.log('[IPC] Notebook deleted successfully:', args.id)
+        return { success: true }
+      } catch (error) {
+        console.error('[IPC] Error deleting notebook:', error)
+        throw error
+      }
+    })
+  )
 }

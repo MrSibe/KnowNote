@@ -5,6 +5,9 @@
 // 导出知识库类型
 export * from './knowledge'
 
+// 导出 Result 错误处理类型
+export * from './result'
+
 /**
  * 笔记本接口
  */
