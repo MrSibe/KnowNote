@@ -4,6 +4,7 @@ import { ProviderManager } from '../providers/ProviderManager'
 import { SessionAutoSwitchService } from '../services/SessionAutoSwitchService'
 import { KnowledgeService } from '../services/KnowledgeService'
 import { validateAndCleanMessages } from '../utils/messageValidator'
+import { settingsManager } from '../config'
 import Logger from '../../shared/utils/logger'
 import { ChatSchemas, validate } from './validation'
 
@@ -125,27 +126,36 @@ export function registerChatHandlers(
     }
 
     // 3.2 RAG 增强：检索相关知识并注入上下文
+    // 只有在设置了默认嵌入模型时才启用 RAG
     try {
-      const session = queries.getSessionById(sessionId)
-      if (session?.notebookId) {
-        const searchResults = await knowledgeService.search(session.notebookId, content, {
-          topK: 3,
-          threshold: 0.5
-        })
+      const settings = await settingsManager.getAllSettings()
+      const hasEmbeddingModel =
+        settings.defaultEmbeddingModel && settings.defaultEmbeddingModel.includes(':')
 
-        if (searchResults.length > 0) {
-          const ragContext = buildRAGContext(searchResults)
-          Logger.debug(
-            'ChatHandlers',
-            `RAG: Found ${searchResults.length} relevant chunks for query`
-          )
-
-          // 将 RAG 上下文作为 system message 插入到消息列表开头
-          messages.unshift({
-            role: 'system',
-            content: ragContext
+      if (hasEmbeddingModel) {
+        const session = queries.getSessionById(sessionId)
+        if (session?.notebookId) {
+          const searchResults = await knowledgeService.search(session.notebookId, content, {
+            topK: 3,
+            threshold: 0.5
           })
+
+          if (searchResults.length > 0) {
+            const ragContext = buildRAGContext(searchResults)
+            Logger.debug(
+              'ChatHandlers',
+              `RAG: Found ${searchResults.length} relevant chunks for query`
+            )
+
+            // 将 RAG 上下文作为 system message 插入到消息列表开头
+            messages.unshift({
+              role: 'system',
+              content: ragContext
+            })
+          }
         }
+      } else {
+        Logger.debug('ChatHandlers', 'RAG disabled: No embedding model configured')
       }
     } catch (error) {
       // RAG 失败不应该阻止对话，只记录警告
