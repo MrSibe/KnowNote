@@ -32,37 +32,32 @@ export default function NoteList({
   }
 
   return (
-    <div className="p-2 space-y-1">
+    <div className="p-2 space-y-1 select-none">
       {notes.map((note) => (
         <div
           key={note.id}
-          className={`group p-3 rounded-lg transition-colors ${
+          onClick={() => onSelectNote(note)}
+          className={`group p-3 rounded-lg transition-colors cursor-pointer ${
             currentNote?.id === note.id
               ? 'bg-primary/10 border border-primary/20'
               : 'hover:bg-muted'
           }`}
         >
           <div className="flex items-start gap-2">
-            <Button
-              onClick={() => onSelectNote(note)}
-              variant="ghost"
-              className="flex-1 min-w-0 text-left h-auto p-0 justify-start"
-            >
-              <div className="flex items-start gap-2">
-                <FileText className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
-                <div className="flex-1 min-w-0 flex flex-col gap-1">
-                  <h3 className="text-sm font-medium truncate">{note.title}</h3>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {note.content.replace(/^#.*\n/, '').slice(0, 100)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(note.updatedAt).toLocaleDateString(
-                      i18n.language === 'zh-CN' ? 'zh-CN' : 'en-US'
-                    )}
-                  </p>
-                </div>
+            <div className="flex-1 min-w-0 flex items-start gap-2">
+              <FileText className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
+              <div className="flex-1 min-w-0 flex flex-col gap-1">
+                <h3 className="text-sm font-medium truncate">{note.title}</h3>
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {note.content.replace(/^#.*\n/, '').slice(0, 100)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(note.updatedAt).toLocaleDateString(
+                    i18n.language === 'zh-CN' ? 'zh-CN' : 'en-US'
+                  )}
+                </p>
               </div>
-            </Button>
+            </div>
             <Button
               onClick={(e) => {
                 e.stopPropagation()
