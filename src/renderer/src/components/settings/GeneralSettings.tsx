@@ -208,9 +208,11 @@ export default function GeneralSettings({
             variant="secondary"
             className="w-full flex items-center justify-between h-auto py-2"
           >
-            <div className="flex-1 text-left">
-              <div className="text-sm font-medium text-foreground">{currentLanguage.native}</div>
-              <div className="text-xs text-muted-foreground">{currentLanguage.label}</div>
+            <div className="flex-1 text-left min-w-0">
+              <div className="text-sm font-medium text-foreground truncate">
+                {currentLanguage.native}
+              </div>
+              <div className="text-xs text-muted-foreground truncate">{currentLanguage.label}</div>
             </div>
             <ChevronDown
               className={`w-5 h-5 text-muted-foreground transition-transform shrink-0 ${
@@ -236,9 +238,11 @@ export default function GeneralSettings({
                       language.value === settings.language ? 'bg-accent' : ''
                     }`}
                   >
-                    <div className="flex-1 text-left">
-                      <div className="text-sm font-medium text-foreground">{language.native}</div>
-                      <div className="text-xs text-muted-foreground">{language.label}</div>
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {language.native}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">{language.label}</div>
                     </div>
                     {language.value === settings.language ? (
                       <div className="w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
@@ -267,12 +271,12 @@ export default function GeneralSettings({
               variant="secondary"
               className="w-full flex items-center justify-between h-auto py-2"
             >
-              <div className="flex-1 text-left">
-                <div className="text-sm font-medium text-foreground">
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-sm font-medium text-foreground truncate">
                   {currentChatModel ? currentChatModel.label : t('pleaseSelectModel')}
                 </div>
                 {currentChatModel && (
-                  <div className="text-xs text-muted-foreground capitalize">
+                  <div className="text-xs text-muted-foreground capitalize truncate">
                     {currentChatModel.provider}
                   </div>
                 )}
@@ -299,9 +303,11 @@ export default function GeneralSettings({
                         model.id === settings.defaultChatModel ? 'bg-accent' : ''
                       }`}
                     >
-                      <div className="flex-1 text-left">
-                        <div className="text-sm font-medium text-foreground">{model.label}</div>
-                        <div className="text-xs text-muted-foreground capitalize">
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">
+                          {model.label}
+                        </div>
+                        <div className="text-xs text-muted-foreground capitalize truncate">
                           {model.provider}
                         </div>
                       </div>
@@ -335,12 +341,12 @@ export default function GeneralSettings({
               variant="secondary"
               className="w-full flex items-center justify-between h-auto py-2"
             >
-              <div className="flex-1 text-left">
-                <div className="text-sm font-medium text-foreground">
+              <div className="flex-1 text-left min-w-0">
+                <div className="text-sm font-medium text-foreground truncate">
                   {currentEmbeddingModel ? currentEmbeddingModel.label : t('pleaseSelectModel')}
                 </div>
                 {currentEmbeddingModel && (
-                  <div className="text-xs text-muted-foreground capitalize">
+                  <div className="text-xs text-muted-foreground capitalize truncate">
                     {currentEmbeddingModel.provider}
                   </div>
                 )}
@@ -367,9 +373,11 @@ export default function GeneralSettings({
                         model.id === settings.defaultEmbeddingModel ? 'bg-accent' : ''
                       }`}
                     >
-                      <div className="flex-1 text-left">
-                        <div className="text-sm font-medium text-foreground">{model.label}</div>
-                        <div className="text-xs text-muted-foreground capitalize">
+                      <div className="flex-1 text-left min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">
+                          {model.label}
+                        </div>
+                        <div className="text-xs text-muted-foreground capitalize truncate">
                           {model.provider}
                         </div>
                       </div>
