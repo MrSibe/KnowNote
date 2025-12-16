@@ -47,7 +47,7 @@ appImage:
 npmRebuild: false
 publish:
   provider: github
-  owner: mrsibe
+  owner: MrSibe
   repo: KnowNote
   releaseType: release
 electronDownload:

@@ -30,11 +30,11 @@ export default function AboutSettings(): ReactElement {
   }, [])
 
   const handleOpenWebsite = () => {
-    window.open('https://your-website.com', '_blank')
+    window.open('https://github.com/MrSibe/KnowNote', '_blank')
   }
 
   const handleFeedback = () => {
-    window.open('https://github.com/your-repo/issues', '_blank')
+    window.open('https://github.com/MrSibe/KnowNote/issues', '_blank')
   }
 
   const handleCheckUpdates = async () => {
