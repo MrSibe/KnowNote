@@ -103,7 +103,7 @@ function AddSourceModal({
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={t('textPlaceholder')}
-                className="text-base min-h-60 resize-y"
+                className="text-base h-60 resize-none"
                 required
                 disabled={isLoading}
               />
