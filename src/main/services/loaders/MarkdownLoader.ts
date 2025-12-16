@@ -5,8 +5,7 @@
 
 import { readFile } from 'fs/promises'
 import { extname } from 'path'
-import { unified } from 'unified'
-import remarkParse from 'remark-parse'
+import { remark } from 'remark'
 import remarkGfm from 'remark-gfm'
 import { visit } from 'unist-util-visit'
 import type { Root, Heading, Content } from 'mdast'
@@ -40,7 +39,10 @@ export class MarkdownLoader implements IDocumentLoader {
 
     try {
       // 解析 Markdown AST
-      const processor = unified().use(remarkParse).use(remarkGfm)
+      // 处理 ESM/CommonJS 兼容性：在运行时获取正确的函数
+      const remarkFn = typeof remark === 'function' ? remark : (remark as any).remark
+      const remarkGfmPlugin = typeof remarkGfm === 'function' ? remarkGfm : (remarkGfm as any).default
+      const processor = remarkFn().use(remarkGfmPlugin)
       const ast = processor.parse(content) as Root
 
       // 提取标题

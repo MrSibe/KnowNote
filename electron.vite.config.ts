@@ -42,7 +42,12 @@ function copyMigrationsPlugin() {
 
 export default defineConfig({
   main: {
-    plugins: [copyMigrationsPlugin()]
+    plugins: [copyMigrationsPlugin()],
+    build: {
+      rollupOptions: {
+        external: ['remark', 'remark-gfm', 'remark-parse', 'unified', 'unist-util-visit']
+      }
+    }
   },
   preload: {},
   renderer: {

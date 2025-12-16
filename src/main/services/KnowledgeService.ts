@@ -332,11 +332,18 @@ export class KnowledgeService {
       // 1. 创建文档记录（包含 localFilePath）
       onProgress?.('creating_document', 0)
 
+      // 根据 MIME 类型决定文档类型
+      // text/plain 和 text/markdown 可以直接预览
+      const docType =
+        parseResult.mimeType === 'text/plain' || parseResult.mimeType === 'text/markdown'
+          ? 'text'
+          : 'file'
+
       const newDoc: NewDocument = {
         id: documentId,
         notebookId,
         title: parseResult.title || basename(filePath) || 'Untitled',
-        type: 'file',
+        type: docType,
         sourceUri: filePath,
         localFilePath: localFilePath,
         content: parseResult.content,
