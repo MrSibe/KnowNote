@@ -363,8 +363,19 @@ export default function SourcePanel(): ReactElement {
         return
       }
 
-      await addNoteToKnowledge(notebookId, data.noteId)
-      setModalType(null)
+      try {
+        await addNoteToKnowledge(notebookId, data.noteId)
+        setModalType(null)
+      } catch (error) {
+        // 检查是否是空笔记错误
+        const errorMessage = (error as Error).message || ''
+        if (errorMessage.toLowerCase().includes('empty')) {
+          alert(t('emptyNoteCannotImport'))
+        } else {
+          alert(errorMessage || t('embeddingFailed', { title: '' }))
+        }
+        setModalType(null)
+      }
     },
     [notebookId, defaultEmbeddingModel, addNoteToKnowledge, t]
   )
@@ -528,7 +539,9 @@ export default function SourcePanel(): ReactElement {
           onClose={() => setModalType(null)}
           onSubmit={handleModalSubmit}
           isLoading={isIndexing}
-          notes={notes.map((n) => ({ id: n.id, title: n.title }))}
+          notes={notes
+            .filter((n) => n.content.trim().length > 0)
+            .map((n) => ({ id: n.id, title: n.title }))}
         />
       )}
 

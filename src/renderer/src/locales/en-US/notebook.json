@@ -47,6 +47,7 @@
   "enterNotebookName": "Enter notebook name",
   "deleteConfirm": "Are you sure you want to delete notebook \"{{name}}\"?\nThis action cannot be undone.",
   "newNote": "New Note",
+  "untitledNote": "Untitled Note",
   "newNoteContent": "",
   "backToList": "Back to List",
   "save": "Save",

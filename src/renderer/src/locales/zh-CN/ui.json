@@ -47,6 +47,7 @@
   "cancel": "取消",
   "processing": "处理中...",
   "noEmbeddingModelConfigured": "请先在设置中配置默认嵌入模型",
+  "emptyNoteCannotImport": "笔记内容为空，无法导入到知识库",
   "backToList": "返回列表",
   "openUrl": "打开网页",
   "openFile": "打开文件",

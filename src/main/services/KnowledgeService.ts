@@ -531,6 +531,12 @@ export class KnowledgeService {
       throw new Error(`Note ${noteId} not found`)
     }
 
+    // 验证笔记内容不为空
+    const trimmedContent = note.content.trim()
+    if (!trimmedContent || trimmedContent.length === 0) {
+      throw new Error('Note content is empty. Cannot add empty note to knowledge base.')
+    }
+
     return this.addDocument(
       notebookId,
       {

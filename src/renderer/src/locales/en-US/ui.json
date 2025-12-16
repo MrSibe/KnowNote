@@ -98,5 +98,10 @@
   "add": "Add",
   "cancel": "Cancel",
   "processing": "Processing...",
-  "noEmbeddingModelConfigured": "Please configure a default embedding model in settings first"
+  "noEmbeddingModelConfigured": "Please configure a default embedding model in settings first",
+  "emptyNoteCannotImport": "Note content is empty and cannot be imported to knowledge base",
+  "backToList": "Back to List",
+  "openUrl": "Open URL",
+  "openFile": "Open File",
+  "cannotPreview": "Cannot preview this file type"
 }

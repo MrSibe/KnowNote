@@ -40,7 +40,13 @@ function NoteEditorPanel({
   }, [editTitle, editContent, note.title, note.content, onUnsavedChange])
 
   const handleSave = () => {
-    onSave(editTitle, editContent)
+    // 如果标题为空或只有空格，使用默认标题
+    const finalTitle = editTitle.trim() || t('untitledNote')
+    // 更新显示的标题，让用户看到自动设置的标题
+    if (!editTitle.trim()) {
+      setEditTitle(finalTitle)
+    }
+    onSave(finalTitle, editContent)
   }
 
   return (
