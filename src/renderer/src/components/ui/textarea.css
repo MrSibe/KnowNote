@@ -1,0 +1,22 @@
+/* 自定义 Textarea 滚动条样式，与 ScrollArea 组件保持一致 */
+.textarea-custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.textarea-custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.textarea-custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.6);
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+
+.textarea-custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border));
+}
+
+.textarea-custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: hsl(var(--border));
+}
