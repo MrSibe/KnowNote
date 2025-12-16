@@ -26,7 +26,7 @@ nsis:
   createStartMenuShortcut: true
   deleteAppDataOnUninstall: false
   # 降低压缩率以加快打包速度，避免 GitHub Actions 超时
-  compressionLevel: normal  # 可选值: store (最快), normal (默认), maximum (最慢)
+  compressionLevel: normal # 可选值: store (最快), normal (默认), maximum (最慢)
   # 或者使用数字: 0-9，其中 0 是不压缩，9 是最高压缩
   # differentialPackage: false  # 禁用差异包可以加快速度
 mac:
