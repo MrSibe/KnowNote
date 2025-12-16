@@ -1,90 +1,275 @@
+<div align="center">
+
 # KnowNote
 
-**KnowNote 是一个本地优先的知识笔记工具，把你的 PDF、文档和网页转化为可提问、可引用、可追溯的个人知识库。**
+**将你的文档转化为可对话的智能知识库**
 
-Instead of treating PDFs, notes, and links as static files, KnowNote turns them into a structured, searchable, and questionable knowledge base. By combining document parsing, vector search, and retrieval-augmented generation (RAG), KnowNote helps you understand, connect, and reuse information — not just store it.
+[![GitHub release](https://img.shields.io/github/v/release/MrSibe/KnowNote)](https://github.com/MrSibe/KnowNote/releases)
+[![GitHub stars](https://img.shields.io/github/stars/MrSibe/KnowNote)](https://github.com/MrSibe/KnowNote/stargazers)
+[![License](https://img.shields.io/github/license/MrSibe/KnowNote)](https://github.com/MrSibe/KnowNote/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/MrSibe/KnowNote)](https://github.com/MrSibe/KnowNote/issues)
+
+[简体中文](README.md) | [English](README_EN.md)
+
+</div>
+
+---
+
+## 关于 KnowNote
+
+KnowNote 是一个**本地优先**的知识笔记工具，灵感来自 Google NotebookLM。它将你的 PDF、Word 文档、PowerPoint 和网页转化为可提问、可引用、可追溯的个人知识库。
+
+与其将文件当作静态资料存储，不如让 KnowNote 帮你构建一个结构化、可搜索、可对话的知识体系。通过结合文档解析、向量检索和检索增强生成（RAG）技术，KnowNote 帮助你理解、连接和重用信息——而不仅仅是存储它们。
+
+### 核心优势
+
+- 🔒 **本地优先** - 数据完全存储在本地，隐私安全有保障
+- 🤖 **自定义 LLM** - 支持 OpenAI、Claude、本地模型等多种 AI 服务
+- ⚡ **轻量快捷** - Electron 桌面应用，启动迅速，响应流畅
+
+---
+
+## 界面预览
+
+<div align="center">
+  <img src="./.github/images/screenshot-main.png" alt="KnowNote 主界面" width="800">
+  <p><i>三栏布局：知识库管理 | 笔记展示 | AI 智能问答</i></p>
+</div>
+
+---
 
 ## 核心特性
 
-- **本地优先**: 所有数据存储在本地，完全掌控你的知识资产
-- **多格式支持**: PDF、Markdown、Word 文档、PowerPoint、网页链接
-- **智能问答**: 基于 RAG 技术，可以向你的文档提问并获得引用来源
-- **向量检索**: 使用 sqlite-vec 进行高效的语义搜索
-- **可追溯**: 每个答案都能追溯到原始文档的具体位置
+### 📚 文档管理
 
-## 技术栈
+- **多格式支持**：PDF、Word（.docx）、PowerPoint（.pptx）、网页链接
+- **智能解析**：自动提取文档结构和关键内容
+- **结构化存储**：使用 SQLite 本地数据库，快速可靠
 
-- **前端**: React + TypeScript + TailwindCSS
-- **桌面框架**: Electron
-- **数据库**: SQLite + sqlite-vec (向量检索)
-- **ORM**: Drizzle ORM
-- **文档解析**: pdfjs-dist, mammoth, officeparser
-- **构建工具**: Vite + electron-vite
+### 🤖 AI 智能问答
 
-## 开发环境设置
+- **RAG 技术**：基于检索增强生成，让 AI 回答更准确
+- **多 LLM 支持**：OpenAI、Claude、本地模型等自由选择
+- **来源追溯**：每个答案都能追溯到原始文档的具体位置
 
-### 安装依赖
+### 🔒 本地优先
+
+- **隐私保护**：所有数据存储在本地，完全掌控你的知识资产
+- **离线可用**：核心功能无需联网（AI 对话需要配置 API）
+- **数据安全**：无需担心数据泄露或被第三方访问
+
+### 🔍 向量检索
+
+- **语义搜索**：使用 sqlite-vec 进行高效的向量检索
+- **智能匹配**：快速定位与问题最相关的文档内容
+- **精准定位**：在海量知识中找到你需要的信息
+
+### ⚡ 轻量快捷
+
+- **桌面应用**：基于 Electron，原生体验
+- **快速响应**：优化的性能，流畅的交互
+- **跨平台**：支持 Windows、macOS、Linux
+
+---
+
+## 产品路线图
+
+### ✅ 已完成
+
+- **AI 大模型对话** - 集成多种主流 LLM 服务
+- **笔记生成** - 智能生成结构化笔记
+- **RAG 文档检索** - 基于向量的语义检索
+- **多格式文档导入**
+  - PDF 文档解析
+  - Word 文档（.docx）
+  - PowerPoint 演示文稿（.pptx）
+  - 网页内容抓取
+
+### 🚧 开发中
+
+- **答题生成功能** - 根据文档自动生成测试题
+- **PPT 自动生成** - 从笔记一键生成演示文稿
+
+### 📋 计划中
+
+更多功能正在规划中，欢迎在 [Issues](https://github.com/MrSibe/KnowNote/issues) 提出你的建议！
+
+---
+
+## 快速开始
+
+### 用户下载安装
+
+前往 [GitHub Releases](https://github.com/MrSibe/KnowNote/releases) 下载最新版本：
+
+- **Windows**: `KnowNote-Setup-{version}.exe`
+- **macOS**: `KnowNote-{version}.dmg` 或 `KnowNote-{version}-arm64.dmg`（Apple Silicon）
+- **Linux**: `KnowNote-{version}.AppImage` 或 `.deb` 安装包
+
+### 开发者快速启动
+
+**前置要求**
+
+- Node.js 18+
+- pnpm（推荐）或 npm
+
+**安装与运行**
 
 ```bash
+# 克隆仓库
+git clone https://github.com/MrSibe/KnowNote.git
+cd KnowNote
+
+# 安装依赖
 pnpm install
-```
 
-### 开发模式
-
-```bash
+# 启动开发服务器
 pnpm dev
 ```
 
-### 构建应用
+---
+
+## 技术栈
+
+KnowNote 采用现代化的技术栈构建，确保性能和可维护性：
+
+| 技术             | 用途                 |
+| ---------------- | -------------------- |
+| **Electron**     | 跨平台桌面应用框架   |
+| **React 19**     | 前端 UI 框架         |
+| **TypeScript**   | 类型安全的开发体验   |
+| **TailwindCSS**  | 原子化 CSS 框架      |
+| **Vite**         | 快速的构建工具       |
+| **SQLite**       | 轻量级本地数据库     |
+| **sqlite-vec**   | 向量检索扩展         |
+| **Drizzle ORM**  | 类型安全的数据库 ORM |
+| **pdfjs-dist**   | PDF 文档解析         |
+| **mammoth**      | Word 文档解析        |
+| **officeparser** | Office 文档解析      |
+| **Tiptap**       | 富文本编辑器         |
+
+---
+
+## 开发指南
+
+<details>
+<summary><b>📦 构建应用</b></summary>
 
 ```bash
-# Windows
+# 构建 Windows 应用
 pnpm build:win
 
-# macOS
+# 构建 macOS 应用
 pnpm build:mac
 
-# Linux
+# 构建 Linux 应用
 pnpm build:linux
 ```
 
-## 数据库管理
+构建产物将输出到 `dist/` 目录。
+
+</details>
+
+<details>
+<summary><b>🗄️ 数据库管理</b></summary>
+
+KnowNote 使用 Drizzle ORM 进行数据库管理：
 
 ```bash
 # 生成迁移文件
 pnpm db:generate
 
-# 执行迁移
+# 执行数据库迁移
 pnpm db:migrate
 
-# 推送 schema 变更
+# 直接推送 schema 变更（开发环境）
 pnpm db:push
 
-# 打开 Drizzle Studio
+# 打开 Drizzle Studio（可视化数据库管理）
 pnpm db:studio
 ```
+
+</details>
+
+<details>
+<summary><b>🔧 代码质量</b></summary>
+
+```bash
+# 代码格式化
+pnpm format
+
+# 代码检查
+pnpm lint
+
+# 类型检查
+pnpm typecheck
+```
+
+</details>
+
+---
 
 ## 项目结构
 
 ```plaintext
-knownote/
+KnowNote/
 ├── src/
-│   ├── main/           # Electron 主进程
-│   │   ├── db/         # 数据库配置和 schema
-│   │   ├── services/   # 核心业务逻辑
-│   │   └── providers/  # LLM 提供商管理
-│   ├── renderer/       # React 渲染进程
-│   └── shared/         # 共享代码
-├── build/              # 构建资源
-└── out/                # 编译输出
+│   ├── main/              # Electron 主进程
+│   │   ├── db/            # 数据库配置和 schema
+│   │   ├── services/      # 核心业务逻辑（文档解析、RAG 等）
+│   │   └── providers/     # LLM 提供商管理
+│   ├── renderer/          # React 渲染进程（前端界面）
+│   ├── preload/           # Electron 预加载脚本
+│   └── shared/            # 共享代码和类型定义
+├── resources/             # 应用资源（图标等）
+├── build/                 # 构建配置
+└── out/                   # 编译输出
 ```
 
-## 推荐 IDE 配置
+---
 
-- [VSCode](https://code.visualstudio.com/)
-- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## 贡献指南
 
-## License
+我们欢迎所有形式的贡献！无论是报告 bug、提出新功能建议，还是直接提交代码。
 
-GPL-3.0
+### 如何贡献
+
+1. **报告问题**：在 [Issues](https://github.com/MrSibe/KnowNote/issues) 页面提交 bug 报告或功能建议
+2. **提交代码**：
+   - Fork 本仓库
+   - 创建你的特性分支（`git checkout -b feature/AmazingFeature`）
+   - 提交你的修改（`git commit -m 'Add some AmazingFeature'`）
+   - 推送到分支（`git push origin feature/AmazingFeature`）
+   - 开启一个 Pull Request
+
+### 支持项目
+
+如果你觉得 KnowNote 对你有帮助，请考虑：
+
+- 给项目点个 ⭐ Star
+- 分享给更多需要的人
+- 在 [Issues](https://github.com/MrSibe/KnowNote/issues) 提供反馈和建议
+
+---
+
+## 许可证
+
+本项目采用 [GPL-3.0 License](LICENSE) 开源协议。
+
+---
+
+## 致谢
+
+感谢以下开源项目和技术：
+
+- [Google NotebookLM](https://notebooklm.google/) - 灵感来源
+- [Electron](https://www.electronjs.org/) - 跨平台桌面应用框架
+- [React](https://react.dev/) - UI 框架
+- [SQLite](https://www.sqlite.org/) & [sqlite-vec](https://github.com/asg017/sqlite-vec) - 数据存储与向量检索
+
+---
+
+<div align="center">
+  <p>由 <a href="https://github.com/MrSibe">@MrSibe</a> 用心打造</p>
+  <p>如果这个项目对你有帮助，请给它一个 ⭐ Star！</p>
+</div>
