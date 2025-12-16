@@ -10,6 +10,7 @@ import type {
   SearchOptions,
   IndexProgress
 } from '../shared/types/knowledge'
+import type { UpdateState, UpdateCheckResult, UpdateOperationResult } from '../shared/types/update'
 
 // 重新导出共享类型
 export type { ChatSession, ChatMessage, Notebook, Note, ProviderConfig, AppSettings }
@@ -22,6 +23,7 @@ export type {
   SearchOptions,
   IndexProgress
 }
+export type { UpdateState, UpdateCheckResult, UpdateOperationResult }
 
 declare global {
   interface Window {
@@ -151,6 +153,20 @@ declare global {
 
         // 索引进度监听
         onIndexProgress: (callback: (progress: IndexProgress) => void) => () => void
+      }
+
+      // 应用更新相关
+      update: {
+        // 检查更新
+        check: () => Promise<UpdateCheckResult>
+        // 下载更新
+        download: () => Promise<UpdateOperationResult>
+        // 安装更新（退出并安装）
+        install: () => Promise<UpdateOperationResult>
+        // 获取当前更新状态
+        getState: () => Promise<UpdateCheckResult>
+        // 监听更新状态变化
+        onStateChanged: (callback: (state: UpdateState) => void) => () => void
       }
     }
   }

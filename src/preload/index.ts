@@ -160,6 +160,24 @@ const api = {
       ipcRenderer.on('knowledge:index-progress', listener)
       return () => ipcRenderer.removeListener('knowledge:index-progress', listener)
     }
+  },
+
+  // 应用更新相关
+  update: {
+    // 检查更新
+    check: () => ipcRenderer.invoke('update:check'),
+    // 下载更新
+    download: () => ipcRenderer.invoke('update:download'),
+    // 安装更新（退出并安装）
+    install: () => ipcRenderer.invoke('update:install'),
+    // 获取当前更新状态
+    getState: () => ipcRenderer.invoke('update:get-state'),
+    // 监听更新状态变化
+    onStateChanged: (callback: (state: any) => void) => {
+      const listener = (_event: any, state: any) => callback(state)
+      ipcRenderer.on('update:state-changed', listener)
+      return () => ipcRenderer.removeListener('update:state-changed', listener)
+    }
   }
 }
 

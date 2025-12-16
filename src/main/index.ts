@@ -10,6 +10,7 @@ import {
 import { ProviderManager } from './providers/ProviderManager'
 import { SessionAutoSwitchService } from './services/SessionAutoSwitchService'
 import { KnowledgeService } from './services/KnowledgeService'
+import { UpdateService } from './services/UpdateService'
 import { createMainWindow, createSettingsWindow, destroySettingsWindow } from './windows'
 import { registerAllHandlers } from './ipc'
 import Logger from '../shared/utils/logger'
@@ -17,6 +18,7 @@ import Logger from '../shared/utils/logger'
 let providerManager: ProviderManager | null = null
 let sessionAutoSwitchService: SessionAutoSwitchService | null = null
 let knowledgeService: KnowledgeService | null = null
+let updateService: UpdateService | null = null
 let isQuitting = false // Flag to indicate if app is quitting
 
 // This method will be called when Electron has finished
@@ -55,8 +57,13 @@ app.whenReady().then(() => {
   knowledgeService = new KnowledgeService(providerManager)
   Logger.info('Main', 'Knowledge Service initialized')
 
+  // Initialize Update Service
+  Logger.info('Main', 'Initializing Update Service...')
+  updateService = new UpdateService()
+  Logger.info('Main', 'Update Service initialized')
+
   // Register all IPC Handlers
-  registerAllHandlers(providerManager, sessionAutoSwitchService, knowledgeService)
+  registerAllHandlers(providerManager, sessionAutoSwitchService, knowledgeService, updateService)
 
   // IPC test (development only)
   if (process.env.NODE_ENV === 'development') {
@@ -74,7 +81,13 @@ app.whenReady().then(() => {
   })
 
   // Create main window
-  createMainWindow()
+  const mainWindow = createMainWindow()
+
+  // Set main window for update service
+  updateService.setMainWindow(mainWindow)
+
+  // Check for updates on startup (after 5 seconds)
+  updateService.checkForUpdatesOnStartup()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

@@ -1,10 +1,33 @@
-import { ChevronRight } from 'lucide-react'
-import { ReactElement } from 'react'
+import { ChevronRight, Download, RefreshCw, CheckCircle } from 'lucide-react'
+import { ReactElement, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import logoImg from '../../assets/logo.png'
+import { UpdateStatus } from '@/../../shared/types/update'
+import type { UpdateState } from '@/../../preload/index.d'
 
 export default function AboutSettings(): ReactElement {
   const { t } = useTranslation('settings')
+  const [updateState, setUpdateState] = useState<UpdateState>({
+    status: UpdateStatus.IDLE
+  })
+  const [checking, setChecking] = useState(false)
+
+  // 监听更新状态变化
+  useEffect(() => {
+    const unsubscribe = window.api.update.onStateChanged((state: UpdateState) => {
+      setUpdateState(state)
+      setChecking(false)
+    })
+
+    // 获取初始状态
+    window.api.update.getState().then((result) => {
+      if (result.success && result.state) {
+        setUpdateState(result.state)
+      }
+    })
+
+    return unsubscribe
+  }, [])
 
   const handleOpenWebsite = () => {
     window.open('https://your-website.com', '_blank')
@@ -15,9 +38,89 @@ export default function AboutSettings(): ReactElement {
   }
 
   const handleCheckUpdates = async () => {
-    // TODO: 实现检查更新逻辑
-    console.log('Check for updates')
+    setChecking(true)
+    try {
+      await window.api.update.check()
+    } catch (error) {
+      console.error('Failed to check for updates:', error)
+      setChecking(false)
+    }
   }
+
+  const handleDownloadUpdate = async () => {
+    try {
+      await window.api.update.download()
+    } catch (error) {
+      console.error('Failed to download update:', error)
+    }
+  }
+
+  const handleInstallUpdate = async () => {
+    try {
+      await window.api.update.install()
+    } catch (error) {
+      console.error('Failed to install update:', error)
+    }
+  }
+
+  // 获取更新按钮文本和状态
+  const getUpdateButtonContent = () => {
+    switch (updateState.status) {
+      case UpdateStatus.CHECKING:
+        return {
+          text: t('checking'),
+          icon: <RefreshCw className="w-4 h-4 animate-spin" />,
+          disabled: true,
+          onClick: undefined
+        }
+      case UpdateStatus.AVAILABLE:
+        return {
+          text: t('updateAvailable', { version: updateState.info?.version }),
+          icon: <Download className="w-4 h-4" />,
+          disabled: false,
+          onClick: handleDownloadUpdate
+        }
+      case UpdateStatus.DOWNLOADING:
+        return {
+          text: t('downloading', {
+            percent: updateState.progress?.percent.toFixed(0) || 0
+          }),
+          icon: <Download className="w-4 h-4 animate-pulse" />,
+          disabled: true,
+          onClick: undefined
+        }
+      case UpdateStatus.DOWNLOADED:
+        return {
+          text: t('installUpdate'),
+          icon: <Download className="w-4 h-4" />,
+          disabled: false,
+          onClick: handleInstallUpdate
+        }
+      case UpdateStatus.NOT_AVAILABLE:
+        return {
+          text: t('latestVersion'),
+          icon: <CheckCircle className="w-4 h-4 text-green-500" />,
+          disabled: true,
+          onClick: undefined
+        }
+      case UpdateStatus.ERROR:
+        return {
+          text: t('checkUpdateError'),
+          icon: <RefreshCw className="w-4 h-4" />,
+          disabled: false,
+          onClick: handleCheckUpdates
+        }
+      default:
+        return {
+          text: t('checkUpdates'),
+          icon: <RefreshCw className="w-4 h-4" />,
+          disabled: checking,
+          onClick: handleCheckUpdates
+        }
+    }
+  }
+
+  const updateButton = getUpdateButtonContent()
 
   return (
     <div className="space-y-6">
@@ -37,6 +140,7 @@ export default function AboutSettings(): ReactElement {
           <span className="text-sm text-muted-foreground">{t('officialWebsite')}</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </button>
+
         <button
           onClick={handleFeedback}
           className="flex justify-between p-3 bg-card rounded-lg hover:bg-accent transition-colors cursor-pointer"
@@ -44,13 +148,25 @@ export default function AboutSettings(): ReactElement {
           <span className="text-sm text-muted-foreground">{t('feedback')}</span>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </button>
+
         <button
-          onClick={handleCheckUpdates}
-          className="flex justify-between p-3 bg-card rounded-lg hover:bg-accent transition-colors cursor-pointer"
+          onClick={updateButton.onClick}
+          disabled={updateButton.disabled}
+          className={`flex justify-between items-center p-3 bg-card rounded-lg transition-colors ${
+            updateButton.disabled
+              ? 'cursor-not-allowed opacity-60'
+              : 'hover:bg-accent cursor-pointer'
+          }`}
         >
-          <span className="text-sm text-muted-foreground">{t('checkUpdates')}</span>
-          <span className="text-xs text-muted-foreground">{t('latestVersion')}</span>
+          <span className="text-sm text-muted-foreground">{updateButton.text}</span>
+          {updateButton.icon}
         </button>
+
+        {updateState.status === UpdateStatus.ERROR && updateState.error && (
+          <div className="p-3 bg-destructive/10 rounded-lg">
+            <p className="text-xs text-destructive">{updateState.error}</p>
+          </div>
+        )}
       </div>
     </div>
   )
