@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactElement } from 'react'
+import { useState, useEffect, useRef, ReactElement } from 'react'
 import { Send, StopCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useChatStore } from '../../store/chatStore'
@@ -19,6 +19,7 @@ export default function ProcessPanel(): ReactElement {
 
   const [editingTitle, setEditingTitle] = useState('')
   const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const currentNotebookId = currentSession?.notebookId
   const isCurrentNotebookStreaming = currentNotebookId
@@ -78,6 +79,33 @@ export default function ProcessPanel(): ReactElement {
     if (!canStop || !currentNotebookId) return
     await abortMessage(currentNotebookId)
   }
+
+  // Auto-resize textarea based on content
+  const adjustTextareaHeight = (): void => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = 'auto'
+
+    // Calculate new height with min and max constraints
+    const minHeight = 84 // ~3 rows
+    const maxHeight = 280 // ~10 rows
+    const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight)
+
+    textarea.style.height = `${newHeight}px`
+  }
+
+  // Handle input change with auto-resize
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    setInput(e.target.value)
+    adjustTextareaHeight()
+  }
+
+  // Adjust height when input changes externally (e.g., after sending)
+  useEffect(() => {
+    adjustTextareaHeight()
+  }, [input])
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -177,8 +205,9 @@ export default function ProcessPanel(): ReactElement {
         <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:ring-2 focus-within:ring-ring shadow-lg pointer-events-auto">
           {/* 多行输入框 */}
           <Textarea
+            ref={textareaRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={
               !currentSession
@@ -192,8 +221,8 @@ export default function ProcessPanel(): ReactElement {
             disabled={
               !currentSession || isCurrentNotebookStreaming || !hasProvider || !defaultChatModel
             }
-            rows={3}
-            className="w-full bg-transparent border-0 pl-4 pr-14 py-3 text-sm text-foreground placeholder-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+            rows={1}
+            className="w-full bg-transparent border-0 pl-4 pr-14 py-3 text-sm text-foreground placeholder-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto min-h-[84px] max-h-[280px]"
           />
 
           {/* 发送/停止按钮 - 动态切换 */}

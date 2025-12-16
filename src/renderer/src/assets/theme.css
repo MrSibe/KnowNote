@@ -42,6 +42,11 @@
   --input: #f0f0f0;
   --ring: #4078f2;
 
+  /* 滚动条颜色 */
+  --scrollbar-thumb: #383a4233;
+  --scrollbar-thumb-hover: #383a4259;
+  --scrollbar-thumb-active: #383a4280;
+
   /* 图表颜色 */
   --chart-1: #61afef;
   --chart-2: #98c379;
@@ -130,6 +135,11 @@
   --border: #3e4451;
   --input: #3e4451;
   --ring: #61afef;
+
+  /* 滚动条颜色 */
+  --scrollbar-thumb: #abb2bf33;
+  --scrollbar-thumb-hover: #abb2bf59;
+  --scrollbar-thumb-active: #abb2bf80;
 
   /* 图表颜色 */
   --chart-1: #61afef;
