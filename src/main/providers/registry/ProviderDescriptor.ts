@@ -47,6 +47,6 @@ export interface ProviderDescriptor {
 export interface CustomProviderConfig {
   providerName: string // 供应商名称
   displayName: string // 显示名称
-  apiUrl: string // API 地址
+  baseUrl: string // API 地址
   apiKey: string // API Key
 }

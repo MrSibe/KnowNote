@@ -15,7 +15,7 @@ import { Input } from '../ui/input'
 interface AddProviderDialogProps {
   isOpen: boolean
   onClose: () => void
-  onConfirm: (data: { providerName: string; apiKey: string; apiUrl: string }) => void
+  onConfirm: (data: { providerName: string; apiKey: string; baseUrl: string }) => void
   existingProviders: string[]
 }
 
@@ -28,12 +28,12 @@ export default function AddProviderDialog({
   const { t } = useTranslation('settings')
   const [providerName, setProviderName] = useState('')
   const [apiKey, setApiKey] = useState('')
-  const [apiUrl, setApiUrl] = useState('')
+  const [baseUrl, setBaseUrl] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
   const [errors, setErrors] = useState({
     providerName: '',
     apiKey: '',
-    apiUrl: ''
+    baseUrl: ''
   })
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -70,7 +70,7 @@ export default function AddProviderDialog({
     const newErrors = {
       providerName: '',
       apiKey: '',
-      apiUrl: ''
+      baseUrl: ''
     }
 
     // 供应商名称验证
@@ -86,12 +86,12 @@ export default function AddProviderDialog({
       newErrors.apiKey = t('apiKeyRequired')
     }
 
-    // API URL 验证
-    const trimmedUrl = apiUrl.trim()
+    // Base URL 验证
+    const trimmedUrl = baseUrl.trim()
     if (!trimmedUrl) {
-      newErrors.apiUrl = t('apiUrlRequired')
+      newErrors.baseUrl = t('apiUrlRequired')
     } else if (!isValidUrl(trimmedUrl)) {
-      newErrors.apiUrl = t('apiUrlInvalid')
+      newErrors.baseUrl = t('apiUrlInvalid')
     }
 
     setErrors(newErrors)
@@ -105,7 +105,7 @@ export default function AddProviderDialog({
       onConfirm({
         providerName: providerName.trim().toLowerCase(),
         apiKey: apiKey.trim(),
-        apiUrl: apiUrl.trim()
+        baseUrl: baseUrl.trim()
       })
       handleClose()
     }
@@ -115,12 +115,12 @@ export default function AddProviderDialog({
   const handleClose = (): void => {
     setProviderName('')
     setApiKey('')
-    setApiUrl('')
+    setBaseUrl('')
     setShowApiKey(false)
     setErrors({
       providerName: '',
       apiKey: '',
-      apiUrl: ''
+      baseUrl: ''
     })
     onClose()
   }
@@ -180,11 +180,11 @@ export default function AddProviderDialog({
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-foreground">{t('apiUrl')}</label>
             <Input
-              value={apiUrl}
-              onChange={(e) => setApiUrl(e.target.value)}
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
               placeholder="https://api.example.com/v1"
             />
-            {errors.apiUrl && <p className="text-sm text-destructive">{errors.apiUrl}</p>}
+            {errors.baseUrl && <p className="text-sm text-destructive">{errors.baseUrl}</p>}
           </div>
 
           <DialogFooter>

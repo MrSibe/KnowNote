@@ -20,11 +20,11 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         const customConfig = {
           providerName: args.providerName,
           displayName: args.config.displayName || args.providerName,
-          apiUrl: args.config.apiUrl || args.config.baseUrl || '',
+          baseUrl: args.config.baseUrl || '',
           apiKey: args.config.apiKey || ''
         }
 
-        if (customConfig.apiUrl) {
+        if (customConfig.baseUrl) {
           await providerManager.registerCustomProvider(customConfig)
         }
       }
@@ -92,13 +92,13 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         } else if (args.providerName === 'kimi') {
           url = 'https://api.moonshot.cn/v1/models'
         } else {
-          // 自定义供应商：从配置中获取 apiUrl
+          // 自定义供应商：从配置中获取 baseUrl
           const providerConfig = await providersManager.getProviderConfig(args.providerName)
-          if (!providerConfig || !providerConfig.config.apiUrl) {
-            throw new Error(`Custom provider ${args.providerName} has no apiUrl configured`)
+          if (!providerConfig || !providerConfig.config.baseUrl) {
+            throw new Error(`Custom provider ${args.providerName} has no baseUrl configured`)
           }
-          const apiUrl = providerConfig.config.apiUrl
-          url = apiUrl.endsWith('/') ? `${apiUrl}models` : `${apiUrl}/models`
+          const baseUrl = providerConfig.config.baseUrl
+          url = baseUrl.endsWith('/') ? `${baseUrl}models` : `${baseUrl}/models`
         }
 
         const headers: Record<string, string> = {

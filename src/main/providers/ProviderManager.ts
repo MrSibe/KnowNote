@@ -170,7 +170,7 @@ export class ProviderManager {
       name: config.providerName,
       displayName: config.displayName,
       isBuiltin: false,
-      defaultBaseUrl: config.apiUrl,
+      defaultBaseUrl: config.baseUrl,
       capabilities: {
         chat: true, // 自定义供应商默认假设支持对话
         embedding: true // 可以通过 fetchModels 后根据模型类型更新
@@ -185,7 +185,7 @@ export class ProviderManager {
     await providerConfigManager.saveProviderConfig(
       config.providerName,
       {
-        baseUrl: config.apiUrl,
+        baseUrl: config.baseUrl,
         apiKey: config.apiKey
       },
       true // 默认启用
