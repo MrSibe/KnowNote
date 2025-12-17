@@ -256,7 +256,7 @@ export default function ProviderConfigPanel({
               />
             </div>
 
-            <div className="max-h-60 overflow-y-auto space-y-2 border border-border rounded-lg p-2 shadow-sm">
+            <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-2 border border-border rounded-lg p-2 shadow-sm">
               <p className="text-xs text-muted-foreground px-2 py-1">
                 {showCategory === 'all'
                   ? t('totalModels', { count: models.length })

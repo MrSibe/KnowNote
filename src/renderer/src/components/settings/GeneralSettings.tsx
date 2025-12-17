@@ -222,7 +222,7 @@ export default function GeneralSettings({
           </Button>
 
           {isDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto custom-scrollbar">
               <div className="py-1">
                 {languages.map((language) => (
                   <Button
@@ -289,7 +289,7 @@ export default function GeneralSettings({
             </Button>
 
             {isChatModelDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto custom-scrollbar">
                 <div className="py-1">
                   {availableChatModels.map((model) => (
                     <Button
@@ -359,7 +359,7 @@ export default function GeneralSettings({
             </Button>
 
             {isEmbeddingModelDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-lg border border-border shadow-lg z-50 max-h-60 overflow-y-auto custom-scrollbar">
                 <div className="py-1">
                   {availableEmbeddingModels.map((model) => (
                     <Button
