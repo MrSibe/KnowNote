@@ -79,6 +79,22 @@ export default function TopNavigationBar({
       {/* macOS 左侧空白区域（留给窗口控制按钮） */}
       {platform === 'darwin' && <div className="w-16"></div>}
 
+      {/* Linux 左侧设置按钮区域 */}
+      {platform === 'linux' && (
+        <div className="flex items-center">
+          <Button
+            onClick={handleSettingsClick}
+            variant="ghost"
+            size="icon"
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            className="w-7 h-7"
+            title={t('settings')}
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
+
       {/* 导航按钮 */}
       <div className="flex items-center gap-2 flex-1">
         <Button
@@ -134,17 +150,19 @@ export default function TopNavigationBar({
         </Button>
       </div>
 
-      {/* 设置按钮 */}
-      <Button
-        onClick={handleSettingsClick}
-        variant="ghost"
-        size="icon"
-        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-        className="w-7 h-7"
-        title={t('settings')}
-      >
-        <Settings className="w-4 h-4" />
-      </Button>
+      {/* 非Linux平台的设置按钮（Windows和macOS保持在右侧） */}
+      {platform !== 'linux' && (
+        <Button
+          onClick={handleSettingsClick}
+          variant="ghost"
+          size="icon"
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          className="w-7 h-7"
+          title={t('settings')}
+        >
+          <Settings className="w-4 h-4" />
+        </Button>
+      )}
 
       {/* Windows 右侧空白区域（留给窗口控制按钮） */}
       {platform === 'win32' && <div className="w-32"></div>}
