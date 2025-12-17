@@ -24,7 +24,7 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 ### Core Advantages
 
 - 🔒 **Local-First** - All data stored locally, complete privacy and security
-- 🤖 **Custom LLM** - Support for OpenAI, Claude, local models, and more
+- 🤖 **Custom LLM** - Support for OpenAI, DeepSeek, Ollama, and more AI services
 - ⚡ **Lightweight & Fast** - Electron desktop app with quick startup and smooth response
 
 ---
@@ -33,7 +33,7 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 
 <div align="center">
   <img src="./.github/images/screenshot-main.png" alt="KnowNote Main Interface" width="800">
-  <p><i>Three-column layout: Knowledge Library | Note Display | AI Q&A</i></p>
+  <p><i>Three-column layout: Knowledge Library | AI Q&A | Note Output</i></p>
 </div>
 
 ---
@@ -49,7 +49,7 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 ### 🤖 AI-Powered Q&A
 
 - **RAG Technology**: Retrieval-Augmented Generation for more accurate AI responses
-- **Multi-LLM Support**: Choose from OpenAI, Claude, local models, and more
+- **Multi-LLM Support**: Choose from OpenAI, DeepSeek, Ollama, and more
 - **Source Traceability**: Every answer traces back to the specific location in the original document
 
 ### 🔒 Local-First
@@ -68,7 +68,7 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 
 - **Desktop App**: Built with Electron for native experience
 - **Quick Response**: Optimized performance with smooth interaction
-- **Cross-Platform**: Windows, macOS, and Linux support
+- **Cross-Platform**: Windows and macOS support
 
 ---
 
@@ -87,8 +87,10 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 
 ### 🚧 In Development
 
+- **Audio Upload** - Parse information from audio files
 - **Quiz Generation** - Automatically generate test questions from documents
 - **PPT Auto-Generation** - One-click presentation creation from notes
+- **Mind Map Generation** - Generate mind maps from conversations with one click
 
 ### 📋 Planned
 
@@ -104,7 +106,6 @@ Download the latest version from [GitHub Releases](https://github.com/MrSibe/Kno
 
 - **Windows**: `KnowNote-Setup-{version}.exe`
 - **macOS**: `KnowNote-{version}.dmg` or `KnowNote-{version}-arm64.dmg` (Apple Silicon)
-- **Linux**: `KnowNote-{version}.AppImage` or `.deb` package
 
 ### Developer Quick Start
 
@@ -268,6 +269,10 @@ Thanks to the following open source projects and technologies:
 - [SQLite](https://www.sqlite.org/) & [sqlite-vec](https://github.com/asg017/sqlite-vec) - Data storage and vector retrieval
 
 ---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=MrSibe/KnowNote&type=timeline&legend=top-left)](https://www.star-history.com/#MrSibe/KnowNote&type=timeline&legend=top-left)
 
 <div align="center">
   <p>Built with ❤️ by <a href="https://github.com/MrSibe">@MrSibe</a></p>
