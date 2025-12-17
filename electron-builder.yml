@@ -41,7 +41,7 @@ linux:
   category: Utility
   executableName: knownote
 appImage:
-  artifactName: ${name}-${version}-${arch}.${ext}
+  artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
   provider: github

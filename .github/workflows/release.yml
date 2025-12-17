@@ -12,16 +12,6 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
-        ELECTRON_ARCH: [x64]
-        include:
-          - os: ubuntu-latest
-            ELECTRON_ARCH: arm64
-            DEBIAN_ARCH: arm64
-        exclude:
-          - os: macos-latest
-            ELECTRON_ARCH: arm64
-          - os: windows-latest
-            ELECTRON_ARCH: arm64
 
     steps:
       - name: Checkout code
@@ -122,5 +112,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # 构建指定架构的Linux版本
-          pnpm build:linux --linux --${{ matrix.ELECTRON_ARCH }} \
+          pnpm build:linux --linux --x64 \
             --publish always
