@@ -80,6 +80,18 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       embedding: true // SiliconFlow 作为模型聚合平台支持 embedding
     },
     createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+  },
+
+  {
+    name: 'ollama',
+    displayName: 'Ollama',
+    isBuiltin: true,
+    defaultBaseUrl: 'http://localhost:11434/v1',
+    capabilities: {
+      chat: true,
+      embedding: true
+    },
+    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
   }
 ]
 

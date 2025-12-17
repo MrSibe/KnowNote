@@ -48,13 +48,14 @@ export default function ProvidersSettings({
     deepseek: 'https://api.deepseek.com',
     siliconflow: 'https://api.siliconflow.cn/v1',
     qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    kimi: 'https://api.moonshot.cn/v1'
+    kimi: 'https://api.moonshot.cn/v1',
+    ollama: 'http://localhost:11434/v1'
   }
 
   // 加载已缓存的模型列表
   useEffect(() => {
     const loadCachedModels = async () => {
-      const providerList = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi']
+      const providerList = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama']
       const loadedModels: Record<string, Model[]> = {}
 
       for (const providerName of providerList) {
@@ -166,6 +167,7 @@ export default function ProvidersSettings({
   const siliconflowProvider = getProviderConfig('siliconflow')
   const qwenProvider = getProviderConfig('qwen')
   const kimiProvider = getProviderConfig('kimi')
+  const ollamaProvider = getProviderConfig('ollama')
 
   const providerList = [
     {
@@ -202,12 +204,19 @@ export default function ProvidersSettings({
       description: t('kimiDesc'),
       platformUrl: 'https://platform.moonshot.cn',
       enabled: kimiProvider.enabled
+    },
+    {
+      id: 'ollama',
+      name: 'Ollama',
+      description: 'Local LLM runner',
+      platformUrl: 'https://ollama.com',
+      enabled: ollamaProvider.enabled
     }
   ]
 
   // 获取自定义供应商列表
   const getCustomProviders = () => {
-    const builtInProviders = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi']
+    const builtInProviders = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama']
     return providers
       .filter((p) => !builtInProviders.includes(p.providerName))
       .map((p) => ({
@@ -474,8 +483,25 @@ export default function ProvidersSettings({
           />
         )}
 
+        {activeProvider === 'ollama' && (
+          <ProviderConfigPanel
+            displayName="Ollama"
+            description="Local LLM runner"
+            platformUrl="https://ollama.com"
+            provider={ollamaProvider}
+            models={models.ollama || []}
+            isFetching={fetchingModels.ollama || false}
+            onConfigChange={(config) => updateProviderConfig('ollama', { config })}
+            onEnabledChange={(enabled) => updateProviderConfig('ollama', { enabled })}
+            onFetchModels={() => fetchModels('ollama')}
+            defaultBaseUrl={defaultBaseUrls.ollama}
+          />
+        )}
+
         {/* 自定义供应商配置 */}
-        {!['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi'].includes(activeProvider) &&
+        {!['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama'].includes(
+          activeProvider
+        ) &&
           (() => {
             const customProvider = getProviderConfig(activeProvider)
             return customProvider && customProvider.providerName ? (

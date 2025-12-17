@@ -75,7 +75,8 @@ export class ProviderManager {
 
       // 如果用户设置了默认对话模型,解析并使用
       if (defaultChatModel && defaultChatModel.includes(':')) {
-        const [providerName, modelId] = defaultChatModel.split(':')
+        const [providerName, ...modelIdParts] = defaultChatModel.split(':')
+        const modelId = modelIdParts.join(':')
         const provider = await this.getConfiguredProvider(providerName)
 
         if (!provider) {
@@ -122,7 +123,8 @@ export class ProviderManager {
 
       // 如果用户设置了默认嵌入模型,解析并使用
       if (defaultEmbeddingModel && defaultEmbeddingModel.includes(':')) {
-        const [providerName, modelId] = defaultEmbeddingModel.split(':')
+        const [providerName, ...modelIdParts] = defaultEmbeddingModel.split(':')
+        const modelId = modelIdParts.join(':')
         const provider = await this.getConfiguredProvider(providerName)
 
         if (!provider) {
