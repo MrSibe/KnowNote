@@ -196,17 +196,59 @@ export class AISDKProvider implements BaseProvider {
         })
 
         // 处理流式响应
-        for await (const textPart of result.textStream) {
+        // 使用 fullStream 而不是 textStream 以支持推理过程展示
+        for await (const part of result.fullStream) {
           if (abortController.signal.aborted) {
             Logger.debug('AISDKProvider', 'Stream aborted by user')
             break
           }
 
-          // 发送 chunk
-          onChunk({
-            content: textPart,
-            done: false
-          })
+          // 处理不同类型的流式部分
+          switch (part.type) {
+            case 'reasoning-start':
+              // 推理块开始
+              onChunk({
+                content: '',
+                done: false,
+                metadata: {
+                  reasoningStart: true,
+                  reasoningId: part.id
+                }
+              })
+              break
+
+            case 'reasoning-delta':
+              // 推理增量内容
+              onChunk({
+                content: part.text,
+                done: false,
+                metadata: {
+                  isReasoning: true,
+                  reasoningId: part.id
+                }
+              })
+              break
+
+            case 'reasoning-end':
+              // 推理块结束
+              onChunk({
+                content: '',
+                done: false,
+                metadata: {
+                  reasoningEnd: true,
+                  reasoningId: part.id
+                }
+              })
+              break
+
+            case 'text-delta':
+              // 文本增量内容（最终答案）
+              onChunk({
+                content: part.text,
+                done: false
+              })
+              break
+          }
         }
 
         // 等待结果完成，获取 metadata
@@ -262,16 +304,15 @@ export class AISDKProvider implements BaseProvider {
    */
   async createEmbedding(text: string, config?: EmbeddingConfig): Promise<EmbeddingResult> {
     if (!this.aiProvider) {
-      throw new Error(
-        `Provider ${this.name} is not configured. Please configure API key first.`
-      )
+      throw new Error(`Provider ${this.name} is not configured. Please configure API key first.`)
     }
 
     if (!this.descriptor.capabilities.embedding) {
       throw new Error(`Provider ${this.name} does not support embedding capability`)
     }
 
-    const modelId = config?.model || this.config.model || this.descriptor.defaultEmbeddingModel || ''
+    const modelId =
+      config?.model || this.config.model || this.descriptor.defaultEmbeddingModel || ''
 
     if (!modelId) {
       throw new Error(`No embedding model specified for provider ${this.name}`)
@@ -305,22 +346,24 @@ export class AISDKProvider implements BaseProvider {
    */
   async createEmbeddings(texts: string[], config?: EmbeddingConfig): Promise<EmbeddingResult[]> {
     if (!this.aiProvider) {
-      throw new Error(
-        `Provider ${this.name} is not configured. Please configure API key first.`
-      )
+      throw new Error(`Provider ${this.name} is not configured. Please configure API key first.`)
     }
 
     if (!this.descriptor.capabilities.embedding) {
       throw new Error(`Provider ${this.name} does not support embedding capability`)
     }
 
-    const modelId = config?.model || this.config.model || this.descriptor.defaultEmbeddingModel || ''
+    const modelId =
+      config?.model || this.config.model || this.descriptor.defaultEmbeddingModel || ''
 
     if (!modelId) {
       throw new Error(`No embedding model specified for provider ${this.name}`)
     }
 
-    Logger.debug('AISDKProvider', `Creating embeddings for ${texts.length} texts with model: ${modelId}`)
+    Logger.debug(
+      'AISDKProvider',
+      `Creating embeddings for ${texts.length} texts with model: ${modelId}`
+    )
 
     // 使用 AI SDK 的 embedMany 函数
     // 不同 provider 使用不同的方法名
