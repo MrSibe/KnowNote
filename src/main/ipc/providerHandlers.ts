@@ -94,8 +94,8 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         } else if (args.providerName === 'ollama') {
           // Ollama: 从配置获取 baseUrl，支持自定义服务器地址
           const providerConfig = await providersManager.getProviderConfig(args.providerName)
-          const baseUrl = providerConfig?.config.baseUrl || 'http://localhost:11434/v1'
-          url = baseUrl.endsWith('/') ? `${baseUrl}models` : `${baseUrl}/models`
+          const baseUrl = providerConfig?.config.baseUrl || 'http://localhost:11434/api'
+          url = baseUrl.endsWith('/') ? `${baseUrl}tags` : `${baseUrl}/tags`
         } else {
           // 自定义供应商：从配置中获取 baseUrl
           const providerConfig = await providersManager.getProviderConfig(args.providerName)
@@ -123,8 +123,17 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         const data = await response.json()
         const rawModels = data.data || data.models || []
 
+        // 规范化模型对象（Ollama 使用 name 字段，其他使用 id 字段）
+        const normalizedModels = rawModels.map((model: any) => ({
+          id: model.id || model.name || '',
+          object: model.object || 'model',
+          owned_by: model.owned_by,
+          created: model.created,
+          type: model.type
+        }))
+
         // 为模型添加类型信息
-        const modelsWithType = enrichModelsWithType(rawModels)
+        const modelsWithType = enrichModelsWithType(normalizedModels)
 
         // 保存带类型的模型列表到持久化存储
         await providersManager.saveProviderModels(args.providerName, modelsWithType)

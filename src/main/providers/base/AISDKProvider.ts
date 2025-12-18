@@ -5,6 +5,10 @@
  */
 
 import { createOpenAI } from '@ai-sdk/openai'
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
+import { createDeepSeek } from '@ai-sdk/deepseek'
+import { createQwen } from 'qwen-ai-provider'
+import { createOllama } from 'ollama-ai-provider-v2'
 import { streamText, embed, embedMany } from 'ai'
 import type { BaseProvider, LLMProviderConfig } from '../capabilities/BaseProvider'
 import type { ChatCapability } from '../capabilities/ChatCapability'
@@ -35,7 +39,13 @@ export class AISDKProvider implements BaseProvider {
   protected config: LLMProviderConfig
 
   // AI SDK provider 实例
-  private aiProvider: ReturnType<typeof createOpenAI> | null = null
+  private aiProvider:
+    | ReturnType<typeof createOpenAI>
+    | ReturnType<typeof createOpenAICompatible>
+    | ReturnType<typeof createDeepSeek>
+    | ReturnType<typeof createQwen>
+    | ReturnType<typeof createOllama>
+    | null = null
 
   constructor(descriptor: ProviderDescriptor) {
     this.name = descriptor.name
@@ -59,11 +69,38 @@ export class AISDKProvider implements BaseProvider {
     this.config = { ...this.config, ...config }
 
     // 重新创建 AI SDK provider 实例
-    if (config.apiKey) {
-      this.aiProvider = createOpenAI({
-        baseURL: this.config.baseUrl,
-        apiKey: config.apiKey
-      })
+    if (config.apiKey || this.name === 'ollama') {
+      if (this.name === 'openai') {
+        // OpenAI 使用官方 provider
+        this.aiProvider = createOpenAI({
+          baseURL: this.config.baseUrl,
+          apiKey: config.apiKey
+        })
+      } else if (this.name === 'deepseek') {
+        // DeepSeek 使用官方 provider
+        this.aiProvider = createDeepSeek({
+          baseURL: this.config.baseUrl,
+          apiKey: config.apiKey
+        })
+      } else if (this.name === 'qwen') {
+        // Qwen 使用社区 provider
+        this.aiProvider = createQwen({
+          baseURL: this.config.baseUrl,
+          apiKey: config.apiKey
+        })
+      } else if (this.name === 'ollama') {
+        // Ollama 使用社区 provider
+        this.aiProvider = createOllama({
+          baseURL: this.config.baseUrl || 'http://localhost:11434/api'
+        })
+      } else {
+        // 其他所有 provider 都使用 OpenAI Compatible (Kimi, SiliconFlow)
+        this.aiProvider = createOpenAICompatible({
+          name: this.name,
+          baseURL: this.config.baseUrl || '',
+          apiKey: config.apiKey || ''
+        })
+      }
     }
 
     Logger.debug('AISDKProvider', `Provider ${this.name} configured`)
@@ -147,7 +184,7 @@ export class AISDKProvider implements BaseProvider {
         const coreMessages = convertToCoreMessages(messages)
 
         // 获取语言模型
-        const model = this.aiProvider!(modelId)
+        const model = this.aiProvider!(modelId) as any
 
         // 调用 AI SDK streamText
         const result = streamText({
@@ -234,16 +271,23 @@ export class AISDKProvider implements BaseProvider {
       throw new Error(`Provider ${this.name} does not support embedding capability`)
     }
 
-    const modelId = config?.model || this.descriptor.defaultEmbeddingModel!
+    const modelId = config?.model || this.config.model || this.descriptor.defaultEmbeddingModel || ''
+
+    if (!modelId) {
+      throw new Error(`No embedding model specified for provider ${this.name}`)
+    }
 
     Logger.debug('AISDKProvider', `Creating embedding with model: ${modelId}`)
 
-    // 获取嵌入模型
-    const model = this.aiProvider.embedding(modelId)
+    // 使用 AI SDK 的 embed 函数
+    // 不同 provider 使用不同的方法名
+    const embeddingModel =
+      this.name === 'ollama'
+        ? (this.aiProvider as any).embedding(modelId) // Ollama: embedding
+        : (this.aiProvider as any).textEmbeddingModel(modelId) // OpenAI, DeepSeek, Qwen, OpenAI-Compatible: textEmbeddingModel
 
-    // 调用 AI SDK embed
     const result = await embed({
-      model,
+      model: embeddingModel,
       value: text
     })
 
@@ -270,24 +314,34 @@ export class AISDKProvider implements BaseProvider {
       throw new Error(`Provider ${this.name} does not support embedding capability`)
     }
 
-    const modelId = config?.model || this.descriptor.defaultEmbeddingModel!
+    const modelId = config?.model || this.config.model || this.descriptor.defaultEmbeddingModel || ''
 
-    Logger.debug('AISDKProvider', `Creating embeddings for ${texts.length} texts`)
+    if (!modelId) {
+      throw new Error(`No embedding model specified for provider ${this.name}`)
+    }
 
-    // 获取嵌入模型
-    const model = this.aiProvider.embedding(modelId)
+    Logger.debug('AISDKProvider', `Creating embeddings for ${texts.length} texts with model: ${modelId}`)
 
-    // 调用 AI SDK embedMany
+    // 使用 AI SDK 的 embedMany 函数
+    // 不同 provider 使用不同的方法名
+    const embeddingModel =
+      this.name === 'ollama'
+        ? (this.aiProvider as any).embedding(modelId) // Ollama: embedding
+        : (this.aiProvider as any).textEmbeddingModel(modelId) // OpenAI, DeepSeek, Qwen, OpenAI-Compatible: textEmbeddingModel
+
     const result = await embedMany({
-      model,
+      model: embeddingModel,
       values: texts
     })
+
+    const totalTokens = result.usage?.tokens || 0
+    const tokensPerEmbedding = Math.floor(totalTokens / texts.length)
 
     return result.embeddings.map((embedding) => ({
       embedding: new Float32Array(embedding),
       model: modelId,
       dimensions: embedding.length,
-      tokensUsed: Math.floor((result.usage?.tokens || 0) / texts.length) // 平均分配 tokens
+      tokensUsed: tokensPerEmbedding
     }))
   }
 

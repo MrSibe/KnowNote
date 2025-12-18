@@ -49,7 +49,7 @@ export default function ProvidersSettings({
     siliconflow: 'https://api.siliconflow.cn/v1',
     qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     kimi: 'https://api.moonshot.cn/v1',
-    ollama: 'http://localhost:11434/v1'
+    ollama: 'http://localhost:11434/api'
   }
 
   // 加载已缓存的模型列表
