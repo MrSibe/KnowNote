@@ -33,6 +33,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.88",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@mozilla/readability": "^0.6.0",
@@ -47,6 +48,7 @@
     "@tiptap/pm": "^3.13.0",
     "@tiptap/react": "^3.13.0",
     "@tiptap/starter-kit": "^3.13.0",
+    "ai": "^5.0.115",
     "better-sqlite3": "^12.5.0",
     "cheerio": "^1.1.2",
     "class-variance-authority": "^0.7.1",

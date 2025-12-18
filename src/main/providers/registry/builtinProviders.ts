@@ -5,6 +5,7 @@
 
 import type { ProviderDescriptor } from './ProviderDescriptor'
 import { OpenAICompatibleProvider } from '../base/OpenAICompatibleProvider'
+import { AISDKProvider } from '../base/AISDKProvider'
 
 /**
  * 内置供应商注册表
@@ -24,7 +25,7 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       chat: true,
       embedding: true
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   },
 
   {
