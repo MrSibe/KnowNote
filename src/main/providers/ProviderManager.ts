@@ -9,7 +9,7 @@ import type { EmbeddingProvider } from './types'
 import type { CustomProviderConfig, ProviderDescriptor } from './registry/ProviderDescriptor'
 import { ProviderRegistry } from './registry/ProviderRegistry'
 import { BUILTIN_PROVIDERS } from './registry/builtinProviders'
-import { OpenAICompatibleProvider } from './base/OpenAICompatibleProvider'
+import { AISDKProvider } from './base/AISDKProvider'
 import { settingsManager, providerConfigManager } from '../config'
 import Logger from '../../shared/utils/logger'
 
@@ -88,7 +88,7 @@ export class ProviderManager {
         }
 
         // 检查是否支持对话能力
-        const compatProvider = provider as OpenAICompatibleProvider
+        const compatProvider = provider as AISDKProvider
         if (!compatProvider.hasChatCapability()) {
           Logger.error(
             'ProviderManager',
@@ -136,7 +136,7 @@ export class ProviderManager {
         }
 
         // 检查是否支持嵌入能力
-        const compatProvider = provider as OpenAICompatibleProvider
+        const compatProvider = provider as AISDKProvider
         if (!compatProvider.hasEmbeddingCapability()) {
           Logger.error(
             'ProviderManager',
@@ -177,7 +177,7 @@ export class ProviderManager {
         chat: true, // 自定义供应商默认假设支持对话
         embedding: true // 可以通过 fetchModels 后根据模型类型更新
       },
-      createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+      createProvider: (descriptor) => new AISDKProvider(descriptor)
     }
 
     // 注册到 registry

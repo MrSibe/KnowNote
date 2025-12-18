@@ -172,34 +172,69 @@ export function registerChatHandlers(
       return assistantMessage.id
     }
 
-    let fullContent = ''
+    let fullTextContent = ''
     let fullReasoningContent = ''
     let usageMetadata: any = null
 
-    // 调用 Provider 流式生成,获取 AbortController
+    // 调用 Provider 流式生成,获取 AbortController（基于 AI SDK fullStream）
     const abortController = await provider.sendMessageStream(
       messages,
-      // onChunk
+      // onChunk - 处理 AI SDK fullStream 的各种 part 类型
       (chunk) => {
-        fullContent += chunk.content
+        const { metadata, content, done } = chunk
 
-        // 累积推理内容
-        if (chunk.reasoningContent) {
-          fullReasoningContent += chunk.reasoningContent
+        // 1. 推理块开始
+        if (metadata?.reasoningStart) {
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'reasoning-start',
+            reasoningId: metadata.reasoningId
+          })
+        }
+        // 2. 推理增量内容
+        else if (metadata?.isReasoning) {
+          fullReasoningContent += content
+
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'reasoning-delta',
+            content: content,
+            reasoningId: metadata.reasoningId
+          })
+        }
+        // 3. 推理块结束
+        else if (metadata?.reasoningEnd) {
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'reasoning-end',
+            reasoningId: metadata.reasoningId
+          })
+        }
+        // 4. 普通文本内容（text-delta）
+        else if (content) {
+          fullTextContent += content
+
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'text-delta',
+            content: content
+          })
         }
 
-        // 保存 metadata（包含 token 使用信息）
-        if (chunk.metadata) {
-          usageMetadata = chunk.metadata
-        }
+        // 5. 流式传输完成
+        if (done) {
+          // 保存 usage metadata
+          if (metadata?.usage) {
+            usageMetadata = metadata
+          }
 
-        event.sender.send('message-chunk', {
-          messageId: assistantMessage.id,
-          chunk: chunk.content,
-          reasoningChunk: chunk.reasoningContent,
-          done: chunk.done,
-          reasoningDone: chunk.reasoningDone
-        })
+          // 发送完成事件
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'finish',
+            metadata: metadata
+          })
+        }
       },
       // onError
       (error) => {
@@ -214,17 +249,17 @@ export function registerChatHandlers(
       async () => {
         try {
           // 更新数据库中的完整内容（包含推理内容）
-          queries.updateMessageContent(assistantMessage.id, fullContent, fullReasoningContent)
+          queries.updateMessageContent(assistantMessage.id, fullTextContent, fullReasoningContent)
 
           // 计算 token 使用量
           let tokensUsed = 0
-          if (usageMetadata?.usage?.total_tokens) {
+          if (usageMetadata?.usage?.totalTokens) {
             // 如果 API 返回了精确的 token 数
-            tokensUsed = usageMetadata.usage.total_tokens
+            tokensUsed = usageMetadata.usage.totalTokens
           } else {
             // 降级：使用估算
             const userTokens = SessionAutoSwitchService.estimateTokens(content)
-            const assistantTokens = SessionAutoSwitchService.estimateTokens(fullContent)
+            const assistantTokens = SessionAutoSwitchService.estimateTokens(fullTextContent)
             tokensUsed = userTokens + assistantTokens
           }
 

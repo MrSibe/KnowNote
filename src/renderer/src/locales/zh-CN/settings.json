@@ -63,6 +63,8 @@
   "qwenDesc": "阿里云通义千问大模型，支持超长上下文和多模态能力",
   "kimiName": "Kimi",
   "kimiDesc": "月之暗面 Kimi 大模型，支持 128K 超长上下文",
+  "zhipuName": "智谱AI",
+  "zhipuDesc": "智谱AI GLM 大模型，支持多模态能力",
   "addProviderDesc": "添加自定义 AI 提供商以扩展功能",
   "providerName": "供应商名称",
   "providerNamePlaceholder": "例如：my-provider",

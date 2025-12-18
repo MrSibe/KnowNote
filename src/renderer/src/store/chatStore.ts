@@ -227,60 +227,90 @@ export const useChatStore = create<ChatStore>()((set, get) => ({
 }))
 
 /**
- * 设置流式消息监听器
+ * 设置流式消息监听器（基于 AI SDK 流式协议）
  * 在应用启动时调用一次
  * 返回清理函数
  */
 export function setupChatListeners() {
-  // 监听流式消息片段
+  // 监听流式消息片段（AI SDK fullStream 格式）
   const cleanupChunk = window.api.onMessageChunk((data) => {
-    const { messageId, chunk, reasoningChunk, done, reasoningDone } = data
+    const { messageId, type, content } = data
     const store = useChatStore.getState()
 
-    // 1. First update cache (cache even if message not in current messages)
     const cached = store.messageToNotebook[messageId]
-    if (cached) {
-      const newContent = cached.content + chunk
-      const newReasoningContent = cached.reasoningContent + (reasoningChunk || '')
+    if (!cached) return
 
-      useChatStore.setState((state) => ({
-        messageToNotebook: {
-          ...state.messageToNotebook,
-          [messageId]: {
-            ...cached,
-            content: newContent,
-            reasoningContent: newReasoningContent
-          }
-        }
-      }))
-
-      // 2. If message is in current messages, update all fields at once
-      if (store.messages.some((m) => m.id === messageId)) {
+    // 处理不同类型的流式部分
+    switch (type) {
+      case 'reasoning-start':
+        // 推理块开始，标记推理状态
         useChatStore.setState((state) => ({
           messages: state.messages.map((msg) =>
-            msg.id === messageId
-              ? {
-                  ...msg,
-                  content: newContent,
-                  reasoningContent: newReasoningContent,
-                  isReasoningStreaming: reasoningDone ? false : msg.isReasoningStreaming
-                }
-              : msg
+            msg.id === messageId ? { ...msg, isReasoningStreaming: true } : msg
           )
         }))
-      }
-    }
+        break
 
-    // Complete streaming
-    if (done) {
-      const cached = store.messageToNotebook[messageId]
-      if (cached) {
+      case 'reasoning-delta': {
+        // 推理增量内容
+        const newReasoningContent = cached.reasoningContent + content
+        useChatStore.setState((state) => ({
+          messageToNotebook: {
+            ...state.messageToNotebook,
+            [messageId]: { ...cached, reasoningContent: newReasoningContent }
+          }
+        }))
+
+        // 如果消息在当前视图中，更新推理内容
+        if (store.messages.some((m) => m.id === messageId)) {
+          useChatStore.setState((state) => ({
+            messages: state.messages.map((msg) =>
+              msg.id === messageId ? { ...msg, reasoningContent: newReasoningContent } : msg
+            )
+          }))
+        }
+        break
+      }
+
+      case 'reasoning-end':
+        // 推理块结束
+        useChatStore.setState((state) => ({
+          messages: state.messages.map((msg) =>
+            msg.id === messageId ? { ...msg, isReasoningStreaming: false } : msg
+          )
+        }))
+        break
+
+      case 'text-delta': {
+        // 文本增量内容（最终答案）
+        const newTextContent = cached.content + content
+        useChatStore.setState((state) => ({
+          messageToNotebook: {
+            ...state.messageToNotebook,
+            [messageId]: { ...cached, content: newTextContent }
+          }
+        }))
+
+        // 如果消息在当前视图中，更新文本内容
+        if (store.messages.some((m) => m.id === messageId)) {
+          useChatStore.setState((state) => ({
+            messages: state.messages.map((msg) =>
+              msg.id === messageId ? { ...msg, content: newTextContent } : msg
+            )
+          }))
+        }
+        break
+      }
+
+      case 'finish': {
+        // 流式传输完成
         store.setStreamingMessage(cached.notebookId, null)
 
-        // Clean up cache
+        // 清理缓存
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { [messageId]: _removed, ...rest } = store.messageToNotebook
         useChatStore.setState({ messageToNotebook: rest })
+        break
       }
     }
   })

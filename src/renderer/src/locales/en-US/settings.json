@@ -106,6 +106,8 @@
   "qwenDesc": "Alibaba Cloud Qwen models with long context and multimodal capabilities",
   "kimiName": "Kimi",
   "kimiDesc": "Moonshot AI Kimi models with 128K long context support",
+  "zhipuName": "Zhipu AI",
+  "zhipuDesc": "Zhipu AI GLM models with multimodal capabilities",
   "addProviderDesc": "Add custom AI provider to extend functionality",
   "providerName": "Provider Name",
   "providerNamePlaceholder": "e.g., my-provider",

@@ -4,7 +4,7 @@
  */
 
 import type { ProviderDescriptor } from './ProviderDescriptor'
-import { OpenAICompatibleProvider } from '../base/OpenAICompatibleProvider'
+import { AISDKProvider } from '../base/AISDKProvider'
 
 /**
  * 内置供应商注册表
@@ -24,7 +24,7 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       chat: true,
       embedding: true
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   },
 
   {
@@ -38,7 +38,7 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       chat: true,
       embedding: true
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   },
 
   {
@@ -52,7 +52,7 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       chat: true,
       embedding: true
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   },
 
   {
@@ -65,7 +65,7 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       chat: true,
       embedding: false // Kimi 不支持 embedding
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   },
 
   {
@@ -79,19 +79,33 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       chat: true,
       embedding: true // SiliconFlow 作为模型聚合平台支持 embedding
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   },
 
   {
     name: 'ollama',
     displayName: 'Ollama',
     isBuiltin: true,
-    defaultBaseUrl: 'http://localhost:11434/v1',
+    defaultBaseUrl: 'http://localhost:11434/api',
     capabilities: {
       chat: true,
       embedding: true
     },
-    createProvider: (descriptor) => new OpenAICompatibleProvider(descriptor)
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
+  },
+
+  {
+    name: 'zhipu',
+    displayName: '智谱AI',
+    isBuiltin: true,
+    defaultBaseUrl: 'https://open.bigmodel.cn/api/paas/v4',
+    defaultChatModel: 'glm-4-plus',
+    defaultEmbeddingModel: 'embedding-3',
+    capabilities: {
+      chat: true,
+      embedding: true
+    },
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   }
 ]
 

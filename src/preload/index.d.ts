@@ -82,14 +82,14 @@ declare global {
       sendMessage: (sessionId: string, content: string) => Promise<string>
       abortMessage: (messageId: string) => Promise<{ success: boolean; reason?: string }>
 
-      // 流式消息监听
+      // 流式消息监听（AI SDK 流式协议格式）
       onMessageChunk: (
         callback: (data: {
           messageId: string
-          chunk: string
-          reasoningChunk?: string
-          done: boolean
-          reasoningDone?: boolean
+          type: 'reasoning-start' | 'reasoning-delta' | 'reasoning-end' | 'text-delta' | 'finish'
+          content?: string
+          reasoningId?: string
+          metadata?: any
         }) => void
       ) => () => void
       onMessageError: (callback: (data: { messageId: string; error: string }) => void) => () => void
