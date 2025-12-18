@@ -183,40 +183,37 @@ export function registerChatHandlers(
       (chunk) => {
         const { metadata, content, done } = chunk
 
-        // 1. 推理内容（reasoning-start, reasoning-delta, reasoning-end）
-        if (metadata?.isReasoning) {
-          fullReasoningContent += content
-
-          // 发送推理增量
-          event.sender.send('message-chunk', {
-            messageId: assistantMessage.id,
-            type: 'reasoning-delta',
-            content: content,
-            reasoningId: metadata.reasoningId
-          })
-
-          // 推理块结束
-          if (metadata.reasoningEnd) {
-            event.sender.send('message-chunk', {
-              messageId: assistantMessage.id,
-              type: 'reasoning-end',
-              reasoningId: metadata.reasoningId
-            })
-          }
-        }
-        // 2. 推理块开始标记
-        else if (metadata?.reasoningStart) {
+        // 1. 推理块开始
+        if (metadata?.reasoningStart) {
           event.sender.send('message-chunk', {
             messageId: assistantMessage.id,
             type: 'reasoning-start',
             reasoningId: metadata.reasoningId
           })
         }
-        // 3. 普通文本内容（text-delta）
-        else if (content && !metadata?.isReasoning) {
+        // 2. 推理增量内容
+        else if (metadata?.isReasoning) {
+          fullReasoningContent += content
+
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'reasoning-delta',
+            content: content,
+            reasoningId: metadata.reasoningId
+          })
+        }
+        // 3. 推理块结束
+        else if (metadata?.reasoningEnd) {
+          event.sender.send('message-chunk', {
+            messageId: assistantMessage.id,
+            type: 'reasoning-end',
+            reasoningId: metadata.reasoningId
+          })
+        }
+        // 4. 普通文本内容（text-delta）
+        else if (content) {
           fullTextContent += content
 
-          // 发送文本增量
           event.sender.send('message-chunk', {
             messageId: assistantMessage.id,
             type: 'text-delta',
@@ -224,7 +221,7 @@ export function registerChatHandlers(
           })
         }
 
-        // 4. 流式传输完成
+        // 5. 流式传输完成
         if (done) {
           // 保存 usage metadata
           if (metadata?.usage) {

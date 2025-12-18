@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react'
+import { ReactElement, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -18,10 +18,20 @@ export default function ReasoningContent({
   isStreaming
 }: ReasoningContentProps): ReactElement {
   const { t } = useTranslation('chat')
-  const [manualExpanded, setManualExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  // 派生状态：思考时自动展开，思考结束后由用户控制
-  const isExpanded = isStreaming || manualExpanded
+  // 监听思考状态变化，自动控制展开/折叠
+  // 思考开始 → 自动展开
+  // 思考结束 → 自动折叠
+  /* eslint-disable */
+  useEffect(() => {
+    if (isStreaming) {
+      setIsExpanded(true)
+    } else {
+      setIsExpanded(false)
+    }
+  }, [isStreaming])
+  /* eslint-enable */
 
   // 如果没有内容且不在流式传输，不显示
   if (!content && !isStreaming) {
@@ -32,7 +42,7 @@ export default function ReasoningContent({
     <div className="border border-border rounded-lg overflow-hidden bg-muted/30 shadow-sm">
       {/* 头部：展开/折叠按钮 */}
       <Button
-        onClick={() => setManualExpanded(!manualExpanded)}
+        onClick={() => setIsExpanded(!isExpanded)}
         variant="ghost"
         className="w-full flex items-center justify-between px-3 py-1.5 text-xs h-auto hover:bg-muted/50"
       >
