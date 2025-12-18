@@ -96,6 +96,8 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
           const providerConfig = await providersManager.getProviderConfig(args.providerName)
           const baseUrl = providerConfig?.config.baseUrl || 'http://localhost:11434/api'
           url = baseUrl.endsWith('/') ? `${baseUrl}tags` : `${baseUrl}/tags`
+        } else if (args.providerName === 'zhipu') {
+          url = 'https://open.bigmodel.cn/api/paas/v4/models'
         } else {
           // 自定义供应商：从配置中获取 baseUrl
           const providerConfig = await providersManager.getProviderConfig(args.providerName)

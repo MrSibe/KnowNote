@@ -49,13 +49,14 @@ export default function ProvidersSettings({
     siliconflow: 'https://api.siliconflow.cn/v1',
     qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     kimi: 'https://api.moonshot.cn/v1',
-    ollama: 'http://localhost:11434/api'
+    ollama: 'http://localhost:11434/api',
+    zhipu: 'https://open.bigmodel.cn/api/paas/v4'
   }
 
   // 加载已缓存的模型列表
   useEffect(() => {
     const loadCachedModels = async () => {
-      const providerList = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama']
+      const providerList = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama', 'zhipu']
       const loadedModels: Record<string, Model[]> = {}
 
       for (const providerName of providerList) {
@@ -168,6 +169,7 @@ export default function ProvidersSettings({
   const qwenProvider = getProviderConfig('qwen')
   const kimiProvider = getProviderConfig('kimi')
   const ollamaProvider = getProviderConfig('ollama')
+  const zhipuProvider = getProviderConfig('zhipu')
 
   const providerList = [
     {
@@ -211,12 +213,27 @@ export default function ProvidersSettings({
       description: 'Local LLM runner',
       platformUrl: 'https://ollama.com',
       enabled: ollamaProvider.enabled
+    },
+    {
+      id: 'zhipu',
+      name: t('zhipuName'),
+      description: t('zhipuDesc'),
+      platformUrl: 'https://open.bigmodel.cn',
+      enabled: zhipuProvider.enabled
     }
   ]
 
   // 获取自定义供应商列表
   const getCustomProviders = () => {
-    const builtInProviders = ['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama']
+    const builtInProviders = [
+      'deepseek',
+      'openai',
+      'siliconflow',
+      'qwen',
+      'kimi',
+      'ollama',
+      'zhipu'
+    ]
     return providers
       .filter((p) => !builtInProviders.includes(p.providerName))
       .map((p) => ({
@@ -498,8 +515,23 @@ export default function ProvidersSettings({
           />
         )}
 
+        {activeProvider === 'zhipu' && (
+          <ProviderConfigPanel
+            displayName={t('zhipuName')}
+            description={t('zhipuDesc')}
+            platformUrl="https://open.bigmodel.cn"
+            provider={zhipuProvider}
+            models={models.zhipu || []}
+            isFetching={fetchingModels.zhipu || false}
+            onConfigChange={(config) => updateProviderConfig('zhipu', { config })}
+            onEnabledChange={(enabled) => updateProviderConfig('zhipu', { enabled })}
+            onFetchModels={() => fetchModels('zhipu')}
+            defaultBaseUrl={defaultBaseUrls.zhipu}
+          />
+        )}
+
         {/* 自定义供应商配置 */}
-        {!['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama'].includes(
+        {!['deepseek', 'openai', 'siliconflow', 'qwen', 'kimi', 'ollama', 'zhipu'].includes(
           activeProvider
         ) &&
           (() => {

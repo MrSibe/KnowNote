@@ -92,6 +92,20 @@ export const BUILTIN_PROVIDERS: ProviderDescriptor[] = [
       embedding: true
     },
     createProvider: (descriptor) => new AISDKProvider(descriptor)
+  },
+
+  {
+    name: 'zhipu',
+    displayName: '智谱AI',
+    isBuiltin: true,
+    defaultBaseUrl: 'https://open.bigmodel.cn/api/paas/v4',
+    defaultChatModel: 'glm-4-plus',
+    defaultEmbeddingModel: 'embedding-3',
+    capabilities: {
+      chat: true,
+      embedding: true
+    },
+    createProvider: (descriptor) => new AISDKProvider(descriptor)
   }
 ]
 
