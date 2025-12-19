@@ -80,6 +80,21 @@ export function registerMindMapHandlers(mindMapService: MindMapService) {
     }
   )
 
+  // 更新思维导图
+  ipcMain.handle(
+    'mindmap:update',
+    async (_, args: { mindMapId: string; updates: Partial<{ title: string }> }) => {
+      try {
+        Logger.debug('MindMapHandlers', 'update:', args)
+        mindMapService.updateMindMap(args.mindMapId, args.updates)
+        return { success: true }
+      } catch (error) {
+        Logger.error('MindMapHandlers', 'Error updating mind map:', error)
+        return { success: false, error: (error as Error).message }
+      }
+    }
+  )
+
   // 删除思维导图
   ipcMain.handle('mindmap:delete', async (_, args: { mindMapId: string }) => {
     try {

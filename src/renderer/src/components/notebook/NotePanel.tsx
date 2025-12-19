@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react'
-import { Plus, Save, Trash2, ArrowLeft, Network } from 'lucide-react'
+import { Save, Trash2, ArrowLeft, Network, FileText } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useItemStore } from '../../store/itemStore'
@@ -246,7 +246,7 @@ export default function NotePanel(): ReactElement {
             className="h-14 flex items-center justify-between px-4 border-b border-border/50"
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
-            <span className="text-sm text-foreground">{t('notes')}</span>
+            <span className="text-sm text-foreground">{t('creativeSpace')}</span>
             <div
               className="flex items-center gap-2"
               style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
@@ -267,7 +267,7 @@ export default function NotePanel(): ReactElement {
                 className="w-8 h-8"
                 title={t('createNote')}
               >
-                <Plus className="w-4 h-4" />
+                <FileText className="w-4 h-4" />
               </Button>
             </div>
           </div>

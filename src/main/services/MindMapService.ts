@@ -446,6 +446,19 @@ export class MindMapService {
   }
 
   /**
+   * 更新思维导图
+   */
+  updateMindMap(mindMapId: string, updates: Partial<{ title: string }>): void {
+    const db = getDatabase()
+    db.update(mindMaps)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(mindMaps.id, mindMapId))
+      .run()
+    executeCheckpoint('PASSIVE')
+    Logger.info('MindMapService', `Mind map updated: ${mindMapId}`)
+  }
+
+  /**
    * 删除思维导图
    */
   deleteMindMap(mindMapId: string): void {

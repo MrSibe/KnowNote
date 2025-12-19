@@ -75,5 +75,13 @@
   "confirmDeleteMindMap": "Are you sure you want to delete this mind map?",
   "deleteMindMap": "Delete Mind Map",
   "failed": "Failed",
-  "mindMapVersion": "Version {{version}}"
+  "mindMapVersion": "Version {{version}}",
+  "rename": "Rename",
+  "renameNoteDesc": "Enter a new title for the note",
+  "renameMindMap": "Rename Mind Map",
+  "renameMindMapDesc": "Enter a new title for the mind map",
+  "title": "Title",
+  "mindMapTitlePlaceholder": "Enter mind map title",
+  "confirm": "Confirm",
+  "creativeSpace": "Creative Space"
 }

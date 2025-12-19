@@ -1,5 +1,5 @@
 import { ReactElement, useState, useEffect } from 'react'
-import { FileText, Network, Trash2, Loader2, GripVertical } from 'lucide-react'
+import { FileText, Network, Trash2, Loader2, Edit2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   DndContext,
@@ -18,6 +18,22 @@ import {
 import type { Note } from '../../../../../shared/types'
 import type { ItemDetail } from '../../../store/itemStore'
 import { Button } from '../../ui/button'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator
+} from '../../ui/context-menu'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '../../ui/dialog'
+import { Input } from '../../ui/input'
 
 interface ItemListProps {
   items: ItemDetail[]
@@ -45,15 +61,10 @@ function SortableItemRow({
   t: any
   i18n: any
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging
-  } = useSortable({
+  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id
   })
 
@@ -71,11 +82,40 @@ function SortableItemRow({
   const isGenerating = isMindMap && mindMap?.status === 'generating'
   const isFailed = isMindMap && mindMap?.status === 'failed'
 
-  return (
+  const handleRename = () => {
+    const currentTitle = isNote ? note?.title : mindMap?.title
+    setNewTitle(currentTitle || '')
+    setIsRenameDialogOpen(true)
+  }
+
+  const handleRenameConfirm = async () => {
+    if (!newTitle.trim()) return
+
+    try {
+      if (isNote && note) {
+        await window.api.updateNote(note.id, { title: newTitle.trim() })
+      } else if (isMindMap && mindMap) {
+        await window.api.mindmap.update(mindMap.id, { title: newTitle.trim() })
+      }
+      setIsRenameDialogOpen(false)
+    } catch (error) {
+      console.error('Failed to rename:', error)
+    }
+  }
+
+  const handleDelete = () => {
+    const confirmMsg = isNote ? t('confirmDeleteNote') : t('confirmDeleteMindMap')
+    if (confirm(confirmMsg)) {
+      onDeleteItem(item.id)
+    }
+  }
+
+  const itemContent = (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
+      {...listeners}
       onClick={() => {
         if (isNote && note) {
           onSelectNote(note)
@@ -83,32 +123,22 @@ function SortableItemRow({
           onOpenMindMap(mindMap.id)
         }
       }}
-      className={`group grid grid-cols-[auto_1fr_auto] gap-2 items-start p-3 rounded-lg border ${isDragging ? 'cursor-grabbing opacity-75' : 'cursor-pointer'} ${
+      className={`group grid grid-cols-[auto_1fr_auto] gap-2 items-start p-3 rounded-lg border ${isDragging ? 'cursor-grabbing opacity-75' : 'cursor-grab hover:cursor-grab'} ${
         isGenerating
           ? 'bg-chart-1/5 border-chart-1/30 animate-pulse cursor-wait'
           : isFailed
             ? 'bg-destructive/5 border-destructive/30'
             : isCurrentNote
-              ? 'bg-primary/10 border-primary/20 cursor-pointer'
-              : 'border-transparent hover:bg-muted cursor-pointer'
+              ? 'bg-primary/10 border-primary/20'
+              : 'border-transparent hover:bg-muted'
       }`}
     >
-      {/* 图标和拖拽手柄列 - 固定宽度，垂直布局 */}
-      <div className="flex flex-col items-center gap-0.5">
+      {/* 图标列 - 固定宽度 */}
+      <div className="flex items-center">
         {/* 图标 */}
         {isNote && <FileText className="w-4 h-4 text-muted-foreground" />}
         {isMindMap && !isGenerating && <Network className="w-4 h-4 text-chart-1" />}
         {isMindMap && isGenerating && <Loader2 className="w-4 h-4 text-chart-1 animate-spin" />}
-
-        {/* 拖拽手柄 */}
-        <div
-          ref={setActivatorNodeRef}
-          {...listeners}
-          className="opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <GripVertical className="w-4 h-4 text-muted-foreground" />
-        </div>
       </div>
 
       {/* 内容列 - 可被压缩 */}
@@ -148,19 +178,79 @@ function SortableItemRow({
       <Button
         onClick={(e) => {
           e.stopPropagation()
-          const confirmMsg = isNote ? t('confirmDeleteNote') : t('confirmDeleteMindMap')
-          if (confirm(confirmMsg)) {
-            onDeleteItem(item.id)
-          }
+          handleDelete()
         }}
+        onPointerDown={(e) => e.stopPropagation()}
         variant="ghost"
         size="icon"
-        className="opacity-0 group-hover:opacity-100 w-8 h-8 mt-0.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+        className="opacity-0 group-hover:opacity-100 w-8 h-8 mt-0.5 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
         title={isNote ? t('deleteNote') : t('deleteMindMap')}
       >
         <Trash2 className="w-4 h-4" />
       </Button>
     </div>
+  )
+
+  return (
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>{itemContent}</ContextMenuTrigger>
+        <ContextMenuContent className="w-48">
+          <ContextMenuItem
+            onClick={(e) => {
+              e.stopPropagation()
+              handleRename()
+            }}
+          >
+            <Edit2 className="w-4 h-4 mr-2" />
+            {t('rename')}
+          </ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem
+            onClick={(e) => {
+              e.stopPropagation()
+              handleDelete()
+            }}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {t('delete')}
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{isNote ? t('renameNote') : t('renameMindMap')}</DialogTitle>
+            <DialogDescription>
+              {isNote ? t('renameNoteDesc') : t('renameMindMapDesc')}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              id="title"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleRenameConfirm()
+                }
+              }}
+              placeholder={isNote ? t('noteTitlePlaceholder') : t('mindMapTitlePlaceholder')}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRenameDialogOpen(false)}>
+              {t('cancel')}
+            </Button>
+            <Button onClick={handleRenameConfirm} disabled={!newTitle.trim()}>
+              {t('confirm')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

@@ -87,6 +87,10 @@ declare global {
           notebookId: string
         ) => Promise<{ success: boolean; mindMapId?: string; error?: string }>
         getNodeChunks: (mindMapId: string, nodeId: string) => Promise<any[]>
+        update: (
+          mindMapId: string,
+          updates: Partial<Pick<MindMap, 'title'>>
+        ) => Promise<{ success: boolean }>
         delete: (mindMapId: string) => Promise<{ success: boolean }>
         openWindow: (notebookId: string, mindMapId?: string) => Promise<void>
         onProgress: (

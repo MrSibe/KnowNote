@@ -37,5 +37,15 @@
   "confirmDeleteMindMap": "确定要删除这个思维导图吗？",
   "deleteMindMap": "删除思维导图",
   "failed": "失败",
-  "mindMapVersion": "版本 {{version}}"
+  "mindMapVersion": "版本 {{version}}",
+  "rename": "重命名",
+  "renameNote": "重命名笔记",
+  "renameNoteDesc": "请输入新的笔记标题",
+  "renameMindMap": "重命名思维导图",
+  "renameMindMapDesc": "请输入新的思维导图标题",
+  "title": "标题",
+  "noteTitlePlaceholder": "请输入笔记标题",
+  "mindMapTitlePlaceholder": "请输入思维导图标题",
+  "confirm": "确认",
+  "creativeSpace": "创造空间"
 }

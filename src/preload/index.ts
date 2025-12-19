@@ -191,6 +191,9 @@ const api = {
     // 获取节点关联的chunks
     getNodeChunks: (mindMapId: string, nodeId: string) =>
       ipcRenderer.invoke('mindmap:get-node-chunks', { mindMapId, nodeId }),
+    // 更新思维导图
+    update: (mindMapId: string, updates: any) =>
+      ipcRenderer.invoke('mindmap:update', { mindMapId, updates }),
     // 删除思维导图
     delete: (mindMapId: string) => ipcRenderer.invoke('mindmap:delete', { mindMapId }),
     // 打开思维导图窗口
