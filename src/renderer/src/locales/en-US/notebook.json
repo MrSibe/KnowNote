@@ -59,5 +59,15 @@
   "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to switch to another Notebook?",
   "cancel": "Cancel",
   "leave": "Leave",
-  "startEditing": "Type your note here..."
+  "startEditing": "Type your note here...",
+  "mindMap": "Mind Map",
+  "generateMindMap": "Generate Mind Map",
+  "regenerate": "Regenerate",
+  "generating": "Generating",
+  "generatingMindMap": "Generating mind map...",
+  "noMindMapYet": "No mind map yet, click generate button to create",
+  "nodeSource": "Node Source",
+  "source": "Source",
+  "noSourceContent": "No related content",
+  "askInDepth": "Ask in depth"
 }

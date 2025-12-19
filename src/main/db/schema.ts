@@ -207,3 +207,40 @@ export const embeddings = sqliteTable(
 
 export type Embedding = typeof embeddings.$inferSelect
 export type NewEmbedding = typeof embeddings.$inferInsert
+
+/**
+ * 思维导图表
+ * 存储笔记本的派生知识结构
+ */
+export const mindMaps = sqliteTable(
+  'mind_maps',
+  {
+    id: text('id').primaryKey(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    version: integer('version').notNull().default(1), // 版本号
+    treeData: text('tree_data', { mode: 'json' }).notNull(), // 树结构
+    chunkMapping: text('chunk_mapping', { mode: 'json' }).notNull(), // 节点ID -> chunk IDs映射
+    metadata: text('metadata', { mode: 'json' }).$type<{
+      model: string
+      totalNodes: number
+      maxDepth: number
+      generationTime: number
+    }>(),
+    status: text('status', { enum: ['generating', 'completed', 'failed'] })
+      .notNull()
+      .default('generating'),
+    errorMessage: text('error_message'),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    notebookIdx: index('idx_mindmaps_notebook').on(table.notebookId, table.updatedAt),
+    versionIdx: index('idx_mindmaps_version').on(table.notebookId, table.version)
+  })
+)
+
+export type MindMap = typeof mindMaps.$inferSelect
+export type NewMindMap = typeof mindMaps.$inferInsert

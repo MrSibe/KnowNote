@@ -169,6 +169,29 @@ const api = {
     }
   },
 
+  // MindMap 思维导图相关
+  mindmap: {
+    // 生成思维导图
+    generate: (notebookId: string) => ipcRenderer.invoke('mindmap:generate', { notebookId }),
+    // 获取最新思维导图
+    getLatest: (notebookId: string) => ipcRenderer.invoke('mindmap:get-latest', { notebookId }),
+    // 获取思维导图详情
+    get: (mindMapId: string) => ipcRenderer.invoke('mindmap:get', { mindMapId }),
+    // 获取节点关联的chunks
+    getNodeChunks: (mindMapId: string, nodeId: string) =>
+      ipcRenderer.invoke('mindmap:get-node-chunks', { mindMapId, nodeId }),
+    // 删除思维导图
+    delete: (mindMapId: string) => ipcRenderer.invoke('mindmap:delete', { mindMapId }),
+    // 打开思维导图窗口
+    openWindow: (notebookId: string) => ipcRenderer.invoke('mindmap:open-window', { notebookId }),
+    // 监听生成进度
+    onProgress: (callback: (data: { notebookId: string; stage: string; progress: number }) => void) => {
+      const listener = (_event: any, data: any) => callback(data)
+      ipcRenderer.on('mindmap:progress', listener)
+      return () => ipcRenderer.removeListener('mindmap:progress', listener)
+    }
+  },
+
   // 应用更新相关
   update: {
     // 检查更新

@@ -21,5 +21,15 @@
   "unsavedChangesMessage": "您有未保存的修改，确定要切换到其他Notebook吗？",
   "cancel": "取消",
   "leave": "离开",
-  "startEditing": "输入笔记内容..."
+  "startEditing": "输入笔记内容...",
+  "mindMap": "思维导图",
+  "generateMindMap": "生成思维导图",
+  "regenerate": "重新生成",
+  "generating": "正在生成",
+  "generatingMindMap": "正在生成思维导图...",
+  "noMindMapYet": "还没有思维导图，点击生成按钮创建",
+  "nodeSource": "节点溯源",
+  "source": "来源",
+  "noSourceContent": "暂无关联内容",
+  "askInDepth": "深度提问"
 }

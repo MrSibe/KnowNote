@@ -296,6 +296,21 @@ export class AISDKProvider implements BaseProvider {
     return this.descriptor.defaultChatModel || ''
   }
 
+  /**
+   * 获取 AI SDK 模型实例 (用于 streamObject 等高级 API)
+   * @param modelId - 模型ID,如果不提供则使用配置的默认模型
+   */
+  getAIModel(modelId?: string): any {
+    if (!this.aiProvider) {
+      throw new Error(`Provider ${this.name} is not configured. Please configure API key first.`)
+    }
+    const model = modelId || this.config.model || this.descriptor.defaultChatModel
+    if (!model) {
+      throw new Error(`No model specified for provider ${this.name}`)
+    }
+    return this.aiProvider(model)
+  }
+
   // ==================== 嵌入能力方法 ====================
 
   /**

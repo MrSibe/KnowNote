@@ -1,8 +1,9 @@
 import { ReactElement, useEffect, useState } from 'react'
-import { Plus, Save, Trash2, ArrowLeft } from 'lucide-react'
+import { Plus, Save, Trash2, ArrowLeft, Network } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useNoteStore } from '../../store/noteStore'
+import { setupMindMapListeners } from '../../store/mindmapStore'
 import NoteEditor from './note/NoteEditor'
 import NoteList from './note/NoteList'
 import { ScrollArea } from '../ui/scroll-area'
@@ -138,6 +139,14 @@ export default function NotePanel(): ReactElement {
     }
   }, [notebookId, setCurrentNote])
 
+  // 设置思维导图进度监听器
+  useEffect(() => {
+    const unsubscribe = setupMindMapListeners()
+    return () => {
+      if (unsubscribe) unsubscribe()
+    }
+  }, [])
+
   // 加载笔记列表
   useEffect(() => {
     if (notebookId) {
@@ -178,6 +187,17 @@ export default function NotePanel(): ReactElement {
     setHasUnsavedChanges(false)
   }
 
+  // 打开思维导图窗口
+  const handleOpenMindMap = async () => {
+    if (notebookId) {
+      try {
+        await window.api.mindmap.openWindow(notebookId)
+      } catch (error) {
+        console.error('[NotePanel] Failed to open mind map window:', error)
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col bg-card rounded-xl overflow-hidden h-full shadow-md">
       {isEditing && currentNote ? (
@@ -201,16 +221,29 @@ export default function NotePanel(): ReactElement {
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
             <span className="text-sm text-foreground">{t('notes')}</span>
-            <Button
-              onClick={handleCreateNote}
-              variant="ghost"
-              size="icon"
-              className="w-8 h-8"
+            <div
+              className="flex items-center gap-2"
               style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-              title={t('createNote')}
             >
-              <Plus className="w-4 h-4" />
-            </Button>
+              <Button
+                onClick={handleOpenMindMap}
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8"
+                title={t('mindMap')}
+              >
+                <Network className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={handleCreateNote}
+                variant="ghost"
+                size="icon"
+                className="w-8 h-8"
+                title={t('createNote')}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
 
           {/* 笔记列表 */}
