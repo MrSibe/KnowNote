@@ -4,12 +4,12 @@
  */
 
 import { getDatabase, executeCheckpoint } from '../db'
-import { mindMaps, documents, chunks, notebooks } from '../db/schema'
+import { mindMaps, documents, chunks, notebooks, items } from '../db/schema'
 import type { MindMap, NewMindMap } from '../db/schema'
 import type { MindMapTreeNode, MindMapGenerationResult } from '../../shared/types/mindmap'
 import { eq, desc, and, inArray } from 'drizzle-orm'
 import { ProviderManager } from '../providers/ProviderManager'
-import { KnowledgeService } from './KnowledgeService'
+// import { KnowledgeService } from './KnowledgeService'
 import { AISDKProvider } from '../providers/base/AISDKProvider'
 import { streamObject } from 'ai'
 import { z } from 'zod'
@@ -67,8 +67,10 @@ const MINDMAP_GENERATION_PROMPT = `你是知识结构分析专家,负责从笔�
  */
 export class MindMapService {
   constructor(
-    private providerManager: ProviderManager,
-    private knowledgeService: KnowledgeService
+    private providerManager: ProviderManager
+    // Reserved for future use
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // private _knowledgeService: KnowledgeService
   ) {}
 
   /**
@@ -268,10 +270,7 @@ export class MindMapService {
   /**
    * 生成思维导图
    */
-  async generateMindMap(
-    notebookId: string,
-    onProgress?: MindMapProgressCallback
-  ): Promise<string> {
+  async generateMindMap(notebookId: string, onProgress?: MindMapProgressCallback): Promise<string> {
     const db = getDatabase()
     const mindMapId = `mindmap_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
     const startTime = Date.now()
@@ -280,11 +279,7 @@ export class MindMapService {
       // 1. 创建记录
       onProgress?.('creating_record', 0)
 
-      const notebook = db
-        .select()
-        .from(notebooks)
-        .where(eq(notebooks.id, notebookId))
-        .get()
+      const notebook = db.select().from(notebooks).where(eq(notebooks.id, notebookId)).get()
       if (!notebook) {
         throw new Error('笔记本不存在')
       }
@@ -314,6 +309,26 @@ export class MindMapService {
 
       db.insert(mindMaps).values(newMindMap).run()
       Logger.info('MindMapService', `Created mind map: ${mindMapId}, version: ${newVersion}`)
+
+      // 创建对应的 item（添加到列表末尾）
+      // 获取当前笔记本的最大 order 值
+      const existingItems = db.select().from(items).where(eq(items.notebookId, notebookId)).all()
+      const maxOrder = existingItems.reduce((max, item) => Math.max(max, item.order), -1)
+      const newOrder = maxOrder + 1
+
+      const itemId = `item-mindmap-${mindMapId}`
+      db.insert(items)
+        .values({
+          id: itemId,
+          notebookId,
+          type: 'mindmap',
+          resourceId: mindMapId,
+          order: newOrder,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+        .run()
+      Logger.info('MindMapService', `Created item for mind map: ${itemId} with order: ${newOrder}`)
 
       // 2. 聚合内容
       onProgress?.('aggregating_content', 10)
@@ -419,11 +434,7 @@ export class MindMapService {
 
     // 获取文档标题
     const docIds = Array.from(new Set(chunkData.map((c) => c.documentId)))
-    const docs = db
-      .select()
-      .from(documents)
-      .where(inArray(documents.id, docIds))
-      .all()
+    const docs = db.select().from(documents).where(inArray(documents.id, docIds)).all()
 
     const docMap = new Map(docs.map((d) => [d.id, d.title]))
 
@@ -439,6 +450,14 @@ export class MindMapService {
    */
   deleteMindMap(mindMapId: string): void {
     const db = getDatabase()
+
+    // 先删除关联的 item
+    db.delete(items)
+      .where(and(eq(items.type, 'mindmap'), eq(items.resourceId, mindMapId)))
+      .run()
+    Logger.info('MindMapService', `Deleted item for mind map: ${mindMapId}`)
+
+    // 删除思维导图本身
     db.delete(mindMaps).where(eq(mindMaps.id, mindMapId)).run()
     executeCheckpoint('PASSIVE')
     Logger.info('MindMapService', `Mind map deleted: ${mindMapId}`)

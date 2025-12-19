@@ -11,9 +11,10 @@ import type {
   IndexProgress
 } from '../shared/types/knowledge'
 import type { UpdateState, UpdateCheckResult, UpdateOperationResult } from '../shared/types/update'
+import type { MindMap } from '../main/db/schema'
 
 // 重新导出共享类型
-export type { ChatSession, ChatMessage, Notebook, Note, ProviderConfig, AppSettings }
+export type { ChatSession, ChatMessage, Notebook, Note, ProviderConfig, AppSettings, MindMap }
 export type {
   KnowledgeDocument,
   KnowledgeChunk,
@@ -69,6 +70,29 @@ declare global {
       getNote: (id: string) => Promise<Note | null>
       updateNote: (id: string, updates: Partial<Pick<Note, 'title' | 'content'>>) => Promise<void>
       deleteNote: (id: string) => Promise<void>
+
+      // Items 相关（统一管理笔记、思维导图等）
+      items: {
+        getAll: (notebookId: string) => Promise<any[]>
+        updateOrder: (itemId: string, order: number) => Promise<{ success: boolean }>
+        batchUpdateOrder: (updates: Record<string, number>) => Promise<{ success: boolean }>
+        delete: (itemId: string, deleteResource?: boolean) => Promise<{ success: boolean }>
+      }
+
+      // Mind Map 相关
+      mindmap: {
+        getLatest: (notebookId: string) => Promise<MindMap | null>
+        get: (mindMapId: string) => Promise<MindMap | null>
+        generate: (
+          notebookId: string
+        ) => Promise<{ success: boolean; mindMapId?: string; error?: string }>
+        getNodeChunks: (mindMapId: string, nodeId: string) => Promise<any[]>
+        delete: (mindMapId: string) => Promise<{ success: boolean }>
+        openWindow: (notebookId: string, mindMapId?: string) => Promise<void>
+        onProgress: (
+          callback: (data: { notebookId: string; stage: string; progress: number }) => void
+        ) => () => void
+      }
 
       // Chat Session 相关
       createChatSession: (notebookId: string, title: string) => Promise<ChatSession>

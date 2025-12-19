@@ -8,22 +8,34 @@ import MindMapCanvas from '../notebook/mindmap/MindMapCanvas'
 import NodeDetailPanel from '../notebook/mindmap/NodeDetailPanel'
 
 export default function MindMapPage() {
-  const { notebookId } = useParams<{ notebookId: string }>()
+  const { notebookId, mindMapId } = useParams<{ notebookId?: string; mindMapId?: string }>()
   const { t } = useTranslation('notebook')
   const {
     currentMindMap,
     isGenerating,
     generationProgress,
     generateMindMap,
-    loadLatestMindMap
+    loadLatestMindMap,
+    loadMindMap
   } = useMindMapStore()
 
   const [isLoading, setIsLoading] = useState(true)
 
-  // 加载最新的思维导图
+  // 加载思维导图
   useEffect(() => {
-    if (notebookId) {
-      setIsLoading(true)
+    setIsLoading(true)
+
+    if (mindMapId) {
+      // 查看特定版本
+      loadMindMap(mindMapId)
+        .catch((error) => {
+          console.error('[MindMapPage] Failed to load mind map:', error)
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+    } else if (notebookId) {
+      // 加载最新版本（用于生成）
       loadLatestMindMap(notebookId)
         .catch((error) => {
           console.error('[MindMapPage] Failed to load mind map:', error)
@@ -32,7 +44,7 @@ export default function MindMapPage() {
           setIsLoading(false)
         })
     }
-  }, [notebookId, loadLatestMindMap])
+  }, [notebookId, mindMapId, loadLatestMindMap, loadMindMap])
 
   const handleGenerate = async () => {
     if (notebookId) {

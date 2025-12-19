@@ -1,6 +1,6 @@
 import { eq, desc, and } from 'drizzle-orm'
 import { getDatabase, executeCheckpoint } from './index'
-import { chatSessions, chatMessages, notebooks, notes, documents } from './schema'
+import { chatSessions, chatMessages, notebooks, notes, documents, items } from './schema'
 
 // ==================== Chat Sessions ====================
 
@@ -331,6 +331,28 @@ export function createNote(notebookId: string, title: string, content: string) {
     .get()
 
   console.log(`[Database] Created note: ${id}`)
+
+  // 同步创建 item（添加到列表末尾）
+  // 获取当前笔记本的最大 order 值
+  const existingItems = db.select().from(items).where(eq(items.notebookId, notebookId)).all()
+  const maxOrder = existingItems.reduce((max, item) => Math.max(max, item.order), -1)
+  const newOrder = maxOrder + 1
+
+  const itemId = `item-note-${id}`
+  db.insert(items)
+    .values({
+      id: itemId,
+      notebookId,
+      type: 'note',
+      resourceId: id,
+      order: newOrder,
+      createdAt: now,
+      updatedAt: now
+    })
+    .run()
+
+  console.log(`[Database] Created item for note: ${itemId} with order: ${newOrder}`)
+
   return note
 }
 
@@ -373,6 +395,14 @@ export function updateNote(id: string, updates: Partial<{ title: string; content
  */
 export function deleteNote(id: string) {
   const db = getDatabase()
+
+  // 先删除关联的 item
+  db.delete(items)
+    .where(and(eq(items.type, 'note'), eq(items.resourceId, id)))
+    .run()
+  console.log(`[Database] Deleted item for note: ${id}`)
+
+  // 删除笔记本身
   db.delete(notes).where(eq(notes.id, id)).run()
   console.log(`[Database] Deleted note: ${id}`)
 }

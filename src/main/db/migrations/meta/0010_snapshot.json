@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "30ec3bbc-7e82-4c8f-9907-d710fa0e536d",
-  "prevId": "a1b2c3d4-e5f6-4789-a012-bc34de56f789",
+  "id": "4fc2fc7e-f2f0-4645-ad41-ab4e9d7fd116",
+  "prevId": "64ec3e70-8b5e-4867-8221-c1940415154c",
   "tables": {
     "chat_messages": {
       "name": "chat_messages",
@@ -526,6 +526,92 @@
         "embeddings_notebook_id_notebooks_id_fk": {
           "name": "embeddings_notebook_id_notebooks_id_fk",
           "tableFrom": "embeddings",
+          "tableTo": "notebooks",
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "items": {
+      "name": "items",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "notebook_id": {
+          "name": "notebook_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "resource_id": {
+          "name": "resource_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "order": {
+          "name": "order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "idx_items_notebook_order": {
+          "name": "idx_items_notebook_order",
+          "columns": ["notebook_id", "order"],
+          "isUnique": false
+        },
+        "idx_items_type": {
+          "name": "idx_items_type",
+          "columns": ["type"],
+          "isUnique": false
+        },
+        "idx_items_resource": {
+          "name": "idx_items_resource",
+          "columns": ["type", "resource_id"],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "items_notebook_id_notebooks_id_fk": {
+          "name": "items_notebook_id_notebooks_id_fk",
+          "tableFrom": "items",
           "tableTo": "notebooks",
           "columnsFrom": ["notebook_id"],
           "columnsTo": ["id"],

@@ -31,5 +31,11 @@
   "nodeSource": "节点溯源",
   "source": "来源",
   "noSourceContent": "暂无关联内容",
-  "askInDepth": "深度提问"
+  "askInDepth": "深度提问",
+  "pin": "置顶",
+  "unpin": "取消置顶",
+  "confirmDeleteMindMap": "确定要删除这个思维导图吗？",
+  "deleteMindMap": "删除思维导图",
+  "failed": "失败",
+  "mindMapVersion": "版本 {{version}}"
 }

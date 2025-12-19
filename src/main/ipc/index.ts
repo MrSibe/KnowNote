@@ -11,6 +11,7 @@ import { registerNoteHandlers } from './noteHandlers'
 import { registerKnowledgeHandlers } from './knowledgeHandlers'
 import { registerMindMapHandlers } from './mindmapHandlers'
 import { registerUpdateHandlers } from './updateHandlers'
+import { registerItemHandlers } from './itemHandlers'
 
 /**
  * 注册所有 IPC Handlers
@@ -22,7 +23,7 @@ export function registerAllHandlers(
   updateService: UpdateService
 ) {
   // 实例化 MindMapService
-  const mindMapService = new MindMapService(providerManager, knowledgeService)
+  const mindMapService = new MindMapService(providerManager)
 
   registerChatHandlers(providerManager, sessionAutoSwitchService, knowledgeService)
   registerProviderHandlers(providerManager)
@@ -32,6 +33,7 @@ export function registerAllHandlers(
   registerKnowledgeHandlers(knowledgeService)
   registerMindMapHandlers(mindMapService)
   registerUpdateHandlers(updateService)
+  registerItemHandlers()
   console.log('[IPC] All handlers registered')
 }
 

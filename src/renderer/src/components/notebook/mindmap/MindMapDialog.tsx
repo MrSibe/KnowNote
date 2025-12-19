@@ -91,7 +91,9 @@ export default function MindMapDialog({ notebookId }: { notebookId: string }) {
         </div>
 
         {/* 内容区域 - 自动填充剩余空间 */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+        <div
+          style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative', zIndex: 1 }}
+        >
           {currentMindMap ? (
             <>
               <div style={{ flex: 1, position: 'relative' }}>

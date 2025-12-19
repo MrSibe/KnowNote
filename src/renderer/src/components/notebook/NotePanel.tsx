@@ -2,10 +2,10 @@ import { ReactElement, useEffect, useState } from 'react'
 import { Plus, Save, Trash2, ArrowLeft, Network } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
-import { useNoteStore } from '../../store/noteStore'
+import { useItemStore } from '../../store/itemStore'
 import { setupMindMapListeners } from '../../store/mindmapStore'
 import NoteEditor from './note/NoteEditor'
-import NoteList from './note/NoteList'
+import ItemList from './item/ItemList'
 import { ScrollArea } from '../ui/scroll-area'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -115,16 +115,16 @@ export default function NotePanel(): ReactElement {
   const { t } = useTranslation('notebook')
   const { id: notebookId } = useParams()
   const {
-    notes,
+    items,
     currentNote,
     isEditing,
     isSaving,
-    loadNotes,
+    loadItems,
     createNote,
     updateNote,
-    deleteNote,
+    deleteItem,
     setCurrentNote
-  } = useNoteStore()
+  } = useItemStore()
 
   // 管理未保存状态
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
@@ -147,12 +147,12 @@ export default function NotePanel(): ReactElement {
     }
   }, [])
 
-  // 加载笔记列表
+  // 加载 items 列表
   useEffect(() => {
     if (notebookId) {
-      loadNotes(notebookId)
+      loadItems(notebookId)
     }
-  }, [notebookId, loadNotes])
+  }, [notebookId, loadItems])
 
   // 创建新笔记
   const handleCreateNote = async () => {
@@ -170,7 +170,11 @@ export default function NotePanel(): ReactElement {
   const handleDelete = async () => {
     if (!currentNote) return
     if (confirm(t('confirmDeleteNote'))) {
-      await deleteNote(currentNote.id)
+      // 找到对应的 item
+      const item = items.find((item) => item.type === 'note' && item.resourceId === currentNote.id)
+      if (item) {
+        await deleteItem(item.id, true) // 同时删除资源
+      }
     }
   }
 
@@ -187,13 +191,35 @@ export default function NotePanel(): ReactElement {
     setHasUnsavedChanges(false)
   }
 
-  // 打开思维导图窗口
-  const handleOpenMindMap = async () => {
+  // 打开思维导图窗口（查看特定版本）
+  const handleOpenMindMap = async (mindMapId: string) => {
+    try {
+      if (notebookId) {
+        await window.api.mindmap.openWindow(notebookId, mindMapId)
+      }
+    } catch (error) {
+      console.error('[NotePanel] Failed to open mind map window:', error)
+    }
+  }
+
+  // 生成新思维导图（在后台生成，不打开窗口）
+  const handleGenerateMindMap = async () => {
     if (notebookId) {
       try {
-        await window.api.mindmap.openWindow(notebookId)
+        // 立即开始生成（异步）
+        window.api.mindmap.generate(notebookId).then((result) => {
+          if (result.success) {
+            // 生成完成后重新加载列表
+            loadItems(notebookId)
+          }
+        })
+
+        // 等待一小段时间后刷新列表，以显示"正在生成"的 item
+        setTimeout(() => {
+          loadItems(notebookId)
+        }, 500)
       } catch (error) {
-        console.error('[NotePanel] Failed to open mind map window:', error)
+        console.error('[NotePanel] Failed to generate mind map:', error)
       }
     }
   }
@@ -226,11 +252,11 @@ export default function NotePanel(): ReactElement {
               style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             >
               <Button
-                onClick={handleOpenMindMap}
+                onClick={handleGenerateMindMap}
                 variant="ghost"
                 size="icon"
                 className="w-8 h-8"
-                title={t('mindMap')}
+                title={t('generateMindMap')}
               >
                 <Network className="w-4 h-4" />
               </Button>
@@ -246,13 +272,14 @@ export default function NotePanel(): ReactElement {
             </div>
           </div>
 
-          {/* 笔记列表 */}
+          {/* Items 列表（笔记 + 思维导图等） */}
           <ScrollArea className="flex-1">
-            <NoteList
-              notes={notes}
+            <ItemList
+              items={items}
               currentNote={currentNote}
               onSelectNote={setCurrentNote}
-              onDeleteNote={deleteNote}
+              onOpenMindMap={handleOpenMindMap}
+              onDeleteItem={(itemId) => deleteItem(itemId, true)}
             />
           </ScrollArea>
         </>

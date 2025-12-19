@@ -69,5 +69,11 @@
   "nodeSource": "Node Source",
   "source": "Source",
   "noSourceContent": "No related content",
-  "askInDepth": "Ask in depth"
+  "askInDepth": "Ask in depth",
+  "pin": "Pin",
+  "unpin": "Unpin",
+  "confirmDeleteMindMap": "Are you sure you want to delete this mind map?",
+  "deleteMindMap": "Delete Mind Map",
+  "failed": "Failed",
+  "mindMapVersion": "Version {{version}}"
 }

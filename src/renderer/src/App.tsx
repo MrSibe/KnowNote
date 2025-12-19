@@ -54,6 +54,7 @@ function App(): React.JSX.Element {
           <Route path="/" element={<NotebookList />} />
           <Route path="/notebook/:id" element={<NotebookLayout />} />
           <Route path="/mindmap/:notebookId" element={<MindMapPage />} />
+          <Route path="/mindmap/view/:mindMapId" element={<MindMapPage />} />
           <Route path="/settings" element={<SettingsWindow />} />
         </Routes>
       </HashRouter>

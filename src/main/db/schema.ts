@@ -244,3 +244,33 @@ export const mindMaps = sqliteTable(
 
 export type MindMap = typeof mindMaps.$inferSelect
 export type NewMindMap = typeof mindMaps.$inferInsert
+
+/**
+ * Items 表
+ * 统一管理笔记本下的所有内容项（笔记、思维导图、PPT、音频等）
+ */
+export const items = sqliteTable(
+  'items',
+  {
+    id: text('id').primaryKey(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    type: text('type', { enum: ['note', 'mindmap', 'ppt', 'audio', 'video'] }).notNull(),
+    resourceId: text('resource_id').notNull(), // 指向实际资源的 ID (notes.id, mindMaps.id 等)
+    order: integer('order').notNull().default(0), // 排序，数值越小越靠前
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    // 优化按笔记本查询并排序的性能
+    notebookOrderIdx: index('idx_items_notebook_order').on(table.notebookId, table.order),
+    // 优化按类型查询的性能
+    typeIdx: index('idx_items_type').on(table.type),
+    // 优化按资源 ID 查找对应 item 的性能
+    resourceIdx: index('idx_items_resource').on(table.type, table.resourceId)
+  })
+)
+
+export type Item = typeof items.$inferSelect
+export type NewItem = typeof items.$inferInsert

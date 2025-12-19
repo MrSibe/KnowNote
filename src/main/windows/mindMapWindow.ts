@@ -7,11 +7,22 @@ let mindMapWindow: BrowserWindow | null = null
 
 /**
  * 创建思维导图窗口
+ * @param notebookId - 笔记本 ID（用于生成新思维导图）
+ * @param mindMapId - 思维导图 ID（用于查看特定版本，可选）
  */
-export function createMindMapWindow(notebookId: string): void {
+export function createMindMapWindow(notebookId: string, mindMapId?: string): void {
   // 如果思维导图窗口已经存在，则聚焦并返回
   if (mindMapWindow && !mindMapWindow.isDestroyed()) {
     mindMapWindow.focus()
+    // 如果传入了新的路由参数，更新 URL
+    const route = mindMapId ? `/mindmap/view/${mindMapId}` : `/mindmap/${notebookId}`
+    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+      mindMapWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#${route}`)
+    } else {
+      mindMapWindow.loadFile(join(__dirname, '../renderer/index.html'), {
+        hash: route
+      })
+    }
     return
   }
 
@@ -55,13 +66,12 @@ export function createMindMapWindow(notebookId: string): void {
   })
 
   // 加载思维导图页面
+  const route = mindMapId ? `/mindmap/view/${mindMapId}` : `/mindmap/${notebookId}`
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mindMapWindow.loadURL(
-      `${process.env['ELECTRON_RENDERER_URL']}#/mindmap/${notebookId}`
-    )
+    mindMapWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#${route}`)
   } else {
     mindMapWindow.loadFile(join(__dirname, '../renderer/index.html'), {
-      hash: `/mindmap/${notebookId}`
+      hash: route
     })
   }
 }

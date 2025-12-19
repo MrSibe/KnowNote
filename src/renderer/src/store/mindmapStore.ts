@@ -28,6 +28,7 @@ interface MindMapStore {
 
   // 异步操作
   loadLatestMindMap: (notebookId: string) => Promise<void>
+  loadMindMap: (mindMapId: string) => Promise<void>
   generateMindMap: (notebookId: string) => Promise<void>
   loadNodeChunks: (mindMapId: string, nodeId: string) => Promise<void>
   deleteMindMap: (mindMapId: string) => Promise<void>
@@ -54,6 +55,15 @@ export const useMindMapStore = create<MindMapStore>()((set) => ({
       set({ currentMindMap: mindMap })
     } catch (error) {
       console.error('Failed to load latest mind map:', error)
+    }
+  },
+
+  loadMindMap: async (mindMapId: string) => {
+    try {
+      const mindMap = await window.api.mindmap.get(mindMapId)
+      set({ currentMindMap: mindMap })
+    } catch (error) {
+      console.error('Failed to load mind map:', error)
     }
   },
 

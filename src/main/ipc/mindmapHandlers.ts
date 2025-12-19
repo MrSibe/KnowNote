@@ -19,14 +19,19 @@ export function registerMindMapHandlers(mindMapService: MindMapService) {
       try {
         Logger.debug('MindMapHandlers', 'generate:', args)
 
-        const mindMapId = await mindMapService.generateMindMap(args.notebookId, (stage, progress) => {
-          // 发送进度更新
-          event.sender.send('mindmap:progress', {
-            notebookId: args.notebookId,
-            stage,
-            progress
-          })
-        })
+        const mindMapId = await mindMapService.generateMindMap(
+          args.notebookId,
+          (stage, progress) => {
+            // 发送进度更新（检查窗口是否还存在）
+            if (!event.sender.isDestroyed()) {
+              event.sender.send('mindmap:progress', {
+                notebookId: args.notebookId,
+                stage,
+                progress
+              })
+            }
+          }
+        )
 
         return { success: true, mindMapId }
       } catch (error) {
@@ -61,16 +66,19 @@ export function registerMindMapHandlers(mindMapService: MindMapService) {
   })
 
   // 获取节点关联的chunks
-  ipcMain.handle('mindmap:get-node-chunks', async (_, args: { mindMapId: string; nodeId: string }) => {
-    try {
-      Logger.debug('MindMapHandlers', 'get-node-chunks:', args)
-      const chunks = await mindMapService.getNodeChunks(args.mindMapId, args.nodeId)
-      return chunks
-    } catch (error) {
-      Logger.error('MindMapHandlers', 'Error getting node chunks:', error)
-      return []
+  ipcMain.handle(
+    'mindmap:get-node-chunks',
+    async (_, args: { mindMapId: string; nodeId: string }) => {
+      try {
+        Logger.debug('MindMapHandlers', 'get-node-chunks:', args)
+        const chunks = await mindMapService.getNodeChunks(args.mindMapId, args.nodeId)
+        return chunks
+      } catch (error) {
+        Logger.error('MindMapHandlers', 'Error getting node chunks:', error)
+        return []
+      }
     }
-  })
+  )
 
   // 删除思维导图
   ipcMain.handle('mindmap:delete', async (_, args: { mindMapId: string }) => {
@@ -85,16 +93,19 @@ export function registerMindMapHandlers(mindMapService: MindMapService) {
   })
 
   // 打开思维导图窗口
-  ipcMain.handle('mindmap:open-window', async (_, args: { notebookId: string }) => {
-    try {
-      Logger.debug('MindMapHandlers', 'open-window:', args)
-      createMindMapWindow(args.notebookId)
-      return { success: true }
-    } catch (error) {
-      Logger.error('MindMapHandlers', 'Error opening mind map window:', error)
-      return { success: false, error: (error as Error).message }
+  ipcMain.handle(
+    'mindmap:open-window',
+    async (_, args: { notebookId: string; mindMapId?: string }) => {
+      try {
+        Logger.debug('MindMapHandlers', 'open-window:', args)
+        createMindMapWindow(args.notebookId, args.mindMapId)
+        return { success: true }
+      } catch (error) {
+        Logger.error('MindMapHandlers', 'Error opening mind map window:', error)
+        return { success: false, error: (error as Error).message }
+      }
     }
-  })
+  )
 
   Logger.info('MindMapHandlers', 'Mind map handlers registered')
 }

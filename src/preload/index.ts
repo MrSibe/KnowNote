@@ -66,6 +66,17 @@ const api = {
   updateNote: (id: string, updates: any) => ipcRenderer.invoke('update-note', { id, updates }),
   deleteNote: (id: string) => ipcRenderer.invoke('delete-note', { id }),
 
+  // Items 相关（统一管理笔记、思维导图等）
+  items: {
+    getAll: (notebookId: string) => ipcRenderer.invoke('items:get', { notebookId }),
+    updateOrder: (itemId: string, order: number) =>
+      ipcRenderer.invoke('items:update-order', { itemId, order }),
+    batchUpdateOrder: (updates: Record<string, number>) =>
+      ipcRenderer.invoke('items:batch-update-order', { updates }),
+    delete: (itemId: string, deleteResource = false) =>
+      ipcRenderer.invoke('items:delete', { itemId, deleteResource })
+  },
+
   // Chat Session 相关
   createChatSession: (notebookId: string, title: string) =>
     ipcRenderer.invoke('create-chat-session', { notebookId, title }),
@@ -183,9 +194,12 @@ const api = {
     // 删除思维导图
     delete: (mindMapId: string) => ipcRenderer.invoke('mindmap:delete', { mindMapId }),
     // 打开思维导图窗口
-    openWindow: (notebookId: string) => ipcRenderer.invoke('mindmap:open-window', { notebookId }),
+    openWindow: (notebookId: string, mindMapId?: string) =>
+      ipcRenderer.invoke('mindmap:open-window', { notebookId, mindMapId }),
     // 监听生成进度
-    onProgress: (callback: (data: { notebookId: string; stage: string; progress: number }) => void) => {
+    onProgress: (
+      callback: (data: { notebookId: string; stage: string; progress: number }) => void
+    ) => {
       const listener = (_event: any, data: any) => callback(data)
       ipcRenderer.on('mindmap:progress', listener)
       return () => ipcRenderer.removeListener('mindmap:progress', listener)
