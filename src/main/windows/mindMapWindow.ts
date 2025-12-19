@@ -32,10 +32,10 @@ export function createMindMapWindow(notebookId: string, mindMapId?: string): voi
 
   // 创建思维导图窗口
   mindMapWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 1200,
-    minHeight: 700,
+    width: 1000,
+    height: 700,
+    minWidth: 900,
+    minHeight: 600,
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',

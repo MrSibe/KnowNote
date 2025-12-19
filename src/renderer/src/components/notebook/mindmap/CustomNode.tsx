@@ -1,9 +1,10 @@
 import { memo } from 'react'
 import { Handle, Position, NodeProps } from '@xyflow/react'
 
-interface CustomNodeData {
+export interface CustomNodeData {
   label: string
   level: number
+  direction?: 'TB' | 'LR'
   metadata?: {
     level: number
     chunkIds: string[]
@@ -11,7 +12,11 @@ interface CustomNodeData {
   }
 }
 
-function CustomNode({ data }: NodeProps<CustomNodeData>) {
+function CustomNode({
+  data,
+  sourcePosition,
+  targetPosition
+}: NodeProps<{ label: string; level: number; direction?: 'TB' | 'LR'; metadata?: any }>) {
   const level = data.level || 0
 
   // 根据层级选择不同的样式
@@ -82,9 +87,9 @@ function CustomNode({ data }: NodeProps<CustomNodeData>) {
 
   return (
     <div style={getNodeStyle(level)}>
-      <Handle type="target" position={Position.Left} style={{ opacity: 0 }} />
+      <Handle type="target" position={targetPosition || Position.Left} style={{ opacity: 0 }} />
       {data.label}
-      <Handle type="source" position={Position.Right} style={{ opacity: 0 }} />
+      <Handle type="source" position={sourcePosition || Position.Right} style={{ opacity: 0 }} />
     </div>
   )
 }
