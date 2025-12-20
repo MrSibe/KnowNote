@@ -59,6 +59,7 @@
   "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to switch to another Notebook?",
   "cancel": "Cancel",
   "leave": "Leave",
+  "delete": "Delete",
   "startEditing": "Type your note here...",
   "mindMap": "Mind Map",
   "generateMindMap": "Generate Mind Map",

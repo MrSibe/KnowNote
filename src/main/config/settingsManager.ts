@@ -1,15 +1,25 @@
 import type Store from 'electron-store'
 import type { AppSettings } from './types'
+import { defaultSettings } from './defaults'
 
 /**
- * 默认设置
+ * 深度合并设置对象
+ * 确保旧的存储数据能够获得新增的默认字段
  */
-const defaultSettings: AppSettings = {
-  theme: 'dark',
-  language: 'zh-CN',
-  autoLaunch: false,
-  defaultChatModel: undefined,
-  defaultEmbeddingModel: undefined
+function mergeSettings(stored: Partial<AppSettings>): AppSettings {
+  return {
+    theme: stored.theme ?? defaultSettings.theme,
+    language: stored.language ?? defaultSettings.language,
+    autoLaunch: stored.autoLaunch ?? defaultSettings.autoLaunch,
+    defaultChatModel: stored.defaultChatModel ?? defaultSettings.defaultChatModel,
+    defaultEmbeddingModel: stored.defaultEmbeddingModel ?? defaultSettings.defaultEmbeddingModel,
+    prompts: {
+      mindMap: {
+        'zh-CN': stored.prompts?.mindMap?.['zh-CN'] ?? defaultSettings.prompts!.mindMap!['zh-CN'],
+        'en-US': stored.prompts?.mindMap?.['en-US'] ?? defaultSettings.prompts!.mindMap!['en-US']
+      }
+    }
+  }
 }
 
 /**
@@ -34,8 +44,9 @@ export class SettingsManager {
     if (!this.storeCache) {
       return defaultSettings[key]
     }
-    const settings = this.storeCache.get('settings', defaultSettings)
-    return settings[key]
+    const storedSettings = this.storeCache.get('settings', {})
+    const mergedSettings = mergeSettings(storedSettings)
+    return mergedSettings[key]
   }
 
   /**
@@ -43,7 +54,8 @@ export class SettingsManager {
    */
   async getAllSettings(): Promise<AppSettings> {
     const store = await this.getStore()
-    return store.get('settings', defaultSettings)
+    const storedSettings = store.get('settings', {})
+    return mergeSettings(storedSettings)
   }
 
   /**

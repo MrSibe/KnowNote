@@ -90,4 +90,10 @@ export interface AppSettings {
   autoLaunch: boolean
   defaultChatModel?: string // 默认对话模型
   defaultEmbeddingModel?: string // 默认嵌入模型
+  prompts?: {
+    mindMap?: {
+      'zh-CN'?: string // 中文思维导图生成提示词
+      'en-US'?: string // 英文思维导图生成提示词
+    }
+  }
 }

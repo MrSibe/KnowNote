@@ -1,8 +1,9 @@
-import { Globe, Database, HelpCircle } from 'lucide-react'
+import { Globe, Database, HelpCircle, MessageSquare } from 'lucide-react'
 import { useState, useEffect, useMemo, ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import GeneralSettings from './GeneralSettings'
 import ProvidersSettings from './ProvidersSettings'
+import PromptsSettings from './PromptsSettings'
 import AboutSettings from './AboutSettings'
 import SettingsActionBar from './SettingsActionBar'
 import { ScrollArea } from '../ui/scroll-area'
@@ -59,6 +60,11 @@ export default function SettingsWindow(): ReactElement {
       id: 'provider',
       icon: Database,
       label: t('aiProviders')
+    },
+    {
+      id: 'prompts',
+      icon: MessageSquare,
+      label: t('promptSettings')
     },
     {
       id: 'about',
@@ -130,6 +136,10 @@ export default function SettingsWindow(): ReactElement {
             onProvidersChange={updatePendingProviders}
             onRefresh={refreshProviders}
           />
+        )
+      case 'prompts':
+        return (
+          <PromptsSettings settings={pendingSettings} onSettingsChange={updatePendingSettings} />
         )
       case 'about':
         return <AboutSettings />

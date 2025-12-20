@@ -121,5 +121,12 @@
   "enterApiKeyAndUrl": "Please enter API Key and API URL first",
   "apiUrlHint": "API endpoint URL for custom provider",
   "deleteProvider": "Delete Provider",
-  "deleteProviderConfirm": "Are you sure you want to delete provider \"{{name}}\"? This action cannot be undone."
+  "deleteProviderConfirm": "Are you sure you want to delete provider \"{{name}}\"? This action cannot be undone.",
+  "promptSettings": "Prompt Settings",
+  "mindMapPrompt": "Mind Map Generation Prompt",
+  "mindMapPromptDesc": "Customize the AI prompt used for generating mind maps",
+  "chinesePrompt": "Chinese Prompt",
+  "englishPrompt": "English Prompt",
+  "resetPrompt": "Reset to Default",
+  "promptPlaceholder": "Enter prompt content..."
 }

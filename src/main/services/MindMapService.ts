@@ -14,6 +14,7 @@ import { AISDKProvider } from '../providers/base/AISDKProvider'
 import { streamObject } from 'ai'
 import { z } from 'zod'
 import Logger from '../../shared/utils/logger'
+import { settingsManager } from '../config'
 
 /**
  * 进度回调函数类型
@@ -26,7 +27,7 @@ export type MindMapProgressCallback = (stage: string, progress: number) => void
 const MindMapNodeSchema: z.ZodType<MindMapTreeNode> = z.lazy(() =>
   z.object({
     id: z.string().describe('节点唯一ID'),
-    label: z.string().max(12).describe('节点标签,必须 ≤ 12字'),
+    label: z.string().max(24).describe('节点标签，中文≤12字，英文≤24字符'),
     children: z.array(MindMapNodeSchema).optional().describe('子节点数组,每个父节点2-5个子节点'),
     metadata: z
       .object({
@@ -47,20 +48,22 @@ const MindMapSchema = z.object({
 })
 
 /**
- * Prompt模板
+ * 获取思维导图生成 Prompt（支持国际化）
+ * 从设置中获取对应语言的提示词
  */
-const MINDMAP_GENERATION_PROMPT = `你是知识结构分析专家,负责从笔记本内容中提炼核心知识结构。
+async function getMindMapPrompt(): Promise<string> {
+  const settings = await settingsManager.getAllSettings()
+  const language = settings.language || 'zh-CN'
 
-**要求:**
-1. 节点文字必须 ≤ 12字,高度概括
-2. 层级深度 ≤ 4层 (根节点为第0层)
-3. 每个父节点 2-5 个子节点
-4. 尽可能关联相关的chunk ID到节点metadata中
+  // 直接从 settings 获取提示词，mergeSettings 已经确保了默认值存在
+  const prompt = settings.prompts?.mindMap?.[language]
 
-**笔记本内容:**
-{{CONTENT}}
+  if (!prompt) {
+    throw new Error(`未找到 ${language} 语言的思维导图提示词`)
+  }
 
-请基于以上内容生成思维导图结构。`
+  return prompt
+}
 
 /**
  * 思维导图服务
@@ -140,7 +143,8 @@ export class MindMapService {
 
     Logger.info('MindMapService', `Using provider: ${provider.name}`)
 
-    const prompt = MINDMAP_GENERATION_PROMPT.replace('{{CONTENT}}', content)
+    const promptTemplate = await getMindMapPrompt()
+    const prompt = promptTemplate.replace('{{CONTENT}}', content)
 
     try {
       onProgress?.('generating_mindmap', 30)
@@ -284,6 +288,10 @@ export class MindMapService {
         throw new Error('笔记本不存在')
       }
 
+      // 获取当前语言设置
+      const settings = await settingsManager.getAllSettings()
+      const language = settings.language || 'zh-CN'
+
       // 获取当前版本号
       const latestVersion = db
         .select({ version: mindMaps.version })
@@ -295,10 +303,14 @@ export class MindMapService {
 
       const newVersion = (latestVersion?.version || 0) + 1
 
+      // 根据语言生成标题
+      const titleTemplate =
+        language === 'en-US' ? `${notebook.title} Mind Map` : `${notebook.title}的思维导图`
+
       const newMindMap: NewMindMap = {
         id: mindMapId,
         notebookId,
-        title: `${notebook.title}的思维导图`,
+        title: titleTemplate,
         version: newVersion,
         treeData: { id: 'root', label: '', children: [] } as any,
         chunkMapping: {} as any,

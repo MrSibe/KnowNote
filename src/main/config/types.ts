@@ -1,13 +1,4 @@
-/**
- * 应用设置接口
- */
-export interface AppSettings {
-  theme: 'light' | 'dark'
-  language: 'zh-CN' | 'en-US'
-  autoLaunch: boolean
-  defaultChatModel?: string // 默认对话模型
-  defaultEmbeddingModel?: string // 默认嵌入模型
-}
+import type { AppSettings } from '../../shared/types'
 
 /**
  * 提供商配置接口
@@ -26,3 +17,6 @@ export interface StoreSchema {
   settings: AppSettings
   providers: Record<string, ProviderConfig>
 }
+
+// 重新导出 AppSettings 以保持向后兼容
+export type { AppSettings }

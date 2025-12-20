@@ -78,5 +78,12 @@
   "enterApiKeyAndUrl": "请先输入 API Key 和 API 地址",
   "apiUrlHint": "自定义供应商的 API 端点地址",
   "deleteProvider": "删除供应商",
-  "deleteProviderConfirm": "确定要删除供应商 \"{{name}}\" 吗？此操作无法撤销。"
+  "deleteProviderConfirm": "确定要删除供应商 \"{{name}}\" 吗？此操作无法撤销。",
+  "promptSettings": "提示词设置",
+  "mindMapPrompt": "思维导图生成提示词",
+  "mindMapPromptDesc": "自定义思维导图生成时使用的AI提示词",
+  "chinesePrompt": "中文提示词",
+  "englishPrompt": "英文提示词",
+  "resetPrompt": "恢复默认",
+  "promptPlaceholder": "请输入提示词内容..."
 }

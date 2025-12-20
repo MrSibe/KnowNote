@@ -1,16 +1,6 @@
 import type Store from 'electron-store'
-import type { StoreSchema, AppSettings } from './types'
-
-/**
- * 默认设置
- */
-const defaultSettings: AppSettings = {
-  theme: 'dark',
-  language: 'zh-CN',
-  autoLaunch: false,
-  defaultChatModel: undefined,
-  defaultEmbeddingModel: undefined
-}
+import type { StoreSchema } from './types'
+import { defaultSettings } from './defaults'
 
 /**
  * 创建 electron-store 实例（使用动态导入）
