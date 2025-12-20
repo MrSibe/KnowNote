@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { Handle, Position, NodeProps } from '@xyflow/react'
 
-export interface CustomNodeData {
+export interface CustomNodeData extends Record<string, unknown> {
   label: string
   level: number
   direction?: 'TB' | 'LR'
@@ -12,12 +12,9 @@ export interface CustomNodeData {
   }
 }
 
-function CustomNode({
-  data,
-  sourcePosition,
-  targetPosition
-}: NodeProps<{ label: string; level: number; direction?: 'TB' | 'LR'; metadata?: any }>) {
-  const level = data.level || 0
+function CustomNode({ data, sourcePosition, targetPosition }: NodeProps) {
+  const nodeData = data as CustomNodeData
+  const level = nodeData.level || 0
 
   // 根据层级选择不同的样式
   const getNodeStyle = (level: number) => {
@@ -87,9 +84,19 @@ function CustomNode({
 
   return (
     <div style={getNodeStyle(level)}>
-      <Handle type="target" position={targetPosition || Position.Left} style={{ opacity: 0 }} />
-      {data.label}
-      <Handle type="source" position={sourcePosition || Position.Right} style={{ opacity: 0 }} />
+      <Handle
+        type="target"
+        position={targetPosition || Position.Left}
+        style={{ opacity: 0 }}
+        isConnectable={false}
+      />
+      {nodeData.label}
+      <Handle
+        type="source"
+        position={sourcePosition || Position.Right}
+        style={{ opacity: 0 }}
+        isConnectable={false}
+      />
     </div>
   )
 }

@@ -12,7 +12,7 @@ import {
 import '@xyflow/react/dist/style.css'
 import * as dagre from '@dagrejs/dagre'
 import { useMindMapStore } from '../../../store/mindmapStore'
-import CustomNode from './CustomNode'
+import CustomNode, { CustomNodeData } from './CustomNode'
 import type { MindMap } from '../../../../../main/db/schema'
 import type { MindMapTreeNode } from '../../../../../shared/types/mindmap'
 
@@ -86,7 +86,7 @@ function treeToFlowElements(
       id: node.id,
       type: 'custom',
       position: { x: 0, y: 0 }, // 初始位置，将由 dagre 计算
-      data: { label: node.label, level, metadata: node.metadata }
+      data: { label: node.label, level, direction, metadata: node.metadata } as CustomNodeData
       // sourcePosition 和 targetPosition 将在 getLayoutedElements 中设置
     })
 
@@ -140,7 +140,7 @@ export default function MindMapCanvas({ mindMap, direction = 'LR' }: MindMapCanv
     setEdges(newEdges)
   }, [mindMap, direction, setNodes, setEdges])
 
-  const handleNodeClick = async (_: any, node: Node) => {
+  const handleNodeClick = async (_: React.MouseEvent, node: Node) => {
     await loadNodeChunks(mindMap.id, node.id)
   }
 

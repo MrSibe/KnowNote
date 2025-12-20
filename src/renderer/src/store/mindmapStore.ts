@@ -71,11 +71,11 @@ export const useMindMapStore = create<MindMapStore>()((set) => ({
     set({ isGenerating: true, generationProgress: { stage: 'starting', progress: 0 } })
     try {
       const result = await window.api.mindmap.generate(notebookId)
-      if (result.success) {
+      if (result.success && result.mindMapId) {
         const mindMap = await window.api.mindmap.get(result.mindMapId)
         set({ currentMindMap: mindMap, isGenerating: false, generationProgress: null })
       } else {
-        throw new Error(result.error)
+        throw new Error(result.error || 'Failed to generate mind map')
       }
     } catch (error) {
       console.error('Failed to generate mind map:', error)

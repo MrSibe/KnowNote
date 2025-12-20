@@ -48,9 +48,9 @@ export default function NodeDetailPanel() {
                 <div className="text-xs text-muted-foreground">
                   {t('source')}: {chunk.documentTitle}
                 </div>
-                <ReactMarkdown className="text-sm prose prose-sm max-w-none dark:prose-invert">
-                  {chunk.content}
-                </ReactMarkdown>
+                <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{chunk.content}</ReactMarkdown>
+                </div>
                 <Button
                   size="sm"
                   variant="outline"
