@@ -38,7 +38,7 @@ export class ItemService {
       let resource: any = null
 
       switch (item.type) {
-        case 'note':
+        case 'note': {
           const noteResult = await db
             .select()
             .from(notes)
@@ -46,8 +46,9 @@ export class ItemService {
             .limit(1)
           resource = noteResult[0] || null
           break
+        }
 
-        case 'mindmap':
+        case 'mindmap': {
           const mindMapResult = await db
             .select()
             .from(mindMaps)
@@ -55,6 +56,7 @@ export class ItemService {
             .limit(1)
           resource = mindMapResult[0] || null
           break
+        }
 
         // 未来可以添加更多类型
         default:

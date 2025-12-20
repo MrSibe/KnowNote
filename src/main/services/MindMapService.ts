@@ -72,7 +72,7 @@ export class MindMapService {
   constructor(
     private providerManager: ProviderManager
     // Reserved for future use
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     // private _knowledgeService: KnowledgeService
   ) {}
 
@@ -162,6 +162,7 @@ export class MindMapService {
       // 监听流式更新 (可选,用于显示进度)
       let lastProgress = 30
       let chunkCount = 0
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for await (const _partialObject of partialObjectStream) {
         // 根据生成进度更新
         chunkCount++
