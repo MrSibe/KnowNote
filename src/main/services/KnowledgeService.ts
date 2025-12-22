@@ -214,7 +214,7 @@ export class KnowledgeService {
       onProgress?.('generating_embeddings', 30)
       const embeddingResults = await this.embeddingService.embedBatch(
         chunkContents,
-        undefined,
+        { dimensions: 1024 }, // 显式指定 1024 维
         (completed, total) => {
           const progress = 30 + (completed / total) * 50
           onProgress?.('generating_embeddings', Math.round(progress))
@@ -398,7 +398,7 @@ export class KnowledgeService {
       onProgress?.('generating_embeddings', 30)
       const embeddingResults = await this.embeddingService.embedBatch(
         chunkContents,
-        undefined,
+        { dimensions: 1024 }, // 显式指定 1024 维
         (completed, total) => {
           const progress = 30 + (completed / total) * 50
           onProgress?.('generating_embeddings', Math.round(progress))
