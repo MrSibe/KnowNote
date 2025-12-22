@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Plus, FileText, Globe, FileUp, Loader2, StickyNote, ArrowLeft } from 'lucide-react'
 import { useKnowledgeStore, setupKnowledgeListeners } from '../../store/knowledgeStore'
-import { useNoteStore } from '../../store/noteStore'
+import { useItemStore } from '../../store/itemStore'
 import { ScrollArea } from '../ui/scroll-area'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
@@ -255,7 +255,7 @@ export default function SourcePanel(): ReactElement {
     selectFiles
   } = useKnowledgeStore()
 
-  const { notes, loadNotes } = useNoteStore()
+  const { notes, loadNotes } = useItemStore()
 
   // 加载默认嵌入模型设置
   useEffect(() => {

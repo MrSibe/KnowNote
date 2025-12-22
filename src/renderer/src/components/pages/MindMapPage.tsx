@@ -14,7 +14,21 @@ export default function MindMapPage() {
 
   const [isLoading, setIsLoading] = useState(true)
   const [direction, setDirection] = useState<'TB' | 'LR'>('LR')
+  const [platform, setPlatform] = useState<string>('')
   const mindMapContainerRef = useRef<HTMLDivElement>(null)
+
+  // 获取平台信息
+  useEffect(() => {
+    const getPlatform = async () => {
+      try {
+        const platformName = await window.api.getPlatform()
+        setPlatform(platformName)
+      } catch (error) {
+        console.error('Failed to get platform:', error)
+      }
+    }
+    getPlatform()
+  }, [])
 
   // 加载思维导图
   useEffect(() => {
@@ -178,8 +192,13 @@ export default function MindMapPage() {
         className="absolute top-0 left-0 right-0 h-10 z-10 flex items-center justify-between px-4 bg-background"
         style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       >
-        <div style={{ width: '100px' }}></div>
+        {/* macOS 左侧空白区域（留给窗口控制按钮） */}
+        {platform === 'darwin' && <div className="w-16"></div>}
+        {/* 非 macOS 左侧空白区域 */}
+        {platform !== 'darwin' && <div style={{ width: '100px' }}></div>}
+
         <span className="text-sm text-muted-foreground font-medium">{t('mindMap')}</span>
+
         <div
           className="flex items-center gap-2"
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
@@ -207,6 +226,9 @@ export default function MindMapPage() {
             </>
           )}
         </div>
+
+        {/* Windows 右侧空白区域（留给窗口控制按钮） */}
+        {platform === 'win32' && <div className="w-32"></div>}
       </div>
 
       {/* 内容区域 */}

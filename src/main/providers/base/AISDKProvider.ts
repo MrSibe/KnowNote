@@ -342,9 +342,13 @@ export class AISDKProvider implements BaseProvider {
         ? (this.aiProvider as any).embedding(modelId) // Ollama: embedding
         : (this.aiProvider as any).textEmbeddingModel(modelId) // OpenAI, DeepSeek, Qwen, OpenAI-Compatible: textEmbeddingModel
 
+    // 构建 providerOptions
+    const providerOptions = this.buildProviderOptions(config)
+
     const result = await embed({
       model: embeddingModel,
-      value: text
+      value: text,
+      ...(providerOptions && { providerOptions }) // 条件添加 providerOptions
     })
 
     return {
@@ -387,9 +391,13 @@ export class AISDKProvider implements BaseProvider {
         ? (this.aiProvider as any).embedding(modelId) // Ollama: embedding
         : (this.aiProvider as any).textEmbeddingModel(modelId) // OpenAI, DeepSeek, Qwen, OpenAI-Compatible: textEmbeddingModel
 
+    // 构建 providerOptions
+    const providerOptions = this.buildProviderOptions(config)
+
     const result = await embedMany({
       model: embeddingModel,
-      values: texts
+      values: texts,
+      ...(providerOptions && { providerOptions }) // 条件添加 providerOptions
     })
 
     const totalTokens = result.usage?.tokens || 0
@@ -411,6 +419,37 @@ export class AISDKProvider implements BaseProvider {
       throw new Error(`Provider ${this.name} does not support embedding capability`)
     }
     return this.descriptor.defaultEmbeddingModel || ''
+  }
+
+  /**
+   * 构建 provider-specific 选项
+   * 根据 provider 类型和配置生成 providerOptions
+   */
+  private buildProviderOptions(config?: EmbeddingConfig): Record<string, any> | undefined {
+    if (!config?.dimensions) {
+      return undefined
+    }
+
+    // 支持 dimensions 参数的 providers（白名单机制）
+    const supportedProviders = ['openai', 'deepseek', 'zhipu', 'siliconflow', 'openai-compatible']
+
+    if (!supportedProviders.includes(this.name)) {
+      Logger.debug(
+        'AISDKProvider',
+        `Provider ${this.name} does not support dimensions parameter, ignoring`
+      )
+      return undefined
+    }
+
+    // 对于 OpenAI 兼容的 provider，使用统一的格式
+    // SiliconFlow 使用 'openai' 作为 providerKey
+    const providerKey = this.name === 'siliconflow' ? 'openai' : this.name
+
+    return {
+      [providerKey]: {
+        dimensions: config.dimensions
+      }
+    }
   }
 
   // ==================== 向后兼容方法(已废弃) ====================

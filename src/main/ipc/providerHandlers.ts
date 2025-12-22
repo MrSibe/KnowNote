@@ -79,6 +79,7 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
     validate(ProviderSchemas.fetchModels, async (args) => {
       try {
         let url = ''
+        let rawModels: any[] = []
 
         // 内置供应商使用硬编码的 URL
         if (args.providerName === 'openai') {
@@ -92,10 +93,73 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         } else if (args.providerName === 'kimi') {
           url = 'https://api.moonshot.cn/v1/models'
         } else if (args.providerName === 'ollama') {
-          // Ollama: 从配置获取 baseUrl，支持自定义服务器地址
+          // Ollama: 先尝试 OpenAI 兼容格式，失败后回退到原生格式
           const providerConfig = await providersManager.getProviderConfig(args.providerName)
-          const baseUrl = providerConfig?.config.baseUrl || 'http://localhost:11434/api'
-          url = baseUrl.endsWith('/') ? `${baseUrl}tags` : `${baseUrl}/tags`
+          const baseUrl = providerConfig?.config.baseUrl || 'http://localhost:11434'
+
+          // 移除末尾的 /api 或 / (如果存在)
+          const cleanBaseUrl = baseUrl.replace(/\/(api)?\/?$/, '')
+
+          // 尝试 OpenAI 兼容格式
+          const openaiUrl = `${cleanBaseUrl}/v1/models`
+          console.log(`[Ollama] Trying OpenAI-compatible format: ${openaiUrl}`)
+
+          try {
+            const openaiResponse = await fetch(openaiUrl, {
+              method: 'GET',
+              headers: {
+                Accept: 'application/json'
+              }
+            })
+
+            if (openaiResponse.ok) {
+              const openaiData = await openaiResponse.json()
+              rawModels = openaiData.data || []
+              console.log(
+                `[Ollama] Successfully fetched ${rawModels.length} models using OpenAI format`
+              )
+            } else {
+              throw new Error(`OpenAI format failed with status: ${openaiResponse.status}`)
+            }
+          } catch (openaiError) {
+            // 回退到 Ollama 原生格式
+            console.log(
+              `[Ollama] OpenAI format failed, falling back to native format:`,
+              openaiError
+            )
+            const nativeUrl = `${cleanBaseUrl}/api/tags`
+            console.log(`[Ollama] Trying native format: ${nativeUrl}`)
+
+            const nativeResponse = await fetch(nativeUrl, {
+              method: 'GET',
+              headers: {
+                Accept: 'application/json'
+              }
+            })
+
+            if (!nativeResponse.ok) {
+              throw new Error(`HTTP error! status: ${nativeResponse.status}`)
+            }
+
+            const nativeData = await nativeResponse.json()
+            rawModels = nativeData.models || []
+            console.log(
+              `[Ollama] Successfully fetched ${rawModels.length} models using native format`
+            )
+          }
+
+          // Ollama 特殊处理，直接规范化并返回
+          const normalizedModels = rawModels.map((model: any) => ({
+            id: model.id || model.name || '',
+            object: model.object || 'model',
+            owned_by: model.owned_by,
+            created: model.created,
+            type: model.type
+          }))
+
+          const modelsWithType = enrichModelsWithType(normalizedModels)
+          await providersManager.saveProviderModels(args.providerName, modelsWithType)
+          return modelsWithType
         } else if (args.providerName === 'zhipu') {
           url = 'https://open.bigmodel.cn/api/paas/v4/models'
         } else {
@@ -108,6 +172,7 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
           url = baseUrl.endsWith('/') ? `${baseUrl}models` : `${baseUrl}/models`
         }
 
+        // 其他 provider 的通用处理
         const headers: Record<string, string> = {
           Accept: 'application/json',
           Authorization: `Bearer ${args.apiKey}`
@@ -123,7 +188,7 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
         }
 
         const data = await response.json()
-        const rawModels = data.data || data.models || []
+        rawModels = data.data || data.models || []
 
         // 规范化模型对象（Ollama 使用 name 字段，其他使用 id 字段）
         const normalizedModels = rawModels.map((model: any) => ({
