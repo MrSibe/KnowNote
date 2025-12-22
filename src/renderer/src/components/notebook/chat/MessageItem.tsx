@@ -8,7 +8,7 @@ import { BookPlus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ChatMessage } from '../../../types/notebook'
 import ReasoningContent from './ReasoningContent'
-import { useNoteStore } from '../../../store/noteStore'
+import { useItemStore } from '../../../store/itemStore'
 import { useNotebookStore } from '../../../store/notebookStore'
 import { Button } from '../../ui/button'
 import { ScrollArea, ScrollBar } from '../../ui/scroll-area'
@@ -28,7 +28,7 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
   const [copied, setCopied] = useState(false)
   const [addedToNote, setAddedToNote] = useState(false)
 
-  const { createNote } = useNoteStore()
+  const { createNote } = useItemStore()
   const { currentNotebook } = useNotebookStore()
 
   // Copy message content
