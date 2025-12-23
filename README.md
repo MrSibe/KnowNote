@@ -78,6 +78,7 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 
 - **AI LLM Conversation** - Integration with major LLM services
 - **Note Generation** - Intelligent structured note generation
+- **Mind Map Generation** - Generate mind maps from conversations with one click
 - **RAG Document Retrieval** - Vector-based semantic search
 - **Multi-format Document Import**
   - PDF document parsing
@@ -90,7 +91,6 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 - **Audio Upload** - Parse information from audio files
 - **Quiz Generation** - Automatically generate test questions from documents
 - **PPT Auto-Generation** - One-click presentation creation from notes
-- **Mind Map Generation** - Generate mind maps from conversations with one click
 
 ### 📋 Planned
 
