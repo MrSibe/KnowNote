@@ -2,6 +2,9 @@
 
 # KnowNote
 
+> A local-first, open-source alternative to Google NotebookLM  
+> Built for learners and developers who want private LLMs, no Docker, and full control.
+
 **Transform your documents into an intelligent, conversational knowledge base**
 
 [![GitHub release](https://img.shields.io/github/v/release/MrSibe/KnowNote)](https://github.com/MrSibe/KnowNote/releases)
@@ -15,17 +18,48 @@
 
 ---
 
-## About KnowNote
+## Why KnowNote?
 
-KnowNote is a **local-first** knowledge management tool inspired by Google NotebookLM. It transforms your PDFs, Word documents, PowerPoint presentations, and web pages into a queryable, citable, and traceable personal knowledge base.
+I really like the idea behind **Google NotebookLM**:
+upload documents, build context, and reason over them with LLMs.
 
-Rather than treating files as static storage, KnowNote helps you build a structured, searchable, and conversational knowledge system. By combining document parsing, vector search, and Retrieval-Augmented Generation (RAG), KnowNote helps you understand, connect, and reuse information—not just store it.
+But I wanted a few things it doesn’t give me:
 
-### Core Advantages
+- Using my own **private or self-managed LLM APIs**
+- Keeping **all data local**, without cloud lock-in
+- Trying the tool **without Docker or complex deployment**
 
-- 🔒 **Local-First** - All data stored locally, complete privacy and security
-- 🤖 **Custom LLM** - Support for OpenAI, DeepSeek, Ollama, and more AI services
-- ⚡ **Lightweight & Fast** - Electron desktop app with quick startup and smooth response
+While exploring GitHub, I found many impressive “Open Notebook” projects.
+They are powerful and well-designed — but almost all of them rely on Docker.
+For beginners and non-backend users, that alone can be a deal-breaker.
+
+So I built **KnowNote**:  
+a simple Electron-based desktop app that brings NotebookLM-style workflows
+to a **local-first, Docker-free environment**.
+
+This is my **first open-source project**.  
+It’s still early, but the core idea works — and I’m excited to share it and learn from the community.
+
+---
+
+## What KnowNote does (so far)
+
+- 📚 Build a local knowledge base from documents and notes
+- 💬 Chat, summarize, and reason with your content using LLMs
+- 🔌 Provider-based LLM design (OpenAI, DeepSeek, Ollama, and more)
+- 🔍 RAG-powered retrieval with precise source traceability
+- 🖥️ Desktop app built with Electron — no Docker, no server setup
+
+---
+
+## Who is this for?
+
+KnowNote is for you if:
+
+- You like NotebookLM but want more control
+- You prefer using private or self-hosted LLM APIs
+- You don’t want to spin up Docker just to try an idea
+- You want a simple desktop app for learning and research
 
 ---
 
@@ -33,7 +67,7 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 
 <div align="center">
   <img src="./.github/images/screenshot-main.png" alt="KnowNote Main Interface" width="800">
-  <p><i>Three-column layout: Knowledge Library | AI Q&A | Note Output</i></p>
+  <p><i>Three-column layout: Knowledge Library · AI Q&A · Note Output</i></p>
 </div>
 
 ---
@@ -41,172 +75,86 @@ Rather than treating files as static storage, KnowNote helps you build a structu
 ## Key Features
 
 ### 📚 Document Management
-
-- **Multi-format Support**: PDF, Word (.docx), PowerPoint (.pptx), Web links
-- **Smart Parsing**: Automatically extract document structure and key content
-- **Structured Storage**: Fast and reliable SQLite local database
+- PDF, Word (.docx), PowerPoint (.pptx), and web pages
+- Automatic structure parsing and content extraction
+- Fast local storage with SQLite
 
 ### 🤖 AI-Powered Q&A
+- Retrieval-Augmented Generation (RAG)
+- Multiple LLM providers
+- Answers with precise source references
 
-- **RAG Technology**: Retrieval-Augmented Generation for more accurate AI responses
-- **Multi-LLM Support**: Choose from OpenAI, DeepSeek, Ollama, and more
-- **Source Traceability**: Every answer traces back to the specific location in the original document
-
-### 🔒 Local-First
-
-- **Privacy Protection**: All data stored locally, complete control over your knowledge assets
-- **Offline Capable**: Core features work without internet (AI chat requires API configuration)
-- **Data Security**: No worries about data leaks or third-party access
+### 🔒 Local-First by Design
+- All data stored locally
+- Offline-friendly (LLM APIs optional)
+- Full control over your knowledge assets
 
 ### 🔍 Vector Search
+- Semantic search with sqlite-vec
+- Fast and accurate retrieval
 
-- **Semantic Search**: Efficient vector retrieval using sqlite-vec
-- **Smart Matching**: Quickly locate the most relevant document content
-- **Precise Positioning**: Find the information you need in vast knowledge
+### ⚡ Lightweight & Cross-Platform
+- Electron-based desktop app
+- Windows and macOS support
 
-### ⚡ Lightweight & Fast
+---
 
-- **Desktop App**: Built with Electron for native experience
-- **Quick Response**: Optimized performance with smooth interaction
-- **Cross-Platform**: Windows and macOS support
+## Project Status
+
+KnowNote is an early-stage project.  
+Some parts are still rough, but the foundation is in place.
+
+I’m sharing it mainly to:
+- learn from real usage
+- improve learning and research workflows
+- explore better knowledge visualization and retrieval
+
+Feedback and suggestions are very welcome.
 
 ---
 
 ## Roadmap
 
 ### ✅ Completed
-
-- **AI LLM Conversation** - Integration with major LLM services
-- **Note Generation** - Intelligent structured note generation
-- **Mind Map Generation** - Generate mind maps from conversations with one click
-- **RAG Document Retrieval** - Vector-based semantic search
-- **Multi-format Document Import**
-  - PDF document parsing
-  - Word documents (.docx)
-  - PowerPoint presentations (.pptx)
-  - Web content extraction
+- AI LLM conversation with multiple providers
+- Structured note generation
+- One-click mind map generation
+- RAG-based document retrieval
+- Multi-format document import (PDF / Word / PPT / Web)
 
 ### 🚧 In Development
-
-- **Audio Upload** - Parse information from audio files
-- **Quiz Generation** - Automatically generate test questions from documents
-- **PPT Auto-Generation** - One-click presentation creation from notes
+- Audio upload and transcription
+- Quiz generation from documents
+- One-click PPT generation from notes
 
 ### 📋 Planned
-
-More features are in the pipeline! Feel free to suggest ideas in [Issues](https://github.com/MrSibe/KnowNote/issues)!
+More ideas are in the pipeline — feel free to suggest features in Issues.
 
 ---
 
 ## Quick Start
 
-### User Installation
-
-Download the latest version from [GitHub Releases](https://github.com/MrSibe/KnowNote/releases):
+### Download
+Get the latest version from GitHub Releases:
 
 - **Windows**: `KnowNote-Setup-{version}.exe`
-- **macOS**: `KnowNote-{version}.dmg` or `KnowNote-{version}-arm64.dmg` (Apple Silicon)
+- **macOS**: `KnowNote-{version}.dmg` / `KnowNote-{version}-arm64.dmg`
 
-### Developer Quick Start
-
-**Prerequisites**
-
-- Node.js 18+
-- pnpm (recommended) or npm
-
-**Installation & Run**
-
+### Development
 ```bash
-# Clone the repository
 git clone https://github.com/MrSibe/KnowNote.git
 cd KnowNote
-
-# Install dependencies
 pnpm install
-
-# Start development server
 pnpm dev
-```
+````
 
 ---
 
 ## Tech Stack
 
-KnowNote is built with modern technologies to ensure performance and maintainability:
-
-| Technology       | Purpose                                      |
-| ---------------- | -------------------------------------------- |
-| **Electron**     | Cross-platform desktop application framework |
-| **React 19**     | Frontend UI framework                        |
-| **TypeScript**   | Type-safe development experience             |
-| **TailwindCSS**  | Atomic CSS framework                         |
-| **Vite**         | Fast build tool                              |
-| **SQLite**       | Lightweight local database                   |
-| **sqlite-vec**   | Vector search extension                      |
-| **Drizzle ORM**  | Type-safe database ORM                       |
-| **pdfjs-dist**   | PDF document parsing                         |
-| **mammoth**      | Word document parsing                        |
-| **officeparser** | Office document parsing                      |
-| **Tiptap**       | Rich text editor                             |
-
----
-
-## Development Guide
-
-<details>
-<summary><b>📦 Build Application</b></summary>
-
-```bash
-# Build for Windows
-pnpm build:win
-
-# Build for macOS
-pnpm build:mac
-
-# Build for Linux
-pnpm build:linux
-```
-
-Build artifacts will be output to the `dist/` directory.
-
-</details>
-
-<details>
-<summary><b>🗄️ Database Management</b></summary>
-
-KnowNote uses Drizzle ORM for database management:
-
-```bash
-# Generate migration files
-pnpm db:generate
-
-# Run database migrations
-pnpm db:migrate
-
-# Push schema changes directly (dev environment)
-pnpm db:push
-
-# Open Drizzle Studio (visual database management)
-pnpm db:studio
-```
-
-</details>
-
-<details>
-<summary><b>🔧 Code Quality</b></summary>
-
-```bash
-# Format code
-pnpm format
-
-# Lint code
-pnpm lint
-
-# Type check
-pnpm typecheck
-```
-
-</details>
+Electron · React · TypeScript · Vite · TailwindCSS
+SQLite · sqlite-vec · Drizzle ORM
+pdfjs-dist · mammoth · officeparser · Tiptap
 
 ---
 
@@ -217,64 +165,50 @@ KnowNote/
 ├── src/
 │   ├── main/              # Electron main process
 │   │   ├── db/            # Database configuration and schema
-│   │   ├── services/      # Core business logic (document parsing, RAG, etc.)
-│   │   └── providers/     # LLM provider management
-│   ├── renderer/          # React renderer process (frontend UI)
+│   │   ├── services/      # Core logic (document parsing, RAG, etc.)
+│   │   └── providers/     # LLM provider abstraction
+│   ├── renderer/          # React renderer process
 │   ├── preload/           # Electron preload scripts
-│   └── shared/            # Shared code and type definitions
-├── resources/             # Application resources (icons, etc.)
+│   └── shared/            # Shared types and utilities
+├── resources/             # App resources (icons, etc.)
 ├── build/                 # Build configuration
 └── out/                   # Build output
 ```
 
 ---
 
-## Contributing
+## Feedback & Contributions
 
-We welcome all forms of contributions! Whether it's reporting bugs, suggesting new features, or submitting code directly.
+Issues, discussions, and pull requests are all welcome.
 
-### How to Contribute
+If you have ideas about:
 
-1. **Report Issues**: Submit bug reports or feature suggestions on the [Issues](https://github.com/MrSibe/KnowNote/issues) page
-2. **Submit Code**:
-   - Fork this repository
-   - Create your feature branch (`git checkout -b feature/AmazingFeature`)
-   - Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-   - Push to the branch (`git push origin feature/AmazingFeature`)
-   - Open a Pull Request
+* learning workflows
+* knowledge visualization
+* model/provider abstraction
 
-### Support the Project
-
-If you find KnowNote helpful, please consider:
-
-- Give the project a ⭐ Star
-- Share it with others who might need it
-- Provide feedback and suggestions in [Issues](https://github.com/MrSibe/KnowNote/issues)
+I’d love to hear them.
 
 ---
 
 ## License
 
-This project is licensed under the [GPL-3.0 License](LICENSE).
+This project is licensed under the **GPL-3.0 License**.
 
 ---
 
 ## Acknowledgments
 
-Thanks to the following open source projects and technologies:
-
-- [Google NotebookLM](https://notebooklm.google/) - Source of inspiration
-- [Electron](https://www.electronjs.org/) - Cross-platform desktop application framework
-- [React](https://react.dev/) - UI framework
-- [SQLite](https://www.sqlite.org/) & [sqlite-vec](https://github.com/asg017/sqlite-vec) - Data storage and vector retrieval
+* Google NotebookLM — inspiration
+* Electron — cross-platform desktop framework
+* React — UI framework
+* SQLite & sqlite-vec — local storage and vector retrieval
 
 ---
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=MrSibe/KnowNote&type=timeline&legend=top-left)](https://www.star-history.com/#MrSibe/KnowNote&type=timeline&legend=top-left)
+If this project resonates with you, feel free to try it, star it, or leave feedback.
+Thanks for checking it out 🙏
 
 <div align="center">
   <p>Built with ❤️ by <a href="https://github.com/MrSibe">@MrSibe</a></p>
-  <p>If this project helps you, please give it a ⭐ Star!</p>
 </div>
