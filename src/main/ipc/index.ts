@@ -5,6 +5,7 @@ import { UpdateService } from '../services/UpdateService'
 import { MindMapService } from '../services/MindMapService'
 import { ShortcutManager } from '../services/ShortcutManager'
 import type Store from 'electron-store'
+import type { StoreSchema } from '../config/types'
 import { registerChatHandlers } from './chatHandlers'
 import { registerProviderHandlers } from './providerHandlers'
 import { registerSettingsHandlers } from './settingsHandlers'
@@ -25,7 +26,7 @@ export function registerAllHandlers(
   knowledgeService: KnowledgeService,
   updateService: UpdateService,
   shortcutManager: ShortcutManager,
-  store: Store
+  store: Store<StoreSchema>
 ) {
   // 实例化 MindMapService
   const mindMapService = new MindMapService(providerManager)

@@ -2,18 +2,19 @@ import { Menu, BrowserWindow } from 'electron'
 import type Store from 'electron-store'
 import { ShortcutConfig, ShortcutAction } from '../../shared/types'
 import { defaultShortcuts } from '../config/defaults'
+import type { StoreSchema } from '../config/types'
 
 /**
  * 快捷键管理器
  * 负责注册、注销和管理应用快捷键
  */
 export class ShortcutManager {
-  private store: Store
+  private store: Store<StoreSchema>
   private mainWindow: BrowserWindow | null = null
   private shortcuts: ShortcutConfig[] = []
   private keyboardHandler: ((event: Event, input: Electron.Input) => void) | null = null
 
-  constructor(store: Store) {
+  constructor(store: Store<StoreSchema>) {
     this.store = store
   }
 
