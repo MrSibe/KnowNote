@@ -133,13 +133,14 @@ export default function NotebookList(): ReactElement {
               {/* 笔记本网格 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                 {notebooks.map((notebook) => (
-                  <NotebookCard
-                    key={notebook.id}
-                    notebook={notebook}
-                    onClick={() => handleNotebookClick(notebook.id)}
-                    onDelete={() => handleOpenDeleteDialog(notebook.id)}
-                    onRename={() => handleOpenRenameDialog(notebook.id)}
-                  />
+                  <div key={notebook.id} className="stagger-item">
+                    <NotebookCard
+                      notebook={notebook}
+                      onClick={() => handleNotebookClick(notebook.id)}
+                      onDelete={() => handleOpenDeleteDialog(notebook.id)}
+                      onRename={() => handleOpenRenameDialog(notebook.id)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
