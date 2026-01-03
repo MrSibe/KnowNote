@@ -1,4 +1,5 @@
 import type { AppSettings } from './types'
+import { ShortcutAction, type ShortcutConfig } from '../../shared/types'
 
 /**
  * 默认设置 - 单一数据源
@@ -87,3 +88,44 @@ Please generate a mind map structure based on the above content, strictly follow
     }
   }
 }
+
+/**
+ * 默认快捷键配置
+ */
+export const defaultShortcuts: ShortcutConfig[] = [
+  // 笔记本管理
+  {
+    action: ShortcutAction.CREATE_NOTEBOOK,
+    accelerator: 'CommandOrControl+N',
+    enabled: true,
+    description: 'shortcuts:createNotebook'
+  },
+  {
+    action: ShortcutAction.CLOSE_NOTEBOOK,
+    accelerator: 'Escape',
+    enabled: true,
+    description: 'shortcuts:closeNotebook'
+  },
+
+  // 面板切换
+  {
+    action: ShortcutAction.TOGGLE_KNOWLEDGE_BASE,
+    accelerator: 'CommandOrControl+K',
+    enabled: true,
+    description: 'shortcuts:toggleKnowledgeBase'
+  },
+  {
+    action: ShortcutAction.TOGGLE_CREATIVE_SPACE,
+    accelerator: 'CommandOrControl+E',
+    enabled: true,
+    description: 'shortcuts:toggleCreativeSpace'
+  },
+
+  // 消息/聊天
+  {
+    action: ShortcutAction.SEND_MESSAGE,
+    accelerator: 'CommandOrControl+Enter',
+    enabled: true,
+    description: 'shortcuts:sendMessage'
+  }
+]

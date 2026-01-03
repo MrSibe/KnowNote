@@ -87,6 +87,19 @@ export default function ProcessPanel({
     }
   }, [])
 
+  // 监听发送消息快捷键
+  useEffect(() => {
+    const handleSendShortcut = () => {
+      handleSend()
+    }
+
+    window.addEventListener('shortcut:send-message', handleSendShortcut)
+
+    return () => {
+      window.removeEventListener('shortcut:send-message', handleSendShortcut)
+    }
+  }, [input, canSend, currentSession])
+
   const handleSend = (): void => {
     if (!canSend) return
 

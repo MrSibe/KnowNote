@@ -13,7 +13,8 @@ export default function NotebookLayout(): ReactElement {
   const { t } = useTranslation('ui')
   const navigate = useNavigate()
   const { id } = useParams()
-  const { notebooks, addNotebook, addOpenedNotebook, setCurrentNotebook } = useNotebookStore()
+  const { notebooks, addNotebook, addOpenedNotebook, setCurrentNotebook, removeOpenedNotebook } =
+    useNotebookStore()
   const { loadActiveSession } = useChatStore()
 
   // 当进入笔记本时，设置openedNotebook和currentNotebook，并加载栈顶session
@@ -36,6 +37,29 @@ export default function NotebookLayout(): ReactElement {
 
     navigate(`/notebook/${newId}`)
   }
+
+  // 监听笔记本管理快捷键
+  useEffect(() => {
+    const handleCreateShortcut = () => {
+      void handleCreateNotebook()
+    }
+
+    const handleCloseShortcut = () => {
+      // 关闭当前笔记本标签页，并返回笔记本列表
+      if (id) {
+        removeOpenedNotebook(id)
+      }
+      navigate('/')
+    }
+
+    window.addEventListener('shortcut:create-notebook', handleCreateShortcut)
+    window.addEventListener('shortcut:close-notebook', handleCloseShortcut)
+
+    return () => {
+      window.removeEventListener('shortcut:create-notebook', handleCreateShortcut)
+      window.removeEventListener('shortcut:close-notebook', handleCloseShortcut)
+    }
+  }, [navigate, handleCreateNotebook, id, removeOpenedNotebook])
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">

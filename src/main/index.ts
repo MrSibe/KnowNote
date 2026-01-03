@@ -11,20 +11,23 @@ import { ProviderManager } from './providers/ProviderManager'
 import { SessionAutoSwitchService } from './services/SessionAutoSwitchService'
 import { KnowledgeService } from './services/KnowledgeService'
 import { UpdateService } from './services/UpdateService'
+import { ShortcutManager } from './services/ShortcutManager'
 import { createMainWindow, createSettingsWindow, destroySettingsWindow } from './windows'
 import { registerAllHandlers } from './ipc'
+import { getStore } from './config/store'
 import Logger from '../shared/utils/logger'
 
 let providerManager: ProviderManager | null = null
 let sessionAutoSwitchService: SessionAutoSwitchService | null = null
 let knowledgeService: KnowledgeService | null = null
 let updateService: UpdateService | null = null
+let shortcutManager: ShortcutManager | null = null
 let isQuitting = false // Flag to indicate if app is quitting
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.knownote.app')
 
@@ -62,8 +65,25 @@ app.whenReady().then(() => {
   updateService = new UpdateService()
   Logger.info('Main', 'Update Service initialized')
 
+  // Initialize electron-store
+  Logger.info('Main', 'Initializing electron-store...')
+  const store = await getStore()
+  Logger.info('Main', 'electron-store initialized')
+
+  // Initialize Shortcut Manager
+  Logger.info('Main', 'Initializing Shortcut Manager...')
+  shortcutManager = new ShortcutManager(store)
+  Logger.info('Main', 'Shortcut Manager initialized')
+
   // Register all IPC Handlers
-  registerAllHandlers(providerManager, sessionAutoSwitchService, knowledgeService, updateService)
+  registerAllHandlers(
+    providerManager,
+    sessionAutoSwitchService,
+    knowledgeService,
+    updateService,
+    shortcutManager,
+    store
+  )
 
   // IPC test (development only)
   if (process.env.NODE_ENV === 'development') {
@@ -102,6 +122,11 @@ app.whenReady().then(() => {
   // Set main window for update service
   updateService.setMainWindow(mainWindow)
 
+  // Set main window for shortcut manager and register shortcuts
+  shortcutManager.setMainWindow(mainWindow)
+  shortcutManager.registerShortcuts()
+  Logger.info('Main', 'Shortcuts registered')
+
   // Check for updates on startup (after 5 seconds)
   updateService.checkForUpdatesOnStartup()
 
@@ -137,6 +162,12 @@ app.on('before-quit', () => {
 
   isQuitting = true
   destroySettingsWindow()
+
+  // Unregister shortcuts
+  if (shortcutManager) {
+    shortcutManager.unregisterShortcuts()
+    Logger.info('Main', 'Shortcuts unregistered')
+  }
 
   Logger.info('Main', 'Closing database connection...')
   closeDatabase()

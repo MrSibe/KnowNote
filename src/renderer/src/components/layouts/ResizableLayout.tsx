@@ -91,6 +91,25 @@ export default function ResizableLayout({
     return () => window.removeEventListener('resize', handleResize)
   }, [defaultLeftWidth, defaultRightWidth, isInitialized])
 
+  // 监听面板切换快捷键
+  useEffect(() => {
+    const handleToggleKnowledgeBase = () => {
+      toggleLeftPanel()
+    }
+
+    const handleToggleCreativeSpace = () => {
+      toggleRightPanel()
+    }
+
+    window.addEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
+    window.addEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
+
+    return () => {
+      window.removeEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
+      window.removeEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
+    }
+  }, [isLeftCollapsed, isRightCollapsed, leftWidth, rightWidth, savedLeftWidth, savedRightWidth])
+
   const handleMouseDown = (side: 'left' | 'right'): void => {
     if (side === 'left') {
       setIsDraggingLeft(true)
