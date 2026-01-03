@@ -4,19 +4,7 @@
    ============================================ */
 
 /* ============================================
-   1. 字体加载 (Google Fonts)
-   ============================================ */
-
-/* Display Font - Outfit (标题字体) */
-/* 大胆、几何、现代，适合标题和重要文本 */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
-
-/* Sans Font - Plus Jakarta Sans (正文字体) */
-/* 现代、精致、易读，比 Inter 更有个性 */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
-
-/* ============================================
-   2. 字体变量
+   1. 字体变量
    ============================================ */
 
 :root {

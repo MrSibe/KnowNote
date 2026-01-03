@@ -3,6 +3,10 @@
    Atom Enhanced 设计系统
    ============================================ */
 
+/* 0. 字体导入 - 必须在最前面 */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
 /* 1. CSS Reset */
 @import './base.css';
 
