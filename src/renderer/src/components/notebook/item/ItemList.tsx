@@ -34,6 +34,7 @@ import {
   DialogTitle
 } from '../../ui/dialog'
 import { Input } from '../../ui/input'
+import ConfirmDialog from '../../common/ConfirmDialog'
 
 interface ItemListProps {
   items: ItemDetail[]
@@ -63,6 +64,7 @@ function SortableItemRow({
 }) {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id
@@ -104,10 +106,11 @@ function SortableItemRow({
   }
 
   const handleDelete = () => {
-    const confirmMsg = isNote ? t('confirmDeleteNote') : t('confirmDeleteMindMap')
-    if (confirm(confirmMsg)) {
-      onDeleteItem(item.id)
-    }
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    onDeleteItem(item.id)
   }
 
   const itemContent = (
@@ -250,6 +253,15 @@ function SortableItemRow({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 删除确认对话框 */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={isNote ? t('deleteNote') : t('deleteMindMap')}
+        message={isNote ? t('deleteNoteWarning') : t('confirmDeleteMindMap')}
+      />
     </>
   )
 }

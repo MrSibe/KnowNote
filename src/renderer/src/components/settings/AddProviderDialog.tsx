@@ -127,7 +127,7 @@ export default function AddProviderDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t('addCustomProvider')}</DialogTitle>
           <DialogDescription>{t('addProviderDesc')}</DialogDescription>

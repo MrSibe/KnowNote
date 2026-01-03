@@ -9,6 +9,8 @@ import ItemList from './item/ItemList'
 import { ScrollArea } from '../ui/scroll-area'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import UnsavedChangesDialog from '../common/UnsavedChangesDialog'
+import DeleteNoteConfirmDialog from '../common/DeleteNoteConfirmDialog'
 import type { Note } from '../../../../shared/types'
 
 // 编辑器面板子组件 - 管理编辑状态
@@ -129,6 +131,10 @@ export default function NotePanel(): ReactElement {
   // 管理未保存状态
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
 
+  // Dialog 状态管理
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
   // 监听Notebook切换，清空当前编辑状态
   useEffect(() => {
     if (notebookId) {
@@ -169,12 +175,16 @@ export default function NotePanel(): ReactElement {
   // 删除笔记
   const handleDelete = async () => {
     if (!currentNote) return
-    if (confirm(t('confirmDeleteNote'))) {
-      // 找到对应的 item
-      const item = items.find((item) => item.type === 'note' && item.resourceId === currentNote.id)
-      if (item) {
-        await deleteItem(item.id, true) // 同时删除资源
-      }
+    setShowDeleteDialog(true)
+  }
+
+  // 确认删除笔记
+  const confirmDelete = async () => {
+    if (!currentNote) return
+    // 找到对应的 item
+    const item = items.find((item) => item.type === 'note' && item.resourceId === currentNote.id)
+    if (item) {
+      await deleteItem(item.id, true) // 同时删除资源
     }
   }
 
@@ -182,11 +192,15 @@ export default function NotePanel(): ReactElement {
   const handleBack = () => {
     // 如果有未保存的修改，提示用户
     if (hasUnsavedChanges) {
-      const message = t('unsavedChangesWarning', '您有未保存的修改，确定要离开吗？')
-      if (!confirm(message)) {
-        return
-      }
+      setShowUnsavedDialog(true)
+      return
     }
+    setCurrentNote(null)
+    setHasUnsavedChanges(false)
+  }
+
+  // 确认离开（有未保存修改时）
+  const confirmLeave = () => {
     setCurrentNote(null)
     setHasUnsavedChanges(false)
   }
@@ -284,6 +298,20 @@ export default function NotePanel(): ReactElement {
           </ScrollArea>
         </>
       )}
+
+      {/* 未保存修改确认对话框 */}
+      <UnsavedChangesDialog
+        isOpen={showUnsavedDialog}
+        onClose={() => setShowUnsavedDialog(false)}
+        onConfirm={confirmLeave}
+      />
+
+      {/* 删除笔记确认对话框 */}
+      <DeleteNoteConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }
