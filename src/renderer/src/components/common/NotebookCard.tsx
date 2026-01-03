@@ -124,7 +124,7 @@ export default function NotebookCard({
 
       {/* 内容区域 - 使用 flex 布局让底部信息靠下 */}
       <div className="flex-1 flex flex-col gap-2">
-        <h3 className="text-lg font-semibold text-foreground line-clamp-2">{notebook.title}</h3>
+        <h3 className="text-h2 text-foreground line-clamp-2">{notebook.title}</h3>
 
         {notebook.description && (
           <p className="text-sm text-muted-foreground line-clamp-2">{notebook.description}</p>

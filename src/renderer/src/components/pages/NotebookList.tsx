@@ -124,7 +124,7 @@ export default function NotebookList(): ReactElement {
             <div className="max-w-7xl mx-auto flex flex-col gap-8">
               {/* 标题 */}
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold text-foreground">{t('myNotebooks')}</h1>
+                <h1 className="text-display text-foreground">{t('myNotebooks')}</h1>
                 <p className="text-muted-foreground">
                   {t('totalNotebooks', { count: notebooks.length })}
                 </p>

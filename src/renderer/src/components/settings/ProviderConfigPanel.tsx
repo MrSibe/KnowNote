@@ -105,7 +105,7 @@ export default function ProviderConfigPanel({
       {/* 顶部标题和开关 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold text-foreground">{displayName}</h2>
+          <h2 className="text-h1 text-foreground">{displayName}</h2>
           {provider.enabled && (
             <span className="px-2.5 py-0.5 bg-primary/20 text-primary text-xs font-medium rounded-full border border-primary/30">
               {t('active')}

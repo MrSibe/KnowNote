@@ -60,7 +60,7 @@ export default function PromptsSettings({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">{t('promptSettings')}</h2>
+        <h2 className="text-h2 text-foreground">{t('promptSettings')}</h2>
         <p className="text-sm text-muted-foreground mt-1">{t('mindMapPromptDesc')}</p>
       </div>
 

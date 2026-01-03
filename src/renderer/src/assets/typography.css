@@ -3,5 +3,223 @@
    Atom Enhanced 设计系统
    ============================================ */
 
-/* 字体加载、排版系统、字体变量 */
-/* 将在阶段 1 实施 */
+/* ============================================
+   1. 字体加载 (Google Fonts)
+   ============================================ */
+
+/* Display Font - Outfit (标题字体) */
+/* 大胆、几何、现代，适合标题和重要文本 */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
+
+/* Sans Font - Plus Jakarta Sans (正文字体) */
+/* 现代、精致、易读，比 Inter 更有个性 */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
+/* ============================================
+   2. 字体变量
+   ============================================ */
+
+:root {
+  /* 字体家族 */
+  --font-display: 'Outfit', 'SF Pro Display', -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'SF Pro Text', -apple-system, system-ui, sans-serif;
+  --font-mono: 'Fira Code', 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ============================================
+     3. 排版层次系统
+     ============================================ */
+
+  /* Display - 用于页面主标题 */
+  --text-display-size: 2.5rem;
+  --text-display-line-height: 1.2;
+  --text-display-weight: 700;
+  --text-display-tracking: -0.02em;
+
+  /* Heading 1 */
+  --text-h1-size: 2rem;
+  --text-h1-line-height: 1.3;
+  --text-h1-weight: 700;
+  --text-h1-tracking: -0.015em;
+
+  /* Heading 2 */
+  --text-h2-size: 1.5rem;
+  --text-h2-line-height: 1.4;
+  --text-h2-weight: 600;
+  --text-h2-tracking: -0.01em;
+
+  /* Heading 3 */
+  --text-h3-size: 1.25rem;
+  --text-h3-line-height: 1.4;
+  --text-h3-weight: 600;
+  --text-h3-tracking: 0em;
+
+  /* Heading 4 */
+  --text-h4-size: 1.125rem;
+  --text-h4-line-height: 1.5;
+  --text-h4-weight: 600;
+  --text-h4-tracking: 0em;
+
+  /* Body Text */
+  --text-body-size: 0.875rem;
+  --text-body-line-height: 1.7;
+  --text-body-weight: 400;
+
+  /* Caption */
+  --text-caption-size: 0.75rem;
+  --text-caption-line-height: 1.5;
+  --text-caption-weight: 400;
+
+  /* Small */
+  --text-small-size: 0.8125rem;
+  --text-small-line-height: 1.6;
+  --text-small-weight: 400;
+
+  /* 字母间距 */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+}
+
+/* ============================================
+   4. 应用字体到全局
+   ============================================ */
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  font-weight: var(--text-body-weight);
+}
+
+/* ============================================
+   5. 标题工具类
+   ============================================ */
+
+.text-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-line-height);
+  font-weight: var(--text-display-weight);
+  letter-spacing: var(--text-display-tracking);
+}
+
+.text-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1-size);
+  line-height: var(--text-h1-line-height);
+  font-weight: var(--text-h1-weight);
+  letter-spacing: var(--text-h1-tracking);
+}
+
+.text-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2-size);
+  line-height: var(--text-h2-line-height);
+  font-weight: var(--text-h2-weight);
+  letter-spacing: var(--text-h2-tracking);
+}
+
+.text-h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-h3-size);
+  line-height: var(--text-h3-line-height);
+  font-weight: var(--text-h3-weight);
+  letter-spacing: var(--text-h3-tracking);
+}
+
+.text-h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h4-size);
+  line-height: var(--text-h4-line-height);
+  font-weight: var(--text-h4-weight);
+  letter-spacing: var(--text-h4-tracking);
+}
+
+/* ============================================
+   6. 正文工具类
+   ============================================ */
+
+.text-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-size);
+  line-height: var(--text-body-line-height);
+  font-weight: var(--text-body-weight);
+}
+
+.text-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption-size);
+  line-height: var(--text-caption-line-height);
+  font-weight: var(--text-caption-weight);
+}
+
+.text-small {
+  font-family: var(--font-sans);
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-line-height);
+  font-weight: var(--text-small-weight);
+}
+
+/* ============================================
+   7. 字重工具类
+   ============================================ */
+
+.font-light {
+  font-weight: 300;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-extrabold {
+  font-weight: 800;
+}
+
+/* ============================================
+   8. 字母间距工具类
+   ============================================ */
+
+.tracking-tight {
+  letter-spacing: var(--tracking-tight);
+}
+
+.tracking-normal {
+  letter-spacing: var(--tracking-normal);
+}
+
+.tracking-wide {
+  letter-spacing: var(--tracking-wide);
+}
+
+/* ============================================
+   9. 响应式排版（可选）
+   ============================================ */
+
+@media (max-width: 768px) {
+  :root {
+    --text-display-size: 2rem;
+    --text-h1-size: 1.75rem;
+    --text-h2-size: 1.375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --text-display-size: 1.75rem;
+    --text-h1-size: 1.5rem;
+    --text-h2-size: 1.25rem;
+  }
+}
