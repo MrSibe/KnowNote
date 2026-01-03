@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { cn } from '../../lib/utils'
-import './textarea.css'
+// textarea.css 已合并到 scrollbar.css（通过 main.css 全局导入）
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(
   ({ className, ...props }, ref) => {

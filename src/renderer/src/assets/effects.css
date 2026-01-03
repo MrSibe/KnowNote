@@ -1,0 +1,13 @@
+/* ============================================
+   Effects - 视觉效果
+   渐变、阴影、背景装饰、毛玻璃、淡出效果
+   Atom Enhanced 设计系统
+   ============================================ */
+
+/* 从 messageList.css 迁移的淡出效果 */
+.fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+}
+
+/* 更多视觉效果将在阶段 2 添加 */

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { ChatMessage } from '../../../../../shared/types/chat'
 import MessageItem from './MessageItem'
 import { ScrollArea } from '../../ui/scroll-area'
-import './messageList.css'
+// messageList.css 已合并到 effects.css（通过 main.css 全局导入）
 
 interface MessageListProps {
   messages: ChatMessage[]
