@@ -85,7 +85,8 @@ export default function NotebookCard({
   return (
     <div
       onClick={onClick}
-      className="group relative bg-card rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-card/90 hover:scale-[1.02] border border-border/50 hover:border-border overflow-hidden shadow-md flex flex-col gap-2"
+      className="group relative bg-card rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-card/90 hover:scale-[1.02] border border-border/50 hover:border-border overflow-hidden flex flex-col gap-2"
+      style={{ boxShadow: 'var(--shadow-md)' }}
     >
       {/* 顶部彩色装饰条 - 使用主题图表颜色 */}
       <div className={`absolute top-0 left-0 right-0 h-1 ${colorClass}`} />
