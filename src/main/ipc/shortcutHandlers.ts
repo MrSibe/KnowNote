@@ -26,6 +26,11 @@ export function registerShortcutHandlers(shortcutManager: ShortcutManager, store
     shortcutManager.toggleShortcut(action, enabled)
   })
 
+  // 重置单个快捷键为默认值
+  ipcMain.handle('shortcuts:resetSingle', (_event, action: ShortcutAction): void => {
+    shortcutManager.resetSingle(action)
+  })
+
   // 重置为默认配置
   ipcMain.handle('shortcuts:reset', (): void => {
     shortcutManager.resetToDefaults()

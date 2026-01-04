@@ -6,6 +6,7 @@ interface ShortcutStore {
   loadShortcuts: () => Promise<void>
   updateShortcut: (action: ShortcutAction, accelerator: string) => Promise<void>
   toggleShortcut: (action: ShortcutAction, enabled: boolean) => Promise<void>
+  resetSingle: (action: ShortcutAction) => Promise<void>
   resetToDefaults: () => Promise<void>
   isConflict: (accelerator: string, excludeAction?: ShortcutAction) => boolean
 }
@@ -25,6 +26,11 @@ export const useShortcutStore = create<ShortcutStore>((set, get) => ({
 
   toggleShortcut: async (action: ShortcutAction, enabled: boolean) => {
     await window.electron.ipcRenderer.invoke('shortcuts:toggle', action, enabled)
+    await get().loadShortcuts()
+  },
+
+  resetSingle: async (action: ShortcutAction) => {
+    await window.electron.ipcRenderer.invoke('shortcuts:resetSingle', action)
     await get().loadShortcuts()
   },
 

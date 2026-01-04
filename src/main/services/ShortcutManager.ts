@@ -133,6 +133,21 @@ export class ShortcutManager {
   }
 
   /**
+   * 重置单个快捷键为默认值
+   */
+  resetSingle(action: ShortcutAction): void {
+    const shortcuts: ShortcutConfig[] = (this.store.get('shortcuts') as ShortcutConfig[]) || []
+    const index = shortcuts.findIndex((s) => s.action === action)
+    const defaultShortcut = defaultShortcuts.find((s) => s.action === action)
+
+    if (index !== -1 && defaultShortcut) {
+      shortcuts[index] = { ...defaultShortcut }
+      this.store.set('shortcuts', shortcuts)
+      this.registerShortcuts()
+    }
+  }
+
+  /**
    * 重置为默认配置
    */
   resetToDefaults(): void {

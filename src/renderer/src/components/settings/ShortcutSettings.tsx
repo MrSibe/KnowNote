@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useShortcutStore } from '../../store/shortcutStore'
 import { ShortcutAction, ShortcutConfig } from '../../../../shared/types'
 import { Button } from '../ui/button'
-import { Switch } from '../ui/switch'
 import {
   Dialog,
   DialogContent,
@@ -17,7 +16,7 @@ import SettingItem from './SettingItem'
 
 export default function ShortcutSettings(): ReactElement {
   const { t } = useTranslation(['settings', 'shortcuts'])
-  const { shortcuts, loadShortcuts, updateShortcut, toggleShortcut, resetToDefaults, isConflict } =
+  const { shortcuts, loadShortcuts, updateShortcut, resetSingle, resetToDefaults, isConflict } =
     useShortcutStore()
 
   const [recordingAction, setRecordingAction] = useState<ShortcutAction | null>(null)
@@ -185,7 +184,7 @@ export default function ShortcutSettings(): ReactElement {
                   onStartRecording={() => handleStartRecording(shortcut.action)}
                   onSave={handleSaveShortcut}
                   onCancel={handleCancelRecording}
-                  onToggle={(enabled) => toggleShortcut(shortcut.action, enabled)}
+                  onReset={() => resetSingle(shortcut.action)}
                 />
               ))}
             </div>
@@ -244,7 +243,7 @@ interface ShortcutItemProps {
   onStartRecording: () => void
   onSave: () => void
   onCancel: () => void
-  onToggle: (enabled: boolean) => void
+  onReset: () => void
 }
 
 function ShortcutItem({
@@ -254,7 +253,7 @@ function ShortcutItem({
   onStartRecording,
   onSave,
   onCancel,
-  onToggle
+  onReset
 }: ShortcutItemProps): ReactElement {
   const { t } = useTranslation('shortcuts')
 
@@ -267,14 +266,9 @@ function ShortcutItem({
         {isRecording ? (
           // 录制模式
           <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
-            <div className="relative">
-              <kbd className="px-4 py-2 bg-accent/50 text-accent-foreground rounded-lg border-2 border-primary/20 text-sm font-mono min-w-[140px] text-center transition-all shadow-lg shadow-primary/10 animate-pulse">
-                {tempAccelerator || t('pressKey')}
-              </kbd>
-              {tempAccelerator && (
-                <div className="absolute inset-0 rounded-lg bg-primary/10 animate-ping" />
-              )}
-            </div>
+            <kbd className="px-4 py-2 bg-accent/50 text-accent-foreground rounded-lg border-2 border-primary/20 text-sm font-mono min-w-[140px] text-center transition-all shadow-lg shadow-primary/10 animate-pulse">
+              {tempAccelerator || t('pressKey')}
+            </kbd>
             <Button
               onClick={onSave}
               size="icon"
@@ -302,11 +296,14 @@ function ShortcutItem({
             >
               {formatAccelerator(shortcut.accelerator)}
             </button>
-            <Switch
-              checked={shortcut.enabled}
-              onCheckedChange={onToggle}
-              className="data-[state=checked]:bg-primary"
-            />
+            <Button
+              onClick={onReset}
+              size="icon"
+              variant="ghost"
+              className="h-9 w-9 hover:bg-primary/10 hover:text-primary transition-all"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
           </>
         )}
       </div>
