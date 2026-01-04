@@ -22,6 +22,8 @@ export function createMainWindow(): BrowserWindow {
     autoHideMenuBar: true,
     // remove the default titlebar
     titleBarStyle: 'hidden',
+    // Position macOS traffic lights (window controls)
+    ...(process.platform === 'darwin' ? { trafficLightPosition: { x: 16, y: 16 } } : {}),
     // expose window controls in Windows/Linux
     ...(process.platform !== 'darwin'
       ? { titleBarOverlay: { color: 'rgba(0,0,0,0)', height: 35, symbolColor: 'white' } }

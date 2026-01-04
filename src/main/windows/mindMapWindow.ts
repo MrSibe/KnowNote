@@ -39,6 +39,8 @@ export function createMindMapWindow(notebookId: string, mindMapId?: string): voi
     show: false,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
+    // Position macOS traffic lights (window controls)
+    ...(process.platform === 'darwin' ? { trafficLightPosition: { x: 16, y: 16 } } : {}),
     ...(process.platform !== 'darwin'
       ? { titleBarOverlay: { color: 'rgba(0,0,0,0)', height: 35, symbolColor: 'white' } }
       : {}),

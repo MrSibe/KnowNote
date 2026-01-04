@@ -2,7 +2,7 @@ import { Home, Plus, X, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useNotebookStore } from '../../store/notebookStore'
-import { ReactElement, useEffect, useState } from 'react'
+import { ReactElement } from 'react'
 import { Button } from '../ui/button'
 
 interface TopNavigationBarProps {
@@ -18,20 +18,11 @@ export default function TopNavigationBar({
   const navigate = useNavigate()
   const { currentNotebook, openedNotebooks, removeOpenedNotebook, setCurrentNotebook } =
     useNotebookStore()
-  const [platform, setPlatform] = useState<string>('')
 
-  // 获取平台信息
-  useEffect(() => {
-    const getPlatform = async () => {
-      try {
-        const platformName = await window.api.getPlatform()
-        setPlatform(platformName)
-      } catch (error) {
-        console.error('Failed to get platform:', error)
-      }
-    }
-    getPlatform()
-  }, [])
+  // 同步检测平台，避免闪烁
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
+  const isLinux = navigator.platform.toUpperCase().indexOf('LINUX') >= 0
+  const isWindows = navigator.platform.toUpperCase().indexOf('WIN') >= 0
 
   const handleHomeClick = (): void => {
     navigate('/')
@@ -73,14 +64,14 @@ export default function TopNavigationBar({
 
   return (
     <div
-      className="h-10 shrink-0 flex items-center justify-between px-3"
+      className="h-12 shrink-0 flex items-center justify-between px-3"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* macOS 左侧空白区域（留给窗口控制按钮） */}
-      {platform === 'darwin' && <div className="w-16"></div>}
+      {isMac && <div className="w-20"></div>}
 
       {/* Linux 左侧设置按钮区域 */}
-      {platform === 'linux' && (
+      {isLinux && (
         <div className="flex items-center">
           <Button
             onClick={handleSettingsClick}
@@ -151,7 +142,7 @@ export default function TopNavigationBar({
       </div>
 
       {/* 非Linux平台的设置按钮（Windows和macOS保持在右侧） */}
-      {platform !== 'linux' && (
+      {!isLinux && (
         <Button
           onClick={handleSettingsClick}
           variant="ghost"
@@ -165,7 +156,7 @@ export default function TopNavigationBar({
       )}
 
       {/* Windows 右侧空白区域（留给窗口控制按钮） */}
-      {platform === 'win32' && <div className="w-32"></div>}
+      {isWindows && <div className="w-32"></div>}
     </div>
   )
 }
