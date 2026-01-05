@@ -14,7 +14,7 @@ import Logger from '../../shared/utils/logger'
 export class VectorStoreManager {
   private stores: Map<string, VectorStore> = new Map()
   private defaultType: VectorStoreType = 'sqlite'
-  private defaultDimensions: number = 1024
+  private defaultDimensions: number = 768 // 默认使用 768 维，兼容大多数嵌入模型
 
   /**
    * 获取或创建 notebook 的 VectorStore

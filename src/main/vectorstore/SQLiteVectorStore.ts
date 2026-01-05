@@ -3,24 +3,30 @@
  * 基于 sqlite-vec 扩展的向量存储实现
  */
 
-import { getSqlite } from '../db'
+import { getSqlite, createNotebookVectorTable } from '../db'
 import type { VectorStore, VectorItem, QueryResult, QueryOptions, VectorStoreConfig } from './types'
 import Logger from '../../shared/utils/logger'
 
 /**
  * SQLite 向量存储实现
  * 使用 sqlite-vec 的 vec0 虚拟表进行高性能向量检索
+ * 每个笔记本使用独立的向量表，支持不同的向量维度
  */
 export class SQLiteVectorStore implements VectorStore {
   private notebookId: string = ''
-  private dimensions: number = 1024
+  private dimensions: number = 768
+  private tableName: string = ''
   private initialized: boolean = false
 
   async initialize(config: VectorStoreConfig): Promise<void> {
     this.notebookId = config.notebookId
-    this.dimensions = config.dimensions || 1024
+    this.dimensions = config.dimensions || 768
+
+    // 为笔记本创建独立的向量表
+    this.tableName = createNotebookVectorTable(this.notebookId, this.dimensions)
+
     this.initialized = true
-    Logger.info('SQLiteVectorStore', `Initialized for notebook: ${this.notebookId}`)
+    Logger.info('SQLiteVectorStore', `Initialized for notebook: ${this.notebookId}, table: ${this.tableName}, dimensions: ${this.dimensions}`)
   }
 
   async upsert(items: VectorItem[]): Promise<void> {
@@ -34,8 +40,8 @@ export class SQLiteVectorStore implements VectorStore {
     }
 
     const insertStmt = sqlite.prepare(`
-      INSERT OR REPLACE INTO vec_embeddings (embedding_id, chunk_id, notebook_id, embedding)
-      VALUES (?, ?, ?, ?)
+      INSERT OR REPLACE INTO ${this.tableName} (embedding_id, chunk_id, embedding)
+      VALUES (?, ?, ?)
     `)
 
     const insertMany = sqlite.transaction((items: VectorItem[]) => {
@@ -49,13 +55,13 @@ export class SQLiteVectorStore implements VectorStore {
         }
 
         // sqlite-vec 可以直接接受 Float32Array
-        insertStmt.run(item.id, item.chunkId, this.notebookId, item.vector)
+        insertStmt.run(item.id, item.chunkId, item.vector)
       }
     })
 
     try {
       insertMany(items)
-      Logger.debug('SQLiteVectorStore', `Upserted ${items.length} vectors`)
+      Logger.debug('SQLiteVectorStore', `Upserted ${items.length} vectors to ${this.tableName}`)
     } catch (error) {
       Logger.error('SQLiteVectorStore', 'Failed to upsert vectors:', error)
       throw error
@@ -76,12 +82,12 @@ export class SQLiteVectorStore implements VectorStore {
 
     const placeholders = ids.map(() => '?').join(',')
     const deleteStmt = sqlite.prepare(`
-      DELETE FROM vec_embeddings WHERE embedding_id IN (${placeholders})
+      DELETE FROM ${this.tableName} WHERE embedding_id IN (${placeholders})
     `)
 
     try {
       deleteStmt.run(...ids)
-      Logger.debug('SQLiteVectorStore', `Deleted ${ids.length} vectors`)
+      Logger.debug('SQLiteVectorStore', `Deleted ${ids.length} vectors from ${this.tableName}`)
     } catch (error) {
       Logger.error('SQLiteVectorStore', 'Failed to delete vectors:', error)
       throw error
@@ -102,12 +108,12 @@ export class SQLiteVectorStore implements VectorStore {
 
     const placeholders = chunkIds.map(() => '?').join(',')
     const deleteStmt = sqlite.prepare(`
-      DELETE FROM vec_embeddings WHERE chunk_id IN (${placeholders})
+      DELETE FROM ${this.tableName} WHERE chunk_id IN (${placeholders})
     `)
 
     try {
       deleteStmt.run(...chunkIds)
-      Logger.debug('SQLiteVectorStore', `Deleted vectors for ${chunkIds.length} chunks`)
+      Logger.debug('SQLiteVectorStore', `Deleted vectors for ${chunkIds.length} chunks from ${this.tableName}`)
     } catch (error) {
       Logger.error('SQLiteVectorStore', 'Failed to delete vectors by chunk IDs:', error)
       throw error
@@ -135,15 +141,14 @@ export class SQLiteVectorStore implements VectorStore {
           embedding_id,
           chunk_id,
           distance
-        FROM vec_embeddings
+        FROM ${this.tableName}
         WHERE embedding MATCH ?
           AND k = ?
-          AND notebook_id = ?
         ORDER BY distance ASC
       `)
 
       // sqlite-vec 可以直接接受 Float32Array
-      const results = queryStmt.all(queryVector, topK, this.notebookId) as Array<{
+      const results = queryStmt.all(queryVector, topK) as Array<{
         embedding_id: string
         chunk_id: string
         distance: number
@@ -169,7 +174,7 @@ export class SQLiteVectorStore implements VectorStore {
 
       Logger.debug(
         'SQLiteVectorStore',
-        `Query returned ${filteredResults.length} results (threshold: ${threshold})`
+        `Query returned ${filteredResults.length} results from ${this.tableName} (threshold: ${threshold})`
       )
 
       return filteredResults
@@ -191,11 +196,11 @@ export class SQLiteVectorStore implements VectorStore {
 
     try {
       const deleteStmt = sqlite.prepare(`
-        DELETE FROM vec_embeddings WHERE notebook_id = ?
+        DELETE FROM ${this.tableName}
       `)
-      deleteStmt.run(this.notebookId)
+      deleteStmt.run()
 
-      Logger.info('SQLiteVectorStore', `Cleared all vectors for notebook: ${this.notebookId}`)
+      Logger.info('SQLiteVectorStore', `Cleared all vectors from ${this.tableName}`)
     } catch (error) {
       Logger.error('SQLiteVectorStore', 'Failed to clear vectors:', error)
       throw error
@@ -214,9 +219,9 @@ export class SQLiteVectorStore implements VectorStore {
 
     try {
       const countStmt = sqlite.prepare(`
-        SELECT COUNT(*) as count FROM vec_embeddings WHERE notebook_id = ?
+        SELECT COUNT(*) as count FROM ${this.tableName}
       `)
-      const result = countStmt.get(this.notebookId) as { count: number }
+      const result = countStmt.get() as { count: number }
 
       return result?.count || 0
     } catch (error) {

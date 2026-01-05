@@ -7,7 +7,6 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { createDeepSeek } from '@ai-sdk/deepseek'
-import { createQwen } from 'qwen-ai-provider'
 import { createOllama } from 'ollama-ai-provider-v2'
 import { streamText, embed, embedMany } from 'ai'
 import type { BaseProvider, LLMProviderConfig } from '../capabilities/BaseProvider'
@@ -43,7 +42,6 @@ export class AISDKProvider implements BaseProvider {
     | ReturnType<typeof createOpenAI>
     | ReturnType<typeof createOpenAICompatible>
     | ReturnType<typeof createDeepSeek>
-    | ReturnType<typeof createQwen>
     | ReturnType<typeof createOllama>
     | null = null
 
@@ -82,19 +80,13 @@ export class AISDKProvider implements BaseProvider {
           baseURL: this.config.baseUrl,
           apiKey: config.apiKey
         })
-      } else if (this.name === 'qwen') {
-        // Qwen 使用社区 provider
-        this.aiProvider = createQwen({
-          baseURL: this.config.baseUrl,
-          apiKey: config.apiKey
-        })
       } else if (this.name === 'ollama') {
         // Ollama 使用社区 provider
         this.aiProvider = createOllama({
           baseURL: this.config.baseUrl || 'http://localhost:11434/api'
         })
       } else {
-        // 其他所有 provider 都使用 OpenAI Compatible (Kimi, SiliconFlow)
+        // 其他所有 provider 都使用 OpenAI Compatible (Qwen, Kimi, SiliconFlow 等)
         this.aiProvider = createOpenAICompatible({
           name: this.name,
           baseURL: this.config.baseUrl || '',

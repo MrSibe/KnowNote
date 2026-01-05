@@ -195,20 +195,83 @@ export function initVectorStore() {
   console.log('[Database] Initializing vector store...')
 
   try {
-    // 创建向量索引虚拟表（如果不存在）
-    // 使用 cosine 距离度量，1024 维度（BAAI/bge-m3 默认维度）
+    // 创建向量表元数据表，用于记录每个笔记本的向量维度
     sqlite.exec(`
-      CREATE VIRTUAL TABLE IF NOT EXISTS vec_embeddings USING vec0(
-        embedding_id TEXT PRIMARY KEY,
-        chunk_id TEXT,
-        notebook_id TEXT,
-        embedding FLOAT[1024] distance_metric=cosine
+      CREATE TABLE IF NOT EXISTS vec_metadata (
+        notebook_id TEXT PRIMARY KEY,
+        table_name TEXT NOT NULL,
+        dimensions INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `)
 
-    console.log('[Database] Vector store initialized successfully')
+    console.log('[Database] Vector store initialization completed (tables will be created per notebook)')
   } catch (error) {
     console.error('[Database] Failed to initialize vector store:', error)
+    throw error
+  }
+}
+
+/**
+ * 为指定笔记本创建向量表
+ * @param notebookId 笔记本 ID
+ * @param dimensions 向量维度
+ */
+export function createNotebookVectorTable(notebookId: string, dimensions: number) {
+  if (!sqlite) {
+    throw new Error('[Database] Database not initialized. Call initDatabase() first.')
+  }
+
+  const tableName = `vec_${notebookId.replace(/[^a-zA-Z0-9]/g, '_')}`
+
+  try {
+    // 检查元数据表中是否有记录
+    const metadata = sqlite
+      .prepare(`SELECT table_name, dimensions FROM vec_metadata WHERE notebook_id = ?`)
+      .get(notebookId) as { table_name: string; dimensions: number } | undefined
+
+    if (metadata) {
+      // 表已存在，检查维度是否匹配
+      if (metadata.dimensions !== dimensions) {
+        console.warn(
+          `[Database] Vector table ${metadata.table_name} exists with dimensions ${metadata.dimensions}, ` +
+          `but requested ${dimensions}. Dropping and recreating table.`
+        )
+
+        // 删除旧表
+        try {
+          sqlite.exec(`DROP TABLE IF EXISTS ${metadata.table_name}`)
+        } catch (err) {
+          console.error(`[Database] Failed to drop old table ${metadata.table_name}:`, err)
+        }
+
+        // 删除元数据
+        sqlite.prepare(`DELETE FROM vec_metadata WHERE notebook_id = ?`).run(notebookId)
+      } else {
+        console.log(`[Database] Vector table ${metadata.table_name} already exists with correct dimensions: ${dimensions}`)
+        return metadata.table_name
+      }
+    }
+
+    // 创建向量表
+    sqlite.exec(`
+      CREATE VIRTUAL TABLE ${tableName} USING vec0(
+        embedding_id TEXT PRIMARY KEY,
+        chunk_id TEXT,
+        embedding FLOAT[${dimensions}] distance_metric=cosine
+      );
+    `)
+
+    // 记录元数据
+    sqlite
+      .prepare(`INSERT INTO vec_metadata (notebook_id, table_name, dimensions) VALUES (?, ?, ?)`)
+      .run(notebookId, tableName, dimensions)
+
+    console.log(`[Database] Created vector table ${tableName} with dimensions: ${dimensions}`)
+    return tableName
+  } catch (error) {
+    console.error(`[Database] Failed to create vector table for notebook ${notebookId}:`, error)
     throw error
   }
 }
