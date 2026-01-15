@@ -133,7 +133,15 @@ app.whenReady().then(async () => {
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    if (BrowserWindow.getAllWindows().length === 0) {
+      const mainWindow = createMainWindow()
+      // Re-register shortcuts for the new window
+      if (shortcutManager) {
+        shortcutManager.setMainWindow(mainWindow)
+        shortcutManager.registerShortcuts()
+        Logger.info('Main', 'Shortcuts re-registered after window re-creation')
+      }
+    }
   })
 })
 
