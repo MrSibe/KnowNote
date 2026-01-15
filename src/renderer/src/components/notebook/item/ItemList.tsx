@@ -42,6 +42,7 @@ interface ItemListProps {
   onSelectNote: (note: Note) => void
   onOpenMindMap: (mindMapId: string) => void
   onDeleteItem: (itemId: string) => void
+  onRefresh?: () => void
 }
 
 // 单个可排序的 Item 组件
@@ -51,6 +52,7 @@ function SortableItemRow({
   onSelectNote,
   onOpenMindMap,
   onDeleteItem,
+  onRefresh,
   t,
   i18n
 }: {
@@ -59,6 +61,7 @@ function SortableItemRow({
   onSelectNote: (note: Note) => void
   onOpenMindMap: (mindMapId: string) => void
   onDeleteItem: (itemId: string) => void
+  onRefresh?: () => void
   t: any
   i18n: any
 }) {
@@ -71,7 +74,7 @@ function SortableItemRow({
   })
 
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: transform ? `translate3d(0, ${transform.y}px, 0)` : undefined,
     transition,
     zIndex: isDragging ? 999 : undefined
   }
@@ -100,6 +103,7 @@ function SortableItemRow({
         await window.api.mindmap.update(mindMap.id, { title: newTitle.trim() })
       }
       setIsRenameDialogOpen(false)
+      onRefresh?.()
     } catch (error) {
       console.error('Failed to rename:', error)
     }
@@ -271,7 +275,8 @@ export default function ItemList({
   currentNote,
   onSelectNote,
   onOpenMindMap,
-  onDeleteItem
+  onDeleteItem,
+  onRefresh
 }: ItemListProps): ReactElement {
   const { t, i18n } = useTranslation('notebook')
   const [localItems, setLocalItems] = useState(items)
@@ -344,6 +349,7 @@ export default function ItemList({
               onSelectNote={onSelectNote}
               onOpenMindMap={onOpenMindMap}
               onDeleteItem={onDeleteItem}
+              onRefresh={onRefresh}
               t={t}
               i18n={i18n}
             />

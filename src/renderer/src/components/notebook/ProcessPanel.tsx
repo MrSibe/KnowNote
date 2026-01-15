@@ -314,7 +314,7 @@ export default function ProcessPanel({
               title="停止生成"
               variant="destructive"
               size="icon"
-              className="absolute right-2 bottom-3 w-10 h-10"
+              className="absolute right-2 bottom-3 w-8 h-8 rounded-full"
             >
               <StopCircle className="w-4 h-4" />
             </Button>
@@ -327,7 +327,7 @@ export default function ProcessPanel({
                 !hasProvider ? t('noProviderConfigured') : !currentSession ? t('selectSession') : ''
               }
               size="icon"
-              className="absolute right-2 bottom-3 w-10 h-10"
+              className="absolute right-2 bottom-3 w-8 h-8 rounded-full"
             >
               <Send className="w-4 h-4" />
             </Button>

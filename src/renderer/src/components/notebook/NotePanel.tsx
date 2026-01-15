@@ -294,6 +294,7 @@ export default function NotePanel(): ReactElement {
               onSelectNote={setCurrentNote}
               onOpenMindMap={handleOpenMindMap}
               onDeleteItem={(itemId) => deleteItem(itemId, true)}
+              onRefresh={() => notebookId && loadItems(notebookId)}
             />
           </ScrollArea>
         </>
