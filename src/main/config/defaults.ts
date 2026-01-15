@@ -110,22 +110,14 @@ export const defaultShortcuts: ShortcutConfig[] = [
   // 面板切换
   {
     action: ShortcutAction.TOGGLE_KNOWLEDGE_BASE,
-    accelerator: 'CommandOrControl+K',
+    accelerator: 'CommandOrControl+[',
     enabled: true,
     description: 'shortcuts:toggleKnowledgeBase'
   },
   {
     action: ShortcutAction.TOGGLE_CREATIVE_SPACE,
-    accelerator: 'CommandOrControl+E',
+    accelerator: 'CommandOrControl+]',
     enabled: true,
     description: 'shortcuts:toggleCreativeSpace'
-  },
-
-  // 消息/聊天
-  {
-    action: ShortcutAction.SEND_MESSAGE,
-    accelerator: 'CommandOrControl+Enter',
-    enabled: true,
-    description: 'shortcuts:sendMessage'
   }
 ]

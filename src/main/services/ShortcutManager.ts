@@ -47,7 +47,10 @@ export class ShortcutManager {
 
     // 移除旧的监听器
     if (this.keyboardHandler) {
-      ;(this.mainWindow.webContents as any).removeListener('before-input-event', this.keyboardHandler)
+      ;(this.mainWindow.webContents as any).removeListener(
+        'before-input-event',
+        this.keyboardHandler
+      )
     }
 
     // 创建新的处理器
@@ -80,9 +83,15 @@ export class ShortcutManager {
 
     // 获取按键
     let key = input.key
-    // 特殊键映射
-    if (key === 'Enter') key = 'Enter'
-    else if (key.length === 1) key = key.toUpperCase()
+    // 特殊键映射和大写转换
+    if (key === 'Enter') {
+      key = 'Enter'
+    } else if (key.length === 1) {
+      // 只对字母进行大写转换，保留符号原样
+      if (key >= 'a' && key <= 'z') {
+        key = key.toUpperCase()
+      }
+    }
 
     const accelerator = modifiers.length > 0 ? [...modifiers, key].join('+') : key
 

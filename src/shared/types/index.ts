@@ -108,10 +108,7 @@ export enum ShortcutAction {
 
   // 面板切换
   TOGGLE_KNOWLEDGE_BASE = 'toggle_knowledge_base', // 知识库
-  TOGGLE_CREATIVE_SPACE = 'toggle_creative_space', // 创造空间
-
-  // 消息/聊天
-  SEND_MESSAGE = 'send_message'
+  TOGGLE_CREATIVE_SPACE = 'toggle_creative_space' // 创造空间
 }
 
 /**

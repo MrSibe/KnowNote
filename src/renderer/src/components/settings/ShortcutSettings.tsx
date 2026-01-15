@@ -123,20 +123,22 @@ export default function ShortcutSettings(): ReactElement {
   )
 
   return (
-    <div className="space-y-6">
-      {/* 页面标题和重置按钮 */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Keyboard className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-h2 text-foreground">{t('settings:shortcuts')}</h2>
+    <div className="max-w-2xl flex flex-col gap-4">
+      {/* 页面标题 */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary/10">
+            <Keyboard className="w-5 h-5 text-primary" />
           </div>
-          <p className="text-sm text-muted-foreground ml-12">
-            {t('shortcuts:description') || '自定义应用快捷键，提升操作效率'}
-          </p>
+          <h2 className="text-h2 text-foreground">{t('settings:shortcuts')}</h2>
         </div>
+        <p className="text-sm text-muted-foreground">
+          {t('shortcuts:description') || '自定义应用快捷键，提升操作效率'}
+        </p>
+      </div>
+
+      {/* 重置按钮 */}
+      <div className="flex justify-end">
         <Button
           onClick={() => setShowResetDialog(true)}
           variant="outline"
@@ -154,7 +156,7 @@ export default function ShortcutSettings(): ReactElement {
           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="text-sm font-medium">{conflictError}</p>
-            <p className="text-xs mt-1 opacity-80">请选择其他快捷键组合</p>
+            <p className="text-xs mt-1 opacity-80">{t('shortcuts:conflictHint')}</p>
           </div>
           <Button
             variant="ghost"
@@ -168,13 +170,13 @@ export default function ShortcutSettings(): ReactElement {
       )}
 
       {/* 快捷键列表 - 按类别分组 */}
-      <div className="space-y-6">
+      <div className="flex flex-col gap-4">
         {Object.entries(groupedShortcuts).map(([category, items]) => (
-          <div key={category} className="space-y-3">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide px-1">
+          <div key={category} className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
               {t(`shortcuts:category.${category}`)}
             </h3>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {items.map((shortcut) => (
                 <ShortcutItem
                   key={shortcut.action}
@@ -202,9 +204,7 @@ export default function ShortcutSettings(): ReactElement {
               </div>
               {t('shortcuts:confirmResetTitle') || '重置快捷键'}
             </DialogTitle>
-            <DialogDescription>
-              {t('shortcuts:confirmReset')}
-            </DialogDescription>
+            <DialogDescription>{t('shortcuts:confirmReset')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowResetDialog(false)}>
@@ -258,10 +258,7 @@ function ShortcutItem({
   const { t } = useTranslation('shortcuts')
 
   return (
-    <SettingItem
-      title={t(shortcut.description)}
-      description=""
-    >
+    <SettingItem title={t(shortcut.description)} description="">
       <div className="flex items-center gap-3">
         {isRecording ? (
           // 录制模式

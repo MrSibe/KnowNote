@@ -28,11 +28,6 @@ export function useShortcutExecutor() {
           window.dispatchEvent(new CustomEvent('shortcut:toggle-creative-space'))
           break
 
-        // 消息/聊天
-        case ShortcutAction.SEND_MESSAGE:
-          window.dispatchEvent(new CustomEvent('shortcut:send-message'))
-          break
-
         default:
           console.warn('[ShortcutExecutor] Unknown shortcut action:', action)
       }

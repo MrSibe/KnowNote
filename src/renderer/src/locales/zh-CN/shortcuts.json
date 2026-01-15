@@ -7,6 +7,7 @@
   "confirm": "确认重置",
   "cancel": "取消",
   "conflictError": "该快捷键已被占用",
+  "conflictHint": "请选择其他快捷键组合",
   "pressKey": "按下按键...",
 
   "category": {
@@ -18,6 +19,5 @@
   "createNotebook": "新建笔记本",
   "closeNotebook": "关闭笔记本",
   "toggleKnowledgeBase": "折叠/打开知识库",
-  "toggleCreativeSpace": "折叠/打开创造空间",
-  "sendMessage": "发送消息"
+  "toggleCreativeSpace": "折叠/打开创造空间"
 }
