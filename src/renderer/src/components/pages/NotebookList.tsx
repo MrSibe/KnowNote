@@ -124,7 +124,7 @@ export default function NotebookList(): ReactElement {
             <div className="max-w-7xl mx-auto flex flex-col gap-8">
               {/* 标题 */}
               <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold text-foreground">{t('myNotebooks')}</h1>
+                <h1 className="text-display text-foreground">{t('myNotebooks')}</h1>
                 <p className="text-muted-foreground">
                   {t('totalNotebooks', { count: notebooks.length })}
                 </p>
@@ -133,13 +133,14 @@ export default function NotebookList(): ReactElement {
               {/* 笔记本网格 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                 {notebooks.map((notebook) => (
-                  <NotebookCard
-                    key={notebook.id}
-                    notebook={notebook}
-                    onClick={() => handleNotebookClick(notebook.id)}
-                    onDelete={() => handleOpenDeleteDialog(notebook.id)}
-                    onRename={() => handleOpenRenameDialog(notebook.id)}
-                  />
+                  <div key={notebook.id} className="stagger-item">
+                    <NotebookCard
+                      notebook={notebook}
+                      onClick={() => handleNotebookClick(notebook.id)}
+                      onDelete={() => handleOpenDeleteDialog(notebook.id)}
+                      onRename={() => handleOpenRenameDialog(notebook.id)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>

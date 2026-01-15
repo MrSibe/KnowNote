@@ -1,6 +1,39 @@
+/* ============================================
+   Main CSS - 文件导入中心
+   Atom Enhanced 设计系统
+   ============================================ */
+
+/* 0. 字体导入 - 必须在最前面 */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+
+/* 1. CSS Reset */
 @import './base.css';
+
+/* 2. shadcn/Tailwind 主题 (不可修改) */
 @import './theme.css';
+
+/* 3. Tailwind 核心 */
 @import 'tailwindcss';
+
+/* 4. 字体系统 */
+@import './typography.css';
+
+/* 5. 视觉效果 */
+@import './effects.css';
+
+/* 6. 动画系统 */
+@import './animations.css';
+
+/* 7. 滚动条样式 */
+@import './scrollbar.css';
+
+/* 8. 实用工具类 */
+@import './utilities.css';
+
+/* ============================================
+   基础全局样式
+   ============================================ */
 
 body {
   margin: 0;
@@ -29,6 +62,10 @@ code {
   width: 100vw;
   height: 100vh;
 }
+
+/* ============================================
+   欢迎页面样式
+   ============================================ */
 
 .logo {
   margin-bottom: 20px;
@@ -147,6 +184,10 @@ code {
   }
 }
 
+/* ============================================
+   响应式设计
+   ============================================ */
+
 @media (max-width: 720px) {
   .text {
     font-size: 20px;
@@ -164,32 +205,4 @@ code {
   .actions {
     display: none;
   }
-}
-
-/* 自定义下拉框滚动条样式 */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:active {
-  background: var(--scrollbar-thumb-active);
-}
-
-/* Firefox 滚动条样式 */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) transparent;
 }

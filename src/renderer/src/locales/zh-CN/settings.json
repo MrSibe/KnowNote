@@ -85,5 +85,6 @@
   "chinesePrompt": "中文提示词",
   "englishPrompt": "英文提示词",
   "resetPrompt": "恢复默认",
-  "promptPlaceholder": "请输入提示词内容..."
+  "promptPlaceholder": "请输入提示词内容...",
+  "shortcuts": "快捷键"
 }

@@ -97,3 +97,26 @@ export interface AppSettings {
     }
   }
 }
+
+/**
+ * 快捷键动作枚举
+ */
+export enum ShortcutAction {
+  // 笔记本管理
+  CREATE_NOTEBOOK = 'create_notebook',
+  CLOSE_NOTEBOOK = 'close_notebook',
+
+  // 面板切换
+  TOGGLE_KNOWLEDGE_BASE = 'toggle_knowledge_base', // 知识库
+  TOGGLE_CREATIVE_SPACE = 'toggle_creative_space' // 创造空间
+}
+
+/**
+ * 快捷键配置接口
+ */
+export interface ShortcutConfig {
+  action: ShortcutAction
+  accelerator: string // 如 "CommandOrControl+N"
+  enabled: boolean
+  description: string // i18n key
+}

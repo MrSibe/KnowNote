@@ -1,6 +1,6 @@
 import type Store from 'electron-store'
 import type { StoreSchema } from './types'
-import { defaultSettings } from './defaults'
+import { defaultSettings, defaultShortcuts } from './defaults'
 
 /**
  * 创建 electron-store 实例（使用动态导入）
@@ -13,7 +13,8 @@ export async function getStore(): Promise<Store<StoreSchema>> {
     store = new Store<StoreSchema>({
       defaults: {
         settings: defaultSettings,
-        providers: {}
+        providers: {},
+        shortcuts: defaultShortcuts
       },
       name: 'knownote-config',
       // 文件会保存在: ~/Library/Application Support/knownote/knownote-config.json (macOS)

@@ -1,5 +1,0 @@
-/* 底部淡出效果 - 使用mask让文字淡出但背景清晰 */
-.message-list-fade {
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
-}

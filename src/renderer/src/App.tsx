@@ -9,12 +9,24 @@ import { setupChatListeners } from './store/chatStore'
 import { useThemeStore } from './store/themeStore'
 import { useNotebookStore } from './store/notebookStore'
 import { useI18nStore } from './store/i18nStore'
+import { useShortcutExecutor } from './hooks/useShortcutExecutor'
+import { initPlatform } from './lib/platform'
 import i18n from './i18n'
 
 function App(): React.JSX.Element {
   const initTheme = useThemeStore((state) => state.initTheme)
   const loadNotebooks = useNotebookStore((state) => state.loadNotebooks)
   const { language, initLanguage } = useI18nStore()
+
+  // 激活快捷键执行器
+  useShortcutExecutor()
+
+  // 初始化平台检测（预加载平台信息到缓存）
+  useEffect(() => {
+    initPlatform().catch((error) => {
+      console.error('[App] Failed to initialize platform detection:', error)
+    })
+  }, [])
 
   // 初始化聊天监听器
   useEffect(() => {

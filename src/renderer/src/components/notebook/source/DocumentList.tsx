@@ -1,8 +1,9 @@
-import { ReactElement, useRef, useEffect } from 'react'
+import { ReactElement, useRef, useEffect, useState } from 'react'
 import { FileText, Globe, FileUp, StickyNote, Trash2, Loader2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { KnowledgeDocument } from '../../../../../shared/types/knowledge'
 import { Button } from '../../ui/button'
+import ConfirmDialog from '../../common/ConfirmDialog'
 
 interface DocumentListProps {
   documents: KnowledgeDocument[]
@@ -53,6 +54,7 @@ interface DocumentItemProps {
 function DocumentItem({ document, onDelete, onSelect }: DocumentItemProps): ReactElement {
   const { t } = useTranslation('ui')
   const hasShownErrorRef = useRef(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const getTypeIcon = () => {
     const iconClass = 'w-4 h-4 mt-0.5 text-muted-foreground'
@@ -75,6 +77,10 @@ function DocumentItem({ document, onDelete, onSelect }: DocumentItemProps): Reac
       alert(t('embeddingFailed', { title: document.title }))
     }
   }, [document.status, document.title, t])
+
+  const handleConfirmDelete = () => {
+    onDelete(document.id)
+  }
 
   return (
     <div
@@ -100,9 +106,7 @@ function DocumentItem({ document, onDelete, onSelect }: DocumentItemProps): Reac
       <Button
         onClick={(e) => {
           e.stopPropagation()
-          if (confirm(t('confirmDeleteDocument'))) {
-            onDelete(document.id)
-          }
+          setIsDeleteDialogOpen(true)
         }}
         variant="ghost"
         size="icon"
@@ -111,6 +115,15 @@ function DocumentItem({ document, onDelete, onSelect }: DocumentItemProps): Reac
       >
         <Trash2 className="w-4 h-4" />
       </Button>
+
+      {/* 删除文档确认对话框 */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={t('deleteDocument')}
+        message={t('confirmDeleteDocument')}
+      />
     </div>
   )
 }

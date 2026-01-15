@@ -1,0 +1,346 @@
+/* ============================================
+   Animations - 动画系统
+   动画、keyframes、缓动曲线、主题切换
+   Atom Enhanced 设计系统
+   ============================================ */
+
+/* ============================================
+   1. 缓动曲线变量
+   ============================================ */
+
+:root {
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-fluid: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+/* ============================================
+   2. Keyframes 定义
+   ============================================ */
+
+/* 淡入向上 - 用于列表项 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 淡入 - 基础淡入 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 从右侧滑入 */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 从左侧滑入 */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 扫光效果 - 用于卡片装饰条 */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 骨架屏扫光 */
+@keyframes shimmerSkeleton {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+/* 脉冲效果 */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 缩放淡入 */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 旋转 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   3. 动画工具类
+   ============================================ */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s var(--ease-smooth) backwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s var(--ease-smooth);
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s var(--ease-smooth);
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.5s var(--ease-smooth);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s var(--ease-smooth);
+}
+
+.animate-pulse {
+  animation: pulse 2s var(--ease-smooth) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   4. Staggered 动画延迟（用于列表项）
+   ============================================ */
+
+.stagger-item {
+  animation: fadeInUp 0.6s var(--ease-smooth) backwards;
+}
+
+.stagger-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.stagger-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.stagger-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.stagger-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.stagger-item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.stagger-item:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.stagger-item:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.stagger-item:nth-child(8) {
+  animation-delay: 0.4s;
+}
+.stagger-item:nth-child(9) {
+  animation-delay: 0.45s;
+}
+.stagger-item:nth-child(10) {
+  animation-delay: 0.5s;
+}
+.stagger-item:nth-child(11) {
+  animation-delay: 0.55s;
+}
+.stagger-item:nth-child(12) {
+  animation-delay: 0.6s;
+}
+.stagger-item:nth-child(13) {
+  animation-delay: 0.65s;
+}
+.stagger-item:nth-child(14) {
+  animation-delay: 0.7s;
+}
+.stagger-item:nth-child(15) {
+  animation-delay: 0.75s;
+}
+.stagger-item:nth-child(16) {
+  animation-delay: 0.8s;
+}
+.stagger-item:nth-child(17) {
+  animation-delay: 0.85s;
+}
+.stagger-item:nth-child(18) {
+  animation-delay: 0.9s;
+}
+.stagger-item:nth-child(19) {
+  animation-delay: 0.95s;
+}
+.stagger-item:nth-child(20) {
+  animation-delay: 1s;
+}
+
+/* 更多项目使用固定延迟 */
+.stagger-item:nth-child(n + 21) {
+  animation-delay: 1s;
+}
+
+/* ============================================
+   5. 平滑的主题切换动画
+   ============================================ */
+
+* {
+  transition-property: background-color, color, border-color, fill, stroke;
+  transition-duration: 0.3s;
+  transition-timing-function: var(--ease-smooth);
+}
+
+/* 不应该有过渡的元素 */
+*:has(> .no-transition),
+.no-transition,
+.no-transition * {
+  transition: none !important;
+}
+
+/* ============================================
+   6. 卡片 Hover 增强动画
+   ============================================ */
+
+.card-hover-lift {
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
+/* ============================================
+   7. 扫光效果装饰
+   ============================================ */
+
+.shimmer-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s var(--ease-smooth);
+}
+
+.shimmer-line:hover::before {
+  left: 100%;
+}
+
+/* ============================================
+   8. 按钮涟漪效果
+   ============================================ */
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.6s var(--ease-smooth),
+    height 0.6s var(--ease-smooth);
+  pointer-events: none;
+}
+
+.ripple-effect:active::after {
+  width: 300px;
+  height: 300px;
+  transition:
+    width 0s,
+    height 0s;
+}
+
+/* ============================================
+   9. Skeleton 加载动画
+   ============================================ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--accent)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmerSkeleton 2s infinite;
+}
+
+/* ============================================
+   10. 减弱动画支持（可访问性）
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .stagger-item {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "shortcuts": "Keyboard Shortcuts",
+  "description": "Customize application shortcuts to boost productivity",
+  "resetToDefaults": "Reset to Defaults",
+  "confirmReset": "Are you sure you want to reset all shortcuts to defaults? This action cannot be undone.",
+  "confirmResetTitle": "Reset Shortcuts",
+  "confirm": "Confirm Reset",
+  "cancel": "Cancel",
+  "conflictError": "This shortcut is already in use",
+  "conflictHint": "Please choose another key combination",
+  "pressKey": "Press a key...",
+
+  "category": {
+    "notebook": "Notebook Management",
+    "panel": "Panel Toggle",
+    "chat": "Chat & Messages"
+  },
+
+  "createNotebook": "Create New Notebook",
+  "closeNotebook": "Close Notebook",
+  "toggleKnowledgeBase": "Toggle Knowledge Base",
+  "toggleCreativeSpace": "Toggle Creative Space"
+}

@@ -34,6 +34,7 @@ import {
   DialogTitle
 } from '../../ui/dialog'
 import { Input } from '../../ui/input'
+import ConfirmDialog from '../../common/ConfirmDialog'
 
 interface ItemListProps {
   items: ItemDetail[]
@@ -41,6 +42,7 @@ interface ItemListProps {
   onSelectNote: (note: Note) => void
   onOpenMindMap: (mindMapId: string) => void
   onDeleteItem: (itemId: string) => void
+  onRefresh?: () => void
 }
 
 // 单个可排序的 Item 组件
@@ -50,6 +52,7 @@ function SortableItemRow({
   onSelectNote,
   onOpenMindMap,
   onDeleteItem,
+  onRefresh,
   t,
   i18n
 }: {
@@ -58,18 +61,20 @@ function SortableItemRow({
   onSelectNote: (note: Note) => void
   onOpenMindMap: (mindMapId: string) => void
   onDeleteItem: (itemId: string) => void
+  onRefresh?: () => void
   t: any
   i18n: any
 }) {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id
   })
 
   const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+    transform: transform ? `translate3d(0, ${transform.y}px, 0)` : undefined,
     transition,
     zIndex: isDragging ? 999 : undefined
   }
@@ -98,16 +103,18 @@ function SortableItemRow({
         await window.api.mindmap.update(mindMap.id, { title: newTitle.trim() })
       }
       setIsRenameDialogOpen(false)
+      onRefresh?.()
     } catch (error) {
       console.error('Failed to rename:', error)
     }
   }
 
   const handleDelete = () => {
-    const confirmMsg = isNote ? t('confirmDeleteNote') : t('confirmDeleteMindMap')
-    if (confirm(confirmMsg)) {
-      onDeleteItem(item.id)
-    }
+    setIsDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    onDeleteItem(item.id)
   }
 
   const itemContent = (
@@ -250,6 +257,15 @@ function SortableItemRow({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 删除确认对话框 */}
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={isNote ? t('deleteNote') : t('deleteMindMap')}
+        message={isNote ? t('deleteNoteWarning') : t('confirmDeleteMindMap')}
+      />
     </>
   )
 }
@@ -259,7 +275,8 @@ export default function ItemList({
   currentNote,
   onSelectNote,
   onOpenMindMap,
-  onDeleteItem
+  onDeleteItem,
+  onRefresh
 }: ItemListProps): ReactElement {
   const { t, i18n } = useTranslation('notebook')
   const [localItems, setLocalItems] = useState(items)
@@ -332,6 +349,7 @@ export default function ItemList({
               onSelectNote={onSelectNote}
               onOpenMindMap={onOpenMindMap}
               onDeleteItem={onDeleteItem}
+              onRefresh={onRefresh}
               t={t}
               i18n={i18n}
             />

@@ -3,6 +3,9 @@ import { SessionAutoSwitchService } from '../services/SessionAutoSwitchService'
 import { KnowledgeService } from '../services/KnowledgeService'
 import { UpdateService } from '../services/UpdateService'
 import { MindMapService } from '../services/MindMapService'
+import { ShortcutManager } from '../services/ShortcutManager'
+import type Store from 'electron-store'
+import type { StoreSchema } from '../config/types'
 import { registerChatHandlers } from './chatHandlers'
 import { registerProviderHandlers } from './providerHandlers'
 import { registerSettingsHandlers } from './settingsHandlers'
@@ -12,6 +15,7 @@ import { registerKnowledgeHandlers } from './knowledgeHandlers'
 import { registerMindMapHandlers } from './mindmapHandlers'
 import { registerUpdateHandlers } from './updateHandlers'
 import { registerItemHandlers } from './itemHandlers'
+import { registerShortcutHandlers } from './shortcutHandlers'
 
 /**
  * 注册所有 IPC Handlers
@@ -20,7 +24,9 @@ export function registerAllHandlers(
   providerManager: ProviderManager,
   sessionAutoSwitchService: SessionAutoSwitchService,
   knowledgeService: KnowledgeService,
-  updateService: UpdateService
+  updateService: UpdateService,
+  shortcutManager: ShortcutManager,
+  store: Store<StoreSchema>
 ) {
   // 实例化 MindMapService
   const mindMapService = new MindMapService(providerManager)
@@ -34,6 +40,7 @@ export function registerAllHandlers(
   registerMindMapHandlers(mindMapService)
   registerUpdateHandlers(updateService)
   registerItemHandlers()
+  registerShortcutHandlers(shortcutManager, store)
   console.log('[IPC] All handlers registered')
 }
 

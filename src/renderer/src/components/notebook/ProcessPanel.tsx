@@ -99,6 +99,27 @@ export default function ProcessPanel({
     await abortMessage(currentNotebookId)
   }
 
+  // 使用 ref 存储 handleSend 函数的引用，避免事件监听器频繁重注册
+  const handleSendRef = useRef<() => void>(() => {})
+
+  // 保持 ref 指向最新的 handleSend 函数
+  useEffect(() => {
+    handleSendRef.current = handleSend
+  })
+
+  // 监听发送消息快捷键（只注册一次）
+  useEffect(() => {
+    const handleSendShortcut = () => {
+      handleSendRef.current()
+    }
+
+    window.addEventListener('shortcut:send-message', handleSendShortcut)
+
+    return () => {
+      window.removeEventListener('shortcut:send-message', handleSendShortcut)
+    }
+  }, [])
+
   // Auto-resize textarea based on content
   const adjustTextareaHeight = (): void => {
     const textarea = textareaRef.current
@@ -258,6 +279,15 @@ export default function ProcessPanel({
         <MessageList messages={messages} />
       </div>
 
+      {/* 底部渐变遮罩 - 独立于消息区域，避免堆叠上下文问题 */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none rounded-b-xl z-10"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 0%, hsl(var(--card)) 40%, hsl(var(--card)) 100%)'
+        }}
+      />
+
       {/* 底部输入区域 - 绝对定位浮动在底部 */}
       <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none shrink-0 z-20">
         <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:ring-2 focus-within:ring-ring shadow-lg pointer-events-auto">
@@ -292,7 +322,7 @@ export default function ProcessPanel({
               title="停止生成"
               variant="destructive"
               size="icon"
-              className="absolute right-2 bottom-3 w-10 h-10"
+              className="absolute right-2 bottom-3 w-8 h-8 rounded-full"
             >
               <StopCircle className="w-4 h-4" />
             </Button>
@@ -305,7 +335,7 @@ export default function ProcessPanel({
                 !hasProvider ? t('noProviderConfigured') : !currentSession ? t('selectSession') : ''
               }
               size="icon"
-              className="absolute right-2 bottom-3 w-10 h-10"
+              className="absolute right-2 bottom-3 w-8 h-8 rounded-full"
             >
               <Send className="w-4 h-4" />
             </Button>

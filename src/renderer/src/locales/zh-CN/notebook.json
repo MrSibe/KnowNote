@@ -16,6 +16,7 @@
   "noNotesYet": "暂无笔记",
   "noNotesYetDesc": "点击右上角的\"+\"按钮创建笔记",
   "deleteNote": "删除笔记",
+  "deleteNoteWarning": "确定要删除这个笔记吗？此操作无法撤销。",
   "unsavedChangesWarning": "您有未保存的修改，确定要离开吗？",
   "unsavedChangesTitle": "有未保存的修改",
   "unsavedChangesMessage": "您有未保存的修改，确定要切换到其他Notebook吗？",

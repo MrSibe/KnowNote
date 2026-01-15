@@ -51,7 +51,7 @@ export default function RenameDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[440px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{t('notebook:renameNotebook')}</DialogTitle>
         </DialogHeader>

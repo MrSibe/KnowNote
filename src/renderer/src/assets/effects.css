@@ -1,0 +1,246 @@
+/* ============================================
+   Effects - 视觉效果
+   渐变、阴影、背景装饰、毛玻璃、淡出效果
+   Atom Enhanced 设计系统
+   ============================================ */
+
+/* ============================================
+   1. 渐变系统 - 基于 Atom 色系
+   ============================================ */
+
+:root {
+  /* 主渐变 - 蓝色系 */
+  --gradient-primary: linear-gradient(135deg, #4078f2 0%, #61afef 100%);
+  --gradient-primary-vertical: linear-gradient(180deg, #4078f2 0%, #61afef 100%);
+
+  /* 强调渐变 - 暖色系 */
+  --gradient-accent: linear-gradient(135deg, #e5c07b 0%, #e06c75 100%);
+  --gradient-accent-vertical: linear-gradient(180deg, #e5c07b 0%, #e06c75 100%);
+
+  /* 冷色渐变 - 蓝紫系 */
+  --gradient-cool: linear-gradient(135deg, #61afef 0%, #c678dd 100%);
+  --gradient-cool-vertical: linear-gradient(180deg, #61afef 0%, #c678dd 100%);
+
+  /* 暖色渐变 - 绿黄系 */
+  --gradient-warm: linear-gradient(135deg, #98c379 0%, #e5c07b 100%);
+  --gradient-warm-vertical: linear-gradient(180deg, #98c379 0%, #e5c07b 100%);
+
+  /* 微妙的背景 Mesh（用于输入框、面板等） */
+  --gradient-mesh:
+    radial-gradient(at 0% 0%, rgba(97, 175, 239, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(198, 120, 221, 0.08) 0px, transparent 50%);
+
+  /* 装饰性光晕渐变 */
+  --gradient-glow: radial-gradient(circle, var(--chart-1) 0%, transparent 70%);
+}
+
+.dark {
+  /* 深色模式下的渐变稍微调整透明度 */
+  --gradient-mesh:
+    radial-gradient(at 0% 0%, rgba(97, 175, 239, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(198, 120, 221, 0.05) 0px, transparent 50%);
+}
+
+/* ============================================
+   2. 背景装饰系统
+   ============================================ */
+
+:root {
+  /* 网格背景 */
+  --bg-grid:
+    linear-gradient(to right, rgba(224, 224, 224, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(224, 224, 224, 0.5) 1px, transparent 1px);
+  --bg-grid-size: 32px 32px;
+
+  /* 点状网格 */
+  --bg-dots: radial-gradient(circle, rgba(224, 224, 224, 0.8) 1px, transparent 1px);
+  --bg-dots-size: 24px 24px;
+}
+
+.dark {
+  --bg-grid:
+    linear-gradient(to right, rgba(62, 68, 81, 0.5) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(62, 68, 81, 0.5) 1px, transparent 1px);
+
+  --bg-dots: radial-gradient(circle, rgba(62, 68, 81, 0.8) 1px, transparent 1px);
+}
+
+/* ============================================
+   3. SVG 噪点纹理
+   ============================================ */
+
+:root {
+  --bg-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+.dark {
+  --bg-noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   4. 彩色阴影（基于 Atom 主色）
+   ============================================ */
+
+:root {
+  --shadow-primary: 0 8px 16px -4px rgba(64, 120, 242, 0.2);
+  --shadow-accent: 0 8px 16px -4px rgba(229, 192, 123, 0.15);
+  --shadow-success: 0 8px 16px -4px rgba(152, 195, 121, 0.15);
+  --shadow-danger: 0 8px 16px -4px rgba(224, 108, 117, 0.15);
+  --shadow-cool: 0 8px 16px -4px rgba(97, 175, 239, 0.2);
+  --shadow-purple: 0 8px 16px -4px rgba(198, 120, 221, 0.15);
+}
+
+.dark {
+  --shadow-primary: 0 8px 16px -4px rgba(97, 175, 239, 0.25);
+  --shadow-accent: 0 8px 16px -4px rgba(229, 192, 123, 0.2);
+  --shadow-success: 0 8px 16px -4px rgba(152, 195, 121, 0.2);
+  --shadow-danger: 0 8px 16px -4px rgba(224, 108, 117, 0.2);
+  --shadow-cool: 0 8px 16px -4px rgba(97, 175, 239, 0.25);
+  --shadow-purple: 0 8px 16px -4px rgba(198, 120, 221, 0.2);
+}
+
+/* ============================================
+   5. 毛玻璃效果工具类
+   ============================================ */
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass-effect {
+  background: rgba(33, 37, 43, 0.8);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 更强的毛玻璃效果 */
+.glass-effect-strong {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.dark .glass-effect-strong {
+  background: rgba(33, 37, 43, 0.9);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   6. 渐变背景工具类
+   ============================================ */
+
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.bg-gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.bg-gradient-cool {
+  background: var(--gradient-cool);
+}
+
+.bg-gradient-warm {
+  background: var(--gradient-warm);
+}
+
+.bg-gradient-mesh {
+  background: var(--gradient-mesh);
+}
+
+/* ============================================
+   7. 背景装饰工具类
+   ============================================ */
+
+.bg-grid {
+  background-image: var(--bg-grid);
+  background-size: var(--bg-grid-size);
+}
+
+.bg-dots {
+  background-image: var(--bg-dots);
+  background-size: var(--bg-dots-size);
+}
+
+.bg-noise {
+  background-image: var(--bg-noise);
+}
+
+/* ============================================
+   8. 淡出效果（从 messageList.css 迁移）
+   ============================================ */
+
+.fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 75%, transparent 100%);
+}
+
+.fade-top {
+  -webkit-mask-image: linear-gradient(to top, black 0%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to top, black 0%, black 75%, transparent 100%);
+}
+
+.fade-right {
+  -webkit-mask-image: linear-gradient(to right, black 0%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to right, black 0%, black 75%, transparent 100%);
+}
+
+.fade-left {
+  -webkit-mask-image: linear-gradient(to left, black 0%, black 75%, transparent 100%);
+  mask-image: linear-gradient(to left, black 0%, black 75%, transparent 100%);
+}
+
+/* ============================================
+   9. 光晕效果
+   ============================================ */
+
+.glow-primary {
+  box-shadow: 0 0 20px rgba(64, 120, 242, 0.3);
+}
+
+.dark .glow-primary {
+  box-shadow: 0 0 20px rgba(97, 175, 239, 0.4);
+}
+
+.glow-accent {
+  box-shadow: 0 0 20px rgba(229, 192, 123, 0.3);
+}
+
+.dark .glow-accent {
+  box-shadow: 0 0 20px rgba(229, 192, 123, 0.4);
+}
+
+/* ============================================
+   10. 装饰性渐变边框
+   ============================================ */
+
+.border-gradient-primary {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--background), var(--background)), var(--gradient-primary);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.border-gradient-cool {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--background), var(--background)), var(--gradient-cool);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* ============================================
+   11. 消息列表淡出效果
+   ============================================ */
+
+.message-list-fade {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+}
