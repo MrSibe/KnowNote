@@ -271,6 +271,15 @@ export default function ProcessPanel({
         <MessageList messages={messages} />
       </div>
 
+      {/* 底部渐变遮罩 - 独立于消息区域，避免堆叠上下文问题 */}
+      <div
+        className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none rounded-b-xl z-10"
+        style={{
+          background:
+            'linear-gradient(to bottom, transparent 0%, hsl(var(--card)) 40%, hsl(var(--card)) 100%)'
+        }}
+      />
+
       {/* 底部输入区域 - 绝对定位浮动在底部 */}
       <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none shrink-0 z-20">
         <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:ring-2 focus-within:ring-ring shadow-lg pointer-events-auto">

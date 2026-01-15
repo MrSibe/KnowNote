@@ -224,18 +224,23 @@
 
 .border-gradient-primary {
   border: 1px solid transparent;
-  background-image:
-    linear-gradient(var(--background), var(--background)),
-    var(--gradient-primary);
+  background-image: linear-gradient(var(--background), var(--background)), var(--gradient-primary);
   background-origin: border-box;
   background-clip: padding-box, border-box;
 }
 
 .border-gradient-cool {
   border: 1px solid transparent;
-  background-image:
-    linear-gradient(var(--background), var(--background)),
-    var(--gradient-cool);
+  background-image: linear-gradient(var(--background), var(--background)), var(--gradient-cool);
   background-origin: border-box;
   background-clip: padding-box, border-box;
+}
+
+/* ============================================
+   11. 消息列表淡出效果
+   ============================================ */
+
+.message-list-fade {
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
 }
