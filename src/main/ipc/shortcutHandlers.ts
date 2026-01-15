@@ -7,7 +7,10 @@ import type { StoreSchema } from '../config/types'
 /**
  * 注册快捷键相关的 IPC Handlers
  */
-export function registerShortcutHandlers(shortcutManager: ShortcutManager, store: Store<StoreSchema>): void {
+export function registerShortcutHandlers(
+  shortcutManager: ShortcutManager,
+  store: Store<StoreSchema>
+): void {
   // 获取所有快捷键
   ipcMain.handle('shortcuts:getAll', (): ShortcutConfig[] => {
     return (store.get('shortcuts') as ShortcutConfig[]) || []

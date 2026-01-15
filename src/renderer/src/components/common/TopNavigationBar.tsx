@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNotebookStore } from '../../store/notebookStore'
 import { ReactElement } from 'react'
 import { Button } from '../ui/button'
+import { isMac, isLinux, isWindows } from '../../lib/platform'
 
 interface TopNavigationBarProps {
   onCreateClick: () => void
@@ -18,11 +19,6 @@ export default function TopNavigationBar({
   const navigate = useNavigate()
   const { currentNotebook, openedNotebooks, removeOpenedNotebook, setCurrentNotebook } =
     useNotebookStore()
-
-  // 同步检测平台，避免闪烁
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-  const isLinux = navigator.platform.toUpperCase().indexOf('LINUX') >= 0
-  const isWindows = navigator.platform.toUpperCase().indexOf('WIN') >= 0
 
   const handleHomeClick = (): void => {
     navigate('/')
@@ -68,10 +64,10 @@ export default function TopNavigationBar({
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* macOS 左侧空白区域（留给窗口控制按钮） */}
-      {isMac && <div className="w-20"></div>}
+      {isMac() && <div className="w-20"></div>}
 
       {/* Linux 左侧设置按钮区域 */}
-      {isLinux && (
+      {isLinux() && (
         <div className="flex items-center">
           <Button
             onClick={handleSettingsClick}
@@ -142,7 +138,7 @@ export default function TopNavigationBar({
       </div>
 
       {/* 非Linux平台的设置按钮（Windows和macOS保持在右侧） */}
-      {!isLinux && (
+      {!isLinux() && (
         <Button
           onClick={handleSettingsClick}
           variant="ghost"
@@ -156,7 +152,7 @@ export default function TopNavigationBar({
       )}
 
       {/* Windows 右侧空白区域（留给窗口控制按钮） */}
-      {isWindows && <div className="w-32"></div>}
+      {isWindows() && <div className="w-32"></div>}
     </div>
   )
 }

@@ -87,19 +87,6 @@ export default function ProcessPanel({
     }
   }, [])
 
-  // 监听发送消息快捷键
-  useEffect(() => {
-    const handleSendShortcut = () => {
-      handleSend()
-    }
-
-    window.addEventListener('shortcut:send-message', handleSendShortcut)
-
-    return () => {
-      window.removeEventListener('shortcut:send-message', handleSendShortcut)
-    }
-  }, [input, canSend, currentSession])
-
   const handleSend = (): void => {
     if (!canSend) return
 
@@ -111,6 +98,27 @@ export default function ProcessPanel({
     if (!canStop || !currentNotebookId) return
     await abortMessage(currentNotebookId)
   }
+
+  // 使用 ref 存储 handleSend 函数的引用，避免事件监听器频繁重注册
+  const handleSendRef = useRef<() => void>(() => {})
+
+  // 保持 ref 指向最新的 handleSend 函数
+  useEffect(() => {
+    handleSendRef.current = handleSend
+  })
+
+  // 监听发送消息快捷键（只注册一次）
+  useEffect(() => {
+    const handleSendShortcut = () => {
+      handleSendRef.current()
+    }
+
+    window.addEventListener('shortcut:send-message', handleSendShortcut)
+
+    return () => {
+      window.removeEventListener('shortcut:send-message', handleSendShortcut)
+    }
+  }, [])
 
   // Auto-resize textarea based on content
   const adjustTextareaHeight = (): void => {

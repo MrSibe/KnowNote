@@ -91,14 +91,48 @@ export default function ResizableLayout({
     return () => window.removeEventListener('resize', handleResize)
   }, [defaultLeftWidth, defaultRightWidth, isInitialized])
 
-  // 监听面板切换快捷键
+  // 折叠/展开左侧面板
+  const toggleLeftPanel = (): void => {
+    if (isLeftCollapsed) {
+      // 展开：恢复之前的宽度
+      setLeftWidth(savedLeftWidth || defaultLeftWidth || 320)
+      setSavedLeftWidth(null)
+    } else {
+      // 折叠：保存当前宽度
+      setSavedLeftWidth(leftWidth)
+    }
+    setIsLeftCollapsed(!isLeftCollapsed)
+  }
+
+  // 折叠/展开右侧面板
+  const toggleRightPanel = (): void => {
+    if (isRightCollapsed) {
+      setRightWidth(savedRightWidth || defaultRightWidth || 360)
+      setSavedRightWidth(null)
+    } else {
+      setSavedRightWidth(rightWidth)
+    }
+    setIsRightCollapsed(!isRightCollapsed)
+  }
+
+  // 使用 ref 存储 toggle 函数的引用，避免事件监听器频繁重注册
+  const toggleLeftPanelRef = useRef<() => void>(() => {})
+  const toggleRightPanelRef = useRef<() => void>(() => {})
+
+  // 保持 ref 指向最新的 toggle 函数
+  useEffect(() => {
+    toggleLeftPanelRef.current = toggleLeftPanel
+    toggleRightPanelRef.current = toggleRightPanel
+  })
+
+  // 监听面板切换快捷键（只注册一次）
   useEffect(() => {
     const handleToggleKnowledgeBase = () => {
-      toggleLeftPanel()
+      toggleLeftPanelRef.current()
     }
 
     const handleToggleCreativeSpace = () => {
-      toggleRightPanel()
+      toggleRightPanelRef.current()
     }
 
     window.addEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
@@ -108,7 +142,7 @@ export default function ResizableLayout({
       window.removeEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
       window.removeEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
     }
-  }, [isLeftCollapsed, isRightCollapsed, leftWidth, rightWidth, savedLeftWidth, savedRightWidth])
+  }, [])
 
   const handleMouseDown = (side: 'left' | 'right'): void => {
     if (side === 'left') {
@@ -153,30 +187,6 @@ export default function ResizableLayout({
   const handleMouseUp = (): void => {
     setIsDraggingLeft(false)
     setIsDraggingRight(false)
-  }
-
-  // 折叠/展开左侧面板
-  const toggleLeftPanel = (): void => {
-    if (isLeftCollapsed) {
-      // 展开：恢复之前的宽度
-      setLeftWidth(savedLeftWidth || defaultLeftWidth || 320)
-      setSavedLeftWidth(null)
-    } else {
-      // 折叠：保存当前宽度
-      setSavedLeftWidth(leftWidth)
-    }
-    setIsLeftCollapsed(!isLeftCollapsed)
-  }
-
-  // 折叠/展开右侧面板
-  const toggleRightPanel = (): void => {
-    if (isRightCollapsed) {
-      setRightWidth(savedRightWidth || defaultRightWidth || 360)
-      setSavedRightWidth(null)
-    } else {
-      setSavedRightWidth(rightWidth)
-    }
-    setIsRightCollapsed(!isRightCollapsed)
   }
 
   return (

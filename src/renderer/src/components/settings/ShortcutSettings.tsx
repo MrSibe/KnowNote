@@ -13,6 +13,7 @@ import {
   DialogTitle
 } from '../ui/dialog'
 import SettingItem from './SettingItem'
+import { isMac } from '../../lib/platform'
 
 export default function ShortcutSettings(): ReactElement {
   const { t } = useTranslation(['settings', 'shortcuts'])
@@ -303,10 +304,9 @@ function ShortcutItem({
 
 // 格式化快捷键显示（将 CommandOrControl 转换为平台相关符号）
 function formatAccelerator(accelerator: string): string {
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
   return accelerator
-    .replace('CommandOrControl', isMac ? '⌘' : 'Ctrl')
-    .replace('Shift', isMac ? '⇧' : 'Shift')
-    .replace('Alt', isMac ? '⌥' : 'Alt')
+    .replace('CommandOrControl', isMac() ? '⌘' : 'Ctrl')
+    .replace('Shift', isMac() ? '⇧' : 'Shift')
+    .replace('Alt', isMac() ? '⌥' : 'Alt')
     .replace(/\+/g, ' ')
 }

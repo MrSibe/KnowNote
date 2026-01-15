@@ -1,4 +1,4 @@
-import { useEffect, ReactElement } from 'react'
+import { useEffect, useCallback, ReactElement } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import TopNavigationBar from '../common/TopNavigationBar'
@@ -29,14 +29,14 @@ export default function NotebookLayout(): ReactElement {
     }
   }, [id, addOpenedNotebook, setCurrentNotebook, loadActiveSession])
 
-  const handleCreateNotebook = async (): Promise<void> => {
+  const handleCreateNotebook = useCallback(async (): Promise<void> => {
     const newId = await addNotebook({
       title: t('newNotebook', { index: notebooks.length + 1 }),
       description: t('notebookDescription')
     })
 
     navigate(`/notebook/${newId}`)
-  }
+  }, [addNotebook, t, notebooks.length, navigate])
 
   // 监听笔记本管理快捷键
   useEffect(() => {
