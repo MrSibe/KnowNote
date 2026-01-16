@@ -63,6 +63,23 @@ export default function ProvidersSettings({
         try {
           const cachedModels = await window.api.getProviderModels(providerName)
           loadedModels[providerName] = cachedModels
+
+          // 同步到 provider.config.modelDetails，以便 GeneralSettings 可以读取模型类型
+          const provider = providers.find((p) => p.providerName === providerName)
+          if (provider && cachedModels.length > 0) {
+            // 检查是否已经有 modelDetails，避免重复更新
+            if (!provider.config.modelDetails || provider.config.modelDetails.length === 0) {
+              console.log(
+                `[Sync] Syncing ${cachedModels.length} cached models to ${providerName}.config.modelDetails`
+              )
+              updateProviderConfig(providerName, {
+                config: {
+                  ...provider.config,
+                  modelDetails: cachedModels
+                }
+              })
+            }
+          }
         } catch (error) {
           console.error(`Failed to load cached models for ${providerName}:`, error)
         }
@@ -72,7 +89,7 @@ export default function ProvidersSettings({
     }
 
     loadCachedModels()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Get specific provider configuration
   const getProviderConfig = (providerName: string) => {
@@ -145,16 +162,56 @@ export default function ProvidersSettings({
     setFetchingModels((prev) => ({ ...prev, [providerName]: true }))
 
     try {
-      const modelList = await window.api.fetchModels(providerName, apiKey)
-      setModels((prev) => ({ ...prev, [providerName]: modelList }))
+      const result = await window.api.fetchModels(providerName, apiKey)
 
-      // 保存完整的模型信息到 config，这样 GeneralSettings 可以访问到模型的 type 字段
-      updateProviderConfig(providerName, {
-        config: {
-          ...provider.config,
-          modelDetails: modelList
+      // 类型守卫：检查是否是新格式（包含 models 和 source 字段）
+      const isNewFormat = (res: any): res is {
+        models: Model[]
+        source: 'merged' | 'builtin'
+        builtinCount?: number
+        remoteCount?: number
+        error?: string
+      } => {
+        return res && typeof res === 'object' && 'models' in res && 'source' in res
+      }
+
+      if (isNewFormat(result)) {
+        // 新格式：包含 models 和 source
+        const modelList = result.models
+        setModels((prev) => ({ ...prev, [providerName]: modelList }))
+
+        // 保存完整的模型信息到 config
+        updateProviderConfig(providerName, {
+          config: {
+            ...provider.config,
+            modelDetails: modelList
+          }
+        })
+
+        // 根据来源显示不同的提示
+        if (result.source === 'merged') {
+          console.log(
+            `[Models Updated] ${providerName}: 已智能合并 ${result.builtinCount} 个内置模型和 ${result.remoteCount} 个远程模型`
+          )
+          alert(`✅ 模型列表已更新 (智能合并)\n\n内置模型: ${result.builtinCount} 个\n远程模型: ${result.remoteCount} 个\n合并后: ${modelList.length} 个\n\n策略: 远程信息 + 内置元数据`)
+        } else if (result.source === 'builtin') {
+          console.warn(`[Models Fallback] ${providerName}: 网络请求失败，使用内置模型`)
+          alert(`⚠️ 网络请求失败\n已加载 ${modelList.length} 个内置模型\n\n错误: ${result.error || '未知'}`)
         }
-      })
+      } else {
+        // 旧格式：直接返回 Model[]（向后兼容）
+        const modelList = result
+        setModels((prev) => ({ ...prev, [providerName]: modelList }))
+
+        updateProviderConfig(providerName, {
+          config: {
+            ...provider.config,
+            modelDetails: modelList
+          }
+        })
+
+        console.log(`[Models Fetched] ${providerName}: ${modelList.length} 个模型`)
+      }
     } catch (error) {
       console.error('Failed to fetch model list:', error)
       alert(`${t('fetchModelFailed')}${error instanceof Error ? error.message : 'Unknown error'}`)
@@ -330,7 +387,20 @@ export default function ProvidersSettings({
       })
 
       // 使用后端 API，后端会从配置中读取 baseUrl
-      const modelList = await window.api.fetchModels(providerName, apiKey)
+      const result = await window.api.fetchModels(providerName, apiKey)
+
+      // 类型守卫：检查是否是新格式
+      const isNewFormat = (res: any): res is {
+        models: Model[]
+        source: 'merged' | 'builtin'
+        builtinCount?: number
+        remoteCount?: number
+        error?: string
+      } => {
+        return res && typeof res === 'object' && 'models' in res && 'source' in res
+      }
+
+      const modelList = isNewFormat(result) ? result.models : result
       setModels((prev) => ({ ...prev, [providerName]: modelList }))
 
       // 保存完整的模型信息到 config

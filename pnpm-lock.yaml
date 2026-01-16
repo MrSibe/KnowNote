@@ -119,6 +119,9 @@ importers:
       katex:
         specifier: ^0.16.27
         version: 0.16.27
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       lucide-react:
         specifier: ^0.556.0
         version: 0.556.0(react@19.2.1)
@@ -216,6 +219,9 @@ importers:
       '@types/jsdom':
         specifier: ^27.0.0
         version: 27.0.0
+      '@types/lodash':
+        specifier: ^4.17.23
+        version: 4.17.23
       '@types/node':
         specifier: ^22.19.1
         version: 22.19.2
@@ -1912,6 +1918,9 @@ packages:
 
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+
+  '@types/lodash@4.17.23':
+    resolution: {integrity: sha512-RDvF6wTulMPjrNdCoYRC8gNR880JNGT8uB+REUpC2Ns4pRqQJhGz90wh7rgdXDPpCczF3VGktDuFGVnz8zP7HA==}
 
   '@types/markdown-it@13.0.9':
     resolution: {integrity: sha512-1XPwR0+MgXLWfTn9gCsZ55AHOKW1WN+P9vr0PaQh5aerR9LLQXUbjfEAFhjmEmyoYFWAyuN2Mqkn40MZ4ukjBw==}
@@ -6879,6 +6888,8 @@ snapshots:
   '@types/linkify-it@3.0.5': {}
 
   '@types/linkify-it@5.0.0': {}
+
+  '@types/lodash@4.17.23': {}
 
   '@types/markdown-it@13.0.9':
     dependencies:

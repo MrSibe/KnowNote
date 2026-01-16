@@ -136,7 +136,13 @@ declare global {
       fetchModels: (
         providerName: string,
         apiKey: string
-      ) => Promise<{ id: string; object: string; owned_by?: string; created?: number }[]>
+      ) => Promise<{
+        models: { id: string; object: string; owned_by?: string; created?: number; type?: string }[]
+        source: 'merged' | 'builtin'
+        builtinCount?: number
+        remoteCount?: number
+        error?: string
+      } | { id: string; object: string; owned_by?: string; created?: number }[]>
       getProviderModels: (
         providerName: string
       ) => Promise<{ id: string; object: string; owned_by?: string; created?: number }[]>

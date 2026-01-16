@@ -69,6 +69,8 @@ export interface Model {
   owned_by?: string
   created?: number
   type?: ModelType
+  max_context?: number // 最大上下文长度 (来自内置配置)
+  description?: string // 模型描述 (来自内置配置)
 }
 
 /**
