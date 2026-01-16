@@ -1,8 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { uniqBy } from 'lodash'
 import { ProviderManager } from '../providers/ProviderManager'
 import { providersManager } from '../config'
-import { enrichModelsWithType } from '../../shared/utils/modelClassifier'
+import { enrichModelsWithType, mergeModels } from '../../shared/utils/modelClassifier'
 import { ProviderSchemas, validate } from './validation'
 import { getBuiltinModels } from '../../shared/config/models'
 
@@ -166,8 +165,8 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
 
             const remoteModels = enrichModelsWithType(normalizedModels)
 
-            // 合并策略：内置模型 + 远程模型，按 id 去重
-            const mergedModels = uniqBy([...builtinModels, ...remoteModels], 'id')
+            // 智能合并策略：远程信息 + 内置元数据
+            const mergedModels = mergeModels(builtinModels, remoteModels)
 
             console.log(
               `[Models] ${args.providerName}: ${builtinModels.length} builtin + ${remoteModels.length} remote = ${mergedModels.length} total`
@@ -223,9 +222,10 @@ export function registerProviderHandlers(providerManager: ProviderManager) {
           // 为模型添加类型信息
           const remoteModels = enrichModelsWithType(normalizedModels)
 
-          // 3. 合并策略：内置模型 + 远程模型，按 id 去重
-          // 优先保留内置模型的 max_context 等字段
-          const mergedModels = uniqBy([...builtinModels, ...remoteModels], 'id')
+          // 3. 智能合并策略：远程信息 + 内置元数据
+          // 远程字段优先: id, owned_by, created (反映最新状态)
+          // 内置字段优先: type, max_context, description (精心配置)
+          const mergedModels = mergeModels(builtinModels, remoteModels)
 
           console.log(
             `[Models] ${args.providerName}: ${builtinModels.length} builtin + ${remoteModels.length} remote = ${mergedModels.length} total`

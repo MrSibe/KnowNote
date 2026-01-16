@@ -222,3 +222,56 @@ export function filterChatModels(models: Model[]): Model[] {
 export function filterEmbeddingModels(models: Model[]): Model[] {
   return enrichModelsWithType(models).filter((m) => m.type === ModelType.EMBEDDING)
 }
+
+/**
+ * 智能合并内置模型和远程模型
+ *
+ * 合并策略:
+ * - 远程字段优先: id, owned_by, created, object (反映最新状态)
+ * - 内置字段优先: type, max_context, description (精心配置的元数据)
+ * - 远程新增模型: 自动分类 type 后添加
+ * - 内置独有模型: 保留 (防止远程 API 遗漏)
+ *
+ * @param builtinModels 内置模型列表
+ * @param remoteModels 远程 API 获取的模型列表
+ * @returns 合并后的模型列表
+ *
+ * @example
+ * // 内置模型: [{ id: 'gpt-4o', type: 'chat', max_context: 128000 }]
+ * // 远程模型: [{ id: 'gpt-4o', created: 1715367049, owned_by: 'openai' }]
+ * // 合并结果: [{ id: 'gpt-4o', type: 'chat', max_context: 128000, created: 1715367049, owned_by: 'openai' }]
+ */
+export function mergeModels(builtinModels: Model[], remoteModels: Model[]): Model[] {
+  const builtinMap = new Map(builtinModels.map((m) => [m.id, m]))
+  const remoteMap = new Map(remoteModels.map((m) => [m.id, m]))
+
+  const merged: Model[] = []
+
+  // 1. 遍历所有远程模型
+  for (const remote of remoteModels) {
+    const builtin = builtinMap.get(remote.id)
+
+    if (builtin) {
+      // 同时存在:智能合并
+      // 远程字段提供最新的基础信息,内置字段提供精确的元数据
+      merged.push({
+        ...remote, // 远程字段 (id, object, owned_by, created)
+        type: builtin.type, // 内置字段优先
+        max_context: builtin.max_context,
+        description: builtin.description
+      })
+    } else {
+      // 仅远程有:直接添加 (自动分类 type)
+      merged.push(enrichModelWithType(remote))
+    }
+  }
+
+  // 2. 添加仅内置有的模型 (防止远程 API 遗漏)
+  for (const builtin of builtinModels) {
+    if (!remoteMap.has(builtin.id)) {
+      merged.push(builtin)
+    }
+  }
+
+  return merged
+}

@@ -191,9 +191,9 @@ export default function ProvidersSettings({
         // 根据来源显示不同的提示
         if (result.source === 'merged') {
           console.log(
-            `[Models Updated] ${providerName}: 已合并 ${result.builtinCount} 个内置模型和 ${result.remoteCount} 个远程模型`
+            `[Models Updated] ${providerName}: 已智能合并 ${result.builtinCount} 个内置模型和 ${result.remoteCount} 个远程模型`
           )
-          alert(`✅ 模型列表已更新\n内置模型: ${result.builtinCount} 个\n远程模型: ${result.remoteCount} 个\n总计: ${modelList.length} 个`)
+          alert(`✅ 模型列表已更新 (智能合并)\n\n内置模型: ${result.builtinCount} 个\n远程模型: ${result.remoteCount} 个\n合并后: ${modelList.length} 个\n\n策略: 远程信息 + 内置元数据`)
         } else if (result.source === 'builtin') {
           console.warn(`[Models Fallback] ${providerName}: 网络请求失败，使用内置模型`)
           alert(`⚠️ 网络请求失败\n已加载 ${modelList.length} 个内置模型\n\n错误: ${result.error || '未知'}`)
