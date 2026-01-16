@@ -165,7 +165,9 @@ export default function ProvidersSettings({
       const result = await window.api.fetchModels(providerName, apiKey)
 
       // 类型守卫：检查是否是新格式（包含 models 和 source 字段）
-      const isNewFormat = (res: any): res is {
+      const isNewFormat = (
+        res: any
+      ): res is {
         models: Model[]
         source: 'merged' | 'builtin'
         builtinCount?: number
@@ -193,10 +195,14 @@ export default function ProvidersSettings({
           console.log(
             `[Models Updated] ${providerName}: 已智能合并 ${result.builtinCount} 个内置模型和 ${result.remoteCount} 个远程模型`
           )
-          alert(`✅ 模型列表已更新 (智能合并)\n\n内置模型: ${result.builtinCount} 个\n远程模型: ${result.remoteCount} 个\n合并后: ${modelList.length} 个\n\n策略: 远程信息 + 内置元数据`)
+          alert(
+            `✅ 模型列表已更新 (智能合并)\n\n内置模型: ${result.builtinCount} 个\n远程模型: ${result.remoteCount} 个\n合并后: ${modelList.length} 个\n\n策略: 远程信息 + 内置元数据`
+          )
         } else if (result.source === 'builtin') {
           console.warn(`[Models Fallback] ${providerName}: 网络请求失败，使用内置模型`)
-          alert(`⚠️ 网络请求失败\n已加载 ${modelList.length} 个内置模型\n\n错误: ${result.error || '未知'}`)
+          alert(
+            `⚠️ 网络请求失败\n已加载 ${modelList.length} 个内置模型\n\n错误: ${result.error || '未知'}`
+          )
         }
       } else {
         // 旧格式：直接返回 Model[]（向后兼容）
@@ -390,7 +396,9 @@ export default function ProvidersSettings({
       const result = await window.api.fetchModels(providerName, apiKey)
 
       // 类型守卫：检查是否是新格式
-      const isNewFormat = (res: any): res is {
+      const isNewFormat = (
+        res: any
+      ): res is {
         models: Model[]
         source: 'merged' | 'builtin'
         builtinCount?: number

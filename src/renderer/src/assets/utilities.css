@@ -4,4 +4,40 @@
    Atom Enhanced 设计系统
    ============================================ */
 
-/* 工具类将在阶段 4 实施 */
+/* ============================================
+   用户选择控制
+   ============================================ */
+
+/* 全局禁用文字选择 - 提升 UI 交互体验 */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 允许输入框和可编辑内容的文字选择 */
+input,
+textarea,
+[contenteditable='true'] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* 允许对话消息内容的文字选择 */
+.message-content-selectable {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+/* Markdown 内容可选择 */
+.markdown-content,
+.markdown-content * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+/* Prose 内容可选择（系统消息） */
+.prose,
+.prose * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}

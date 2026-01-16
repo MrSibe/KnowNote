@@ -31,7 +31,9 @@ function convertToModel(def: LocalModelDefinition, providerName: string): Model 
     owned_by: def.owned_by,
     type: def.type,
     // 将 lastUpdated 转为 created 时间戳（Unix timestamp）
-    created: Math.floor(new Date(BUILTIN_MODELS_MAP[providerName]?.lastUpdated || Date.now()).getTime() / 1000)
+    created: Math.floor(
+      new Date(BUILTIN_MODELS_MAP[providerName]?.lastUpdated || Date.now()).getTime() / 1000
+    )
   }
 }
 
