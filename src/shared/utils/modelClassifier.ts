@@ -1,4 +1,45 @@
 import { Model, ModelType, CategorizedModels } from '../types'
+import { getAllBuiltinModels } from '../config/models'
+
+/**
+ * 内置模型类型缓存（用于快速查找）
+ */
+let builtinModelTypeCache: Map<string, ModelType> | null = null
+
+/**
+ * 初始化内置模型类型缓存
+ */
+function initBuiltinModelTypeCache(): Map<string, ModelType> {
+  if (builtinModelTypeCache) {
+    return builtinModelTypeCache
+  }
+
+  const cache = new Map<string, ModelType>()
+  const allBuiltinModels = getAllBuiltinModels()
+
+  // 遍历所有 provider 的内置模型
+  for (const models of Object.values(allBuiltinModels)) {
+    for (const model of models) {
+      // 内置模型保证有 type 字段
+      if (model.type) {
+        cache.set(model.id, model.type)
+      }
+    }
+  }
+
+  builtinModelTypeCache = cache
+  return cache
+}
+
+/**
+ * 从内置配置中查找模型类型
+ * @param modelId 模型ID
+ * @returns 模型类型，如果未找到返回 undefined
+ */
+function getBuiltinModelType(modelId: string): ModelType | undefined {
+  const cache = initBuiltinModelTypeCache()
+  return cache.get(modelId)
+}
 
 /**
  * 嵌入模型的关键词模式
@@ -109,10 +150,24 @@ export function classifyModel(modelId: string): ModelType {
 
 /**
  * 为模型添加类型信息
+ * 优先级：
+ * 1. 内置配置文件中定义的类型
+ * 2. 模型对象自带的 type 字段（API 返回）
+ * 3. 基于模型名称的自动分类
  * @param model 原始模型对象
  * @returns 带类型信息的模型对象
  */
 export function enrichModelWithType(model: Model): Model {
+  // 1. 优先使用内置配置文件中定义的类型
+  const builtinType = getBuiltinModelType(model.id)
+  if (builtinType) {
+    return {
+      ...model,
+      type: builtinType
+    }
+  }
+
+  // 2. 使用模型对象自带的 type 字段，或使用自动分类
   return {
     ...model,
     type: model.type || classifyModel(model.id)

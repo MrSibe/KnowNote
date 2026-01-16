@@ -48,6 +48,7 @@ app.whenReady().then(async () => {
   // Initialize Provider Manager
   Logger.info('Main', 'Initializing Provider Manager...')
   providerManager = new ProviderManager()
+  await providerManager.initialize()
   Logger.info('Main', 'Provider Manager initialized')
 
   // Initialize Session Auto Switch Service

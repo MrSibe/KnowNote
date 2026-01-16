@@ -11,6 +11,7 @@ import { ProviderRegistry } from './registry/ProviderRegistry'
 import { BUILTIN_PROVIDERS } from './registry/builtinProviders'
 import { AISDKProvider } from './base/AISDKProvider'
 import { settingsManager, providerConfigManager } from '../config'
+import { getAllBuiltinModels } from '../../shared/config/models'
 import Logger from '../../shared/utils/logger'
 
 /**
@@ -30,6 +31,14 @@ export class ProviderManager {
   }
 
   /**
+   * 初始化 Provider Manager（异步）
+   * 在应用启动时调用，初始化内置模型列表
+   */
+  async initialize(): Promise<void> {
+    await this.initializeBuiltinModels()
+  }
+
+  /**
    * 注册所有内置供应商
    */
   private registerBuiltinProviders(): void {
@@ -38,6 +47,38 @@ export class ProviderManager {
       'ProviderManager',
       `Registered ${BUILTIN_PROVIDERS.length} builtin providers: ${BUILTIN_PROVIDERS.map((p) => p.name).join(', ')}`
     )
+  }
+
+  /**
+   * 初始化内置模型列表
+   * 如果 electron-store 中没有模型缓存，自动写入内置模型
+   */
+  private async initializeBuiltinModels(): Promise<void> {
+    try {
+      const builtinModels = getAllBuiltinModels()
+
+      for (const [providerName, models] of Object.entries(builtinModels)) {
+        const cachedModels = await providerConfigManager.getProviderModels(providerName)
+
+        // 如果没有缓存，写入内置模型
+        if (!cachedModels || cachedModels.length === 0) {
+          Logger.info(
+            'ProviderManager',
+            `Initializing ${models.length} builtin models for ${providerName}`
+          )
+          await providerConfigManager.saveProviderModels(providerName, models)
+        } else {
+          Logger.info(
+            'ProviderManager',
+            `Provider ${providerName} already has ${cachedModels.length} cached models, skipping initialization`
+          )
+        }
+      }
+
+      Logger.info('ProviderManager', 'Builtin models initialization complete')
+    } catch (error) {
+      Logger.error('ProviderManager', 'Failed to initialize builtin models:', error)
+    }
   }
 
   /**
