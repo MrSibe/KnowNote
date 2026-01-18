@@ -140,24 +140,18 @@ function AddSourceModal({
   )
 }
 
-// 索引进度条组件
+// 索引进度组件
 function IndexingProgress() {
+  const { t } = useTranslation('ui')
   const { indexProgress, isIndexing } = useKnowledgeStore()
 
   if (!isIndexing || !indexProgress) return null
 
   return (
-    <div className="px-4 py-2 bg-primary/10 border-b border-border flex flex-col gap-1">
-      <div className="flex items-center gap-2 text-xs text-primary">
-        <Loader2 className="w-3 h-3 animate-spin" />
-        <span>{indexProgress.stage}</span>
-        <span>{indexProgress.progress}%</span>
-      </div>
-      <div className="h-1 bg-primary/20 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-primary rounded-full transition-all duration-300"
-          style={{ width: `${indexProgress.progress}%` }}
-        />
+    <div className="px-4 py-3 border-b border-border">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        {t('indexing')} ({indexProgress.progress}%)
       </div>
     </div>
   )
@@ -389,6 +383,11 @@ export default function SourcePanel(): ReactElement {
     [notebookId, deleteDocument]
   )
 
+  // 处理打开设置
+  const handleOpenSettings = useCallback(async () => {
+    await window.api.openSettings()
+  }, [])
+
   // 处理打开源文件
   const handleOpenSource = useCallback(async (documentId: string) => {
     try {
@@ -522,8 +521,10 @@ export default function SourcePanel(): ReactElement {
             <ScrollArea className="flex-1">
               <DocumentList
                 documents={documents}
+                hasEmbeddingModel={!!defaultEmbeddingModel}
                 onDeleteDocument={handleDelete}
                 onSelectDocument={handleSelectDocument}
+                onOpenSettings={handleOpenSettings}
               />
             </ScrollArea>
           )}

@@ -95,7 +95,9 @@ export default function MessageItem({ message }: MessageItemProps): ReactElement
       <div className="flex justify-end group">
         <div className="flex flex-col gap-1 max-w-[85%] min-w-0 items-end">
           <div className="bg-primary text-primary-foreground rounded-2xl px-4 py-3 shadow-sm w-fit">
-            <p className="text-sm whitespace-pre-wrap wrap-break-word">{message.content}</p>
+            <p className="text-sm whitespace-pre-wrap wrap-break-word message-content-selectable">
+              {message.content}
+            </p>
           </div>
           {/* Copy button */}
           <Button

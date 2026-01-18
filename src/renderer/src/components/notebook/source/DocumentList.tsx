@@ -1,32 +1,65 @@
 import { ReactElement, useRef, useEffect, useState } from 'react'
-import { FileText, Globe, FileUp, StickyNote, Trash2, Loader2 } from 'lucide-react'
+import { FileText, Globe, FileUp, StickyNote, Trash2, Loader2, Database } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { KnowledgeDocument } from '../../../../../shared/types/knowledge'
 import { Button } from '../../ui/button'
 import ConfirmDialog from '../../common/ConfirmDialog'
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent
+} from '../../ui/empty'
 
 interface DocumentListProps {
   documents: KnowledgeDocument[]
+  hasEmbeddingModel: boolean
   onDeleteDocument: (documentId: string) => void
   onSelectDocument: (document: KnowledgeDocument) => void
+  onOpenSettings: () => void
 }
 
 export default function DocumentList({
   documents,
+  hasEmbeddingModel,
   onDeleteDocument,
-  onSelectDocument
+  onSelectDocument,
+  onOpenSettings
 }: DocumentListProps): ReactElement {
   const { t } = useTranslation('ui')
 
+  // 未配置嵌入模型的提示（优先级最高）
+  if (!hasEmbeddingModel && documents.length === 0) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Database className="w-12 h-12 text-muted-foreground" />
+          </EmptyMedia>
+          <EmptyTitle>{t('noEmbeddingModelConfigured')}</EmptyTitle>
+          <EmptyDescription>{t('noEmbeddingModelConfiguredDesc')}</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button onClick={onOpenSettings}>{t('goToSettings')}</Button>
+        </EmptyContent>
+      </Empty>
+    )
+  }
+
+  // 暂无文档的空状态（使用Empty组件重构）
   if (documents.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center gap-4">
-        <FileText className="w-12 h-12 text-muted-foreground" />
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">{t('noDocuments')}</p>
-          <p className="text-xs text-muted-foreground">{t('noDocumentsDesc')}</p>
-        </div>
-      </div>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <FileText className="w-12 h-12 text-muted-foreground" />
+          </EmptyMedia>
+          <EmptyTitle>{t('noDocuments')}</EmptyTitle>
+          <EmptyDescription>{t('noDocumentsDesc')}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     )
   }
 

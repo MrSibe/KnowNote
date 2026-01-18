@@ -99,6 +99,8 @@
   "cancel": "Cancel",
   "processing": "Processing...",
   "noEmbeddingModelConfigured": "Please configure a default embedding model in settings first",
+  "noEmbeddingModelConfiguredDesc": "Configure an embedding model to add documents to the knowledge base and enhance conversation context",
+  "goToSettings": "Go to Settings",
   "emptyNoteCannotImport": "Note content is empty and cannot be imported to knowledge base",
   "backToList": "Back to List",
   "openUrl": "Open URL",

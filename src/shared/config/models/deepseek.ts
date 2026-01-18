@@ -10,7 +10,19 @@ export const DEEPSEEK_BUILTIN_MODELS: ProviderLocalModels = {
   providerName: 'deepseek',
   lastUpdated: '2025-01-15',
   models: [
-    { id: 'deepseek-chat', type: ModelType.CHAT, owned_by: 'deepseek', max_context: 64000, description: 'DeepSeek Chat' },
-    { id: 'deepseek-reasoner', type: ModelType.CHAT, owned_by: 'deepseek', max_context: 64000, description: 'DeepSeek Reasoner' }
+    {
+      id: 'deepseek-chat',
+      type: ModelType.CHAT,
+      owned_by: 'deepseek',
+      max_context: 64000,
+      description: 'DeepSeek Chat'
+    },
+    {
+      id: 'deepseek-reasoner',
+      type: ModelType.CHAT,
+      owned_by: 'deepseek',
+      max_context: 64000,
+      description: 'DeepSeek Reasoner'
+    }
   ]
 }
