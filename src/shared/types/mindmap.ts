@@ -7,8 +7,8 @@ export interface MindMapTreeNode {
   children?: MindMapTreeNode[]
   metadata?: {
     level: number // 层级: 0-3 (根节点为0)
-    chunkIds: string[] // 关联的chunk IDs
-    keywords?: string[]
+    chunkIds?: string[] | null // 关联的chunk IDs，可为空
+    keywords?: string[] | null // 关键词，可为空
   }
 }
 

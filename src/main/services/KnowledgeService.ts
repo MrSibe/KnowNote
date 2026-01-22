@@ -214,7 +214,7 @@ export class KnowledgeService {
       onProgress?.('generating_embeddings', 30)
       const embeddingResults = await this.embeddingService.embedBatch(
         chunkContents,
-        { dimensions: 1024 }, // 显式指定 1024 维
+        {}, // 使用模型的原生维度
         (completed, total) => {
           const progress = 30 + (completed / total) * 50
           onProgress?.('generating_embeddings', Math.round(progress))
@@ -225,7 +225,7 @@ export class KnowledgeService {
       const detectedDimensions = embeddingResults.length > 0 ? embeddingResults[0].dimensions : 1536
       if (embeddingResults.length > 0) {
         vectorStoreManager.setDefaultDimensions(detectedDimensions)
-        Logger.debug('KnowledgeService', `Detected embedding dimensions: ${detectedDimensions}`)
+        Logger.info('KnowledgeService', `Detected embedding dimensions: ${detectedDimensions}`)
       }
 
       // 5. 保存嵌入元数据并添加到向量存储
@@ -398,7 +398,7 @@ export class KnowledgeService {
       onProgress?.('generating_embeddings', 30)
       const embeddingResults = await this.embeddingService.embedBatch(
         chunkContents,
-        { dimensions: 1024 }, // 显式指定 1024 维
+        {}, // 使用模型的原生维度
         (completed, total) => {
           const progress = 30 + (completed / total) * 50
           onProgress?.('generating_embeddings', Math.round(progress))
@@ -409,7 +409,7 @@ export class KnowledgeService {
       const detectedDimensions = embeddingResults.length > 0 ? embeddingResults[0].dimensions : 1536
       if (embeddingResults.length > 0) {
         vectorStoreManager.setDefaultDimensions(detectedDimensions)
-        Logger.debug('KnowledgeService', `Detected embedding dimensions: ${detectedDimensions}`)
+        Logger.info('KnowledgeService', `Detected embedding dimensions: ${detectedDimensions}`)
       }
 
       // 5. 保存嵌入元数据并添加到向量存储

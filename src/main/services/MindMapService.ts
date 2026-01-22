@@ -32,8 +32,8 @@ const MindMapNodeSchema: z.ZodType<MindMapTreeNode> = z.lazy(() =>
     metadata: z
       .object({
         level: z.number().min(0).max(3).describe('层级深度 0-3'),
-        chunkIds: z.array(z.string()).describe('关联的chunk ID列表'),
-        keywords: z.array(z.string()).optional().describe('关键词')
+        chunkIds: z.array(z.string()).nullable().optional().describe('关联的chunk ID列表，可为空'),
+        keywords: z.array(z.string()).nullable().optional().describe('关键词，可为空')
       })
       .optional()
   })
@@ -78,6 +78,7 @@ export class MindMapService {
 
   /**
    * 聚合笔记本内容
+   * 收集笔记本中所有已索引文档的内容片段
    */
   private async aggregateNotebookContent(notebookId: string): Promise<string> {
     const db = getDatabase()
@@ -97,19 +98,25 @@ export class MindMapService {
 
       Logger.info('MindMapService', `Found ${docs.length} indexed documents`)
 
-      // 2. 聚合文档chunks (每个文档最多10个chunks)
+      // 2. 聚合文档chunks
+      // 配置：每个文档最多取多少个 chunks（可根据需要调整）
+      const MAX_CHUNKS_PER_DOC = 30 // 从 10 增加到 30，提供更完整的上下文
+
       for (const doc of docs) {
         const docChunks = db
           .select()
           .from(chunks)
           .where(eq(chunks.documentId, doc.id))
           .orderBy(chunks.chunkIndex)
-          .limit(10)
+          .limit(MAX_CHUNKS_PER_DOC)
           .all()
 
         if (docChunks.length > 0) {
           const chunkContent = docChunks.map((c) => c.content).join('\n')
           contentParts.push(`[文档: ${doc.title}]\n${chunkContent}`)
+
+          // 记录实际使用的 chunks 数量
+          Logger.info('MindMapService', `Document "${doc.title}": ${docChunks.length} chunks (max ${MAX_CHUNKS_PER_DOC})`)
         }
       }
 
@@ -117,7 +124,10 @@ export class MindMapService {
         throw new Error('笔记本没有可用内容生成思维导图')
       }
 
-      return contentParts.join('\n\n---\n\n')
+      const aggregatedContent = contentParts.join('\n\n---\n\n')
+      Logger.info('MindMapService', `Aggregated content: ${aggregatedContent.length} characters from ${docs.length} documents`)
+
+      return aggregatedContent
     } catch (error) {
       Logger.error('MindMapService', 'Error aggregating content:', error)
       throw error
@@ -145,6 +155,21 @@ export class MindMapService {
 
     const promptTemplate = await getMindMapPrompt()
     const prompt = promptTemplate.replace('{{CONTENT}}', content)
+
+    // ===== 调试日志：记录发送给模型的提示词 =====
+    Logger.info('MindMapService', '==================== 发送给模型的提示词 ====================')
+    Logger.info('MindMapService', `Provider: ${provider.name}`)
+    Logger.info('MindMapService', `Prompt length: ${prompt.length} characters`)
+    Logger.info('MindMapService', `Content length: ${content.length} characters`)
+    // 记录提示词的前1000字符和后500字符，避免日志过长
+    if (prompt.length > 1500) {
+      Logger.info('MindMapService', `Prompt preview (first 1000 chars):\n${prompt.substring(0, 1000)}`)
+      Logger.info('MindMapService', `...(truncated)...`)
+      Logger.info('MindMapService', `Prompt end (last 500 chars):\n${prompt.substring(prompt.length - 500)}`)
+    } else {
+      Logger.info('MindMapService', `Full prompt:\n${prompt}`)
+    }
+    Logger.info('MindMapService', '==================== 提示词结束 ====================')
 
     try {
       onProgress?.('generating_mindmap', 30)
@@ -178,6 +203,31 @@ export class MindMapService {
 
       // 等待完整对象
       const result = await object
+
+      // ===== 调试日志：记录模型返回的原始数据 =====
+      Logger.info('MindMapService', '==================== 模型返回数据开始 ====================')
+      Logger.info('MindMapService', `Provider: ${provider.name}`)
+      Logger.info('MindMapService', `Raw result (stringified):`)
+      try {
+        const resultJson = JSON.stringify(result, null, 2)
+        Logger.info('MindMapService', resultJson)
+        // 同时记录详细的结构信息
+        Logger.info('MindMapService', `Root node structure:`)
+        Logger.info('MindMapService', `- ID: ${result.rootNode?.id}`)
+        Logger.info('MindMapService', `- Label: ${result.rootNode?.label}`)
+        Logger.info('MindMapService', `- Children count: ${result.rootNode?.children?.length ?? 0}`)
+        Logger.info('MindMapService', `- Metadata:`, result.rootNode?.metadata)
+        if (result.rootNode?.children) {
+          result.rootNode.children.forEach((child, idx) => {
+            Logger.info('MindMapService', `  Child ${idx}: id=${child.id}, label=${child.label}, level=${child.metadata?.level}, chunkIds=${child.metadata?.chunkIds?.length ?? 'null'}, keywords=${child.metadata?.keywords?.length ?? 'null'}`)
+          })
+        }
+        Logger.info('MindMapService', `Overall metadata: totalNodes=${result.metadata.totalNodes}, maxDepth=${result.metadata.maxDepth}`)
+      } catch (logError) {
+        Logger.error('MindMapService', 'Failed to stringify result:', logError)
+      }
+      Logger.info('MindMapService', '==================== 模型返回数据结束 ====================')
+
       Logger.info(
         'MindMapService',
         `Generated mind map: ${result.metadata.totalNodes} nodes, depth ${result.metadata.maxDepth}`
@@ -204,7 +254,24 @@ export class MindMapService {
         metadata: result.metadata
       }
     } catch (error) {
-      Logger.error('MindMapService', 'Error calling LLM:', error)
+      // ===== 调试日志：记录错误详情 =====
+      Logger.error('MindMapService', '==================== 生成失败详情 ====================')
+      Logger.error('MindMapService', `Provider: ${provider.name}`)
+      Logger.error('MindMapService', 'Error details:', error)
+      if (error && typeof error === 'object') {
+        // 尝试记录错误对象的所有属性
+        Logger.error('MindMapService', 'Error properties:', Object.keys(error))
+        if ('cause' in error) {
+          Logger.error('MindMapService', 'Error cause:', error.cause)
+        }
+        if ('text' in error) {
+          Logger.error('MindMapService', 'Error text:', error.text)
+        }
+        if ('value' in error) {
+          Logger.error('MindMapService', 'Error value:', JSON.stringify(error.value, null, 2))
+        }
+      }
+      Logger.error('MindMapService', '==================== 错误详情结束 ====================')
       throw new Error(`生成思维导图失败: ${(error as Error).message}`)
     }
   }
