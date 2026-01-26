@@ -59,11 +59,6 @@ export default function PromptsSettings({
 
   return (
     <div className="max-w-2xl flex flex-col gap-4">
-      <div>
-        <h2 className="text-h2 text-foreground">{t('promptSettings')}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{t('mindMapPromptDesc')}</p>
-      </div>
-
       <SettingItem
         title={t('mindMapPrompt')}
         description=""

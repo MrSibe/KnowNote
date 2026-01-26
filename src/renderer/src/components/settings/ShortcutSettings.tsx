@@ -125,23 +125,17 @@ export default function ShortcutSettings(): ReactElement {
 
   return (
     <div className="max-w-2xl flex flex-col gap-4">
-      {/* 页面标题 */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <h2 className="text-h2 text-foreground">{t('settings:shortcuts')}</h2>
-          <Button
-            onClick={() => setShowResetDialog(true)}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            {t('shortcuts:resetToDefaults')}
-          </Button>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {t('shortcuts:description') || '自定义应用快捷键，提升操作效率'}
-        </p>
+      {/* 重置按钮 */}
+      <div className="flex justify-end">
+        <Button
+          onClick={() => setShowResetDialog(true)}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <RotateCcw className="w-4 h-4" />
+          {t('shortcuts:resetToDefaults')}
+        </Button>
       </div>
 
       {/* 冲突错误提示 */}
