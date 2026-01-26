@@ -11,10 +11,20 @@ import type {
   IndexProgress
 } from '../shared/types/knowledge'
 import type { UpdateState, UpdateCheckResult, UpdateOperationResult } from '../shared/types/update'
-import type { MindMap } from '../main/db/schema'
+import type { MindMap, Quiz, QuizSession } from '../main/db/schema'
 
 // 重新导出共享类型
-export type { ChatSession, ChatMessage, Notebook, Note, ProviderConfig, AppSettings, MindMap }
+export type {
+  ChatSession,
+  ChatMessage,
+  Notebook,
+  Note,
+  ProviderConfig,
+  AppSettings,
+  MindMap,
+  Quiz,
+  QuizSession
+}
 export type {
   KnowledgeDocument,
   KnowledgeChunk,
@@ -90,6 +100,31 @@ declare global {
         ) => Promise<{ success: boolean }>
         delete: (mindMapId: string) => Promise<{ success: boolean }>
         openWindow: (notebookId: string, mindMapId?: string) => Promise<void>
+        onProgress: (
+          callback: (data: { notebookId: string; stage: string; progress: number }) => void
+        ) => () => void
+      }
+
+      // Quiz 相关
+      quiz: {
+        getLatest: (notebookId: string) => Promise<Quiz | null>
+        get: (quizId: string) => Promise<Quiz | null>
+        generate: (
+          notebookId: string,
+          options?: {
+            questionCount?: number
+            difficulty?: 'easy' | 'medium' | 'hard'
+            customPrompt?: string
+          }
+        ) => Promise<{ success: boolean; quizId?: string; error?: string }>
+        submitSession: (
+          quizId: string,
+          answers: Record<string, number>
+        ) => Promise<{ success: boolean; sessionId?: string }>
+        getSession: (sessionId: string) => Promise<QuizSession | null>
+        update: (quizId: string, updates: { title?: string }) => Promise<{ success: boolean }>
+        delete: (quizId: string) => Promise<{ success: boolean }>
+        openWindow: (notebookId: string, quizId?: string) => Promise<{ success: boolean }>
         onProgress: (
           callback: (data: { notebookId: string; stage: string; progress: number }) => void
         ) => () => void

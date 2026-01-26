@@ -246,6 +246,72 @@ export type MindMap = typeof mindMaps.$inferSelect
 export type NewMindMap = typeof mindMaps.$inferInsert
 
 /**
+ * 题库表
+ * 存储笔记本的答题题库
+ */
+export const quizzes = sqliteTable(
+  'quizzes',
+  {
+    id: text('id').primaryKey(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    version: integer('version').notNull().default(1), // 版本号
+    questionsData: text('questions_data', { mode: 'json' }).notNull(), // 题目数组
+    chunkMapping: text('chunk_mapping', { mode: 'json' }).notNull(), // questionId -> chunkIds映射
+    metadata: text('metadata', { mode: 'json' }).$type<{
+      model: string
+      totalQuestions: number
+      generationTime: number
+    }>(),
+    status: text('status', { enum: ['generating', 'completed', 'failed'] })
+      .notNull()
+      .default('generating'),
+    errorMessage: text('error_message'),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    notebookIdx: index('idx_quizzes_notebook').on(table.notebookId, table.updatedAt),
+    versionIdx: index('idx_quizzes_version').on(table.notebookId, table.version)
+  })
+)
+
+export type Quiz = typeof quizzes.$inferSelect
+export type NewQuiz = typeof quizzes.$inferInsert
+
+/**
+ * 答题会话表
+ * 存储用户的答题记录
+ */
+export const quizSessions = sqliteTable(
+  'quiz_sessions',
+  {
+    id: text('id').primaryKey(),
+    quizId: text('quiz_id')
+      .notNull()
+      .references(() => quizzes.id, { onDelete: 'cascade' }),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    answers: text('answers', { mode: 'json' }).$type<Record<string, number>>(), // questionId -> answerIndex
+    score: integer('score'),
+    totalQuestions: integer('total_questions').notNull(),
+    correctCount: integer('correct_count'),
+    completedAt: integer('completed_at', { mode: 'timestamp' }),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    quizIdx: index('idx_quiz_sessions_quiz').on(table.quizId, table.createdAt),
+    notebookIdx: index('idx_quiz_sessions_notebook').on(table.notebookId, table.createdAt)
+  })
+)
+
+export type QuizSession = typeof quizSessions.$inferSelect
+export type NewQuizSession = typeof quizSessions.$inferInsert
+
+/**
  * Items 表
  * 统一管理笔记本下的所有内容项（笔记、思维导图、PPT、音频等）
  */
@@ -256,7 +322,7 @@ export const items = sqliteTable(
     notebookId: text('notebook_id')
       .notNull()
       .references(() => notebooks.id, { onDelete: 'cascade' }),
-    type: text('type', { enum: ['note', 'mindmap', 'ppt', 'audio', 'video'] }).notNull(),
+    type: text('type', { enum: ['note', 'mindmap', 'quiz', 'ppt', 'audio', 'video'] }).notNull(),
     resourceId: text('resource_id').notNull(), // 指向实际资源的 ID (notes.id, mindMaps.id 等)
     order: integer('order').notNull().default(0), // 排序，数值越小越靠前
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),

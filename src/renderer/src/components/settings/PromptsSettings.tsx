@@ -19,20 +19,24 @@ export default function PromptsSettings({
 
   const currentLanguage = settings.language
   // 后端的 mergeSettings 已经确保所有字段都有默认值，前端直接使用
-  const currentPrompt = settings.prompts?.mindMap?.[currentLanguage] || ''
+  const currentMindMapPrompt = settings.prompts?.mindMap?.[currentLanguage] || ''
+  const currentQuizPrompt = settings.prompts?.quiz?.[currentLanguage] || ''
 
   // 保存初始提示词（来自后端的默认值或用户之前保存的值）
-  const [initialPrompt, setInitialPrompt] = useState<string>(currentPrompt)
+  const [initialMindMapPrompt, setInitialMindMapPrompt] = useState<string>(currentMindMapPrompt)
+  const [initialQuizPrompt, setInitialQuizPrompt] = useState<string>(currentQuizPrompt)
 
   // 当组件首次加载或语言切换时，保存初始值
   useEffect(() => {
-    setInitialPrompt(currentPrompt)
+    setInitialMindMapPrompt(currentMindMapPrompt)
+    setInitialQuizPrompt(currentQuizPrompt)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentLanguage]) // 只在语言切换时更新
 
-  const isModified = currentPrompt !== initialPrompt
+  const isMindMapModified = currentMindMapPrompt !== initialMindMapPrompt
+  const isQuizModified = currentQuizPrompt !== initialQuizPrompt
 
-  const handlePromptChange = (value: string) => {
+  const handleMindMapPromptChange = (value: string) => {
     onSettingsChange({
       prompts: {
         ...settings.prompts,
@@ -44,14 +48,39 @@ export default function PromptsSettings({
     })
   }
 
-  const handleReset = () => {
+  const handleQuizPromptChange = (value: string) => {
+    onSettingsChange({
+      prompts: {
+        ...settings.prompts,
+        quiz: {
+          ...settings.prompts?.quiz,
+          [currentLanguage]: value
+        }
+      }
+    })
+  }
+
+  const handleMindMapReset = () => {
     // 只重置当前语言的提示词到初始值
     onSettingsChange({
       prompts: {
         ...settings.prompts,
         mindMap: {
           ...settings.prompts?.mindMap,
-          [currentLanguage]: initialPrompt
+          [currentLanguage]: initialMindMapPrompt
+        }
+      }
+    })
+  }
+
+  const handleQuizReset = () => {
+    // 只重置当前语言的提示词到初始值
+    onSettingsChange({
+      prompts: {
+        ...settings.prompts,
+        quiz: {
+          ...settings.prompts?.quiz,
+          [currentLanguage]: initialQuizPrompt
         }
       }
     })
@@ -64,8 +93,8 @@ export default function PromptsSettings({
         description=""
         layout="vertical"
         action={
-          isModified ? (
-            <Button variant="outline" size="sm" onClick={handleReset}>
+          isMindMapModified ? (
+            <Button variant="outline" size="sm" onClick={handleMindMapReset}>
               <RotateCcw className="w-4 h-4 mr-2" />
               {t('resetPrompt')}
             </Button>
@@ -74,8 +103,31 @@ export default function PromptsSettings({
       >
         <div className="relative">
           <Textarea
-            value={currentPrompt}
-            onChange={(e) => handlePromptChange(e.target.value)}
+            value={currentMindMapPrompt}
+            onChange={(e) => handleMindMapPromptChange(e.target.value)}
+            placeholder={t('promptPlaceholder')}
+            className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto"
+          />
+        </div>
+      </SettingItem>
+
+      <SettingItem
+        title={t('quizPrompt')}
+        description=""
+        layout="vertical"
+        action={
+          isQuizModified ? (
+            <Button variant="outline" size="sm" onClick={handleQuizReset}>
+              <RotateCcw className="w-4 h-4 mr-2" />
+              {t('resetPrompt')}
+            </Button>
+          ) : undefined
+        }
+      >
+        <div className="relative">
+          <Textarea
+            value={currentQuizPrompt}
+            onChange={(e) => handleQuizPromptChange(e.target.value)}
             placeholder={t('promptPlaceholder')}
             className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto"
           />

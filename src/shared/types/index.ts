@@ -12,6 +12,9 @@ export * from './chat'
 // 导出 Result 错误处理类型
 export * from './result'
 
+// 导出答题类型
+export * from './quiz'
+
 /**
  * 笔记本接口
  * 与 Drizzle schema 推导的类型兼容
@@ -96,6 +99,10 @@ export interface AppSettings {
     mindMap?: {
       'zh-CN'?: string // 中文思维导图生成提示词
       'en-US'?: string // 英文思维导图生成提示词
+    }
+    quiz?: {
+      'zh-CN'?: string // 中文答题生成提示词
+      'en-US'?: string // 英文答题生成提示词
     }
   }
 }

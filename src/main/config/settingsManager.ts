@@ -17,6 +17,10 @@ function mergeSettings(stored: Partial<AppSettings>): AppSettings {
       mindMap: {
         'zh-CN': stored.prompts?.mindMap?.['zh-CN'] ?? defaultSettings.prompts!.mindMap!['zh-CN'],
         'en-US': stored.prompts?.mindMap?.['en-US'] ?? defaultSettings.prompts!.mindMap!['en-US']
+      },
+      quiz: {
+        'zh-CN': stored.prompts?.quiz?.['zh-CN'] ?? defaultSettings.prompts!.quiz!['zh-CN'],
+        'en-US': stored.prompts?.quiz?.['en-US'] ?? defaultSettings.prompts!.quiz!['en-US']
       }
     }
   }

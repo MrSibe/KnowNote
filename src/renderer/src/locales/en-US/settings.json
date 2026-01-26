@@ -126,6 +126,7 @@
   "promptSettings": "Prompt Settings",
   "mindMapPrompt": "Mind Map Generation Prompt",
   "mindMapPromptDesc": "Customize the AI prompt used for generating mind maps",
+  "quizPrompt": "Quiz Generation Prompt",
   "chinesePrompt": "Chinese Prompt",
   "englishPrompt": "English Prompt",
   "resetPrompt": "Reset to Default",

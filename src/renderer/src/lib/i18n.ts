@@ -3,7 +3,7 @@ import { useI18nStore } from '../store/i18nStore'
 
 // 语言类型定义
 export type Language = 'zh-CN' | 'en-US'
-export type Namespace = 'common' | 'chat' | 'settings' | 'notebook' | 'ui'
+export type Namespace = 'common' | 'chat' | 'settings' | 'notebook' | 'ui' | 'quiz'
 
 // 动态导入语言包
 const loadLocale = async (lang: Language, namespace: Namespace) => {
@@ -62,7 +62,7 @@ export const t = (namespace: Namespace, key: string, fallback?: string) => {
 
 // 预加载所有语言包
 export const preloadLocales = async (lang: Language) => {
-  const namespaces: Namespace[] = ['common', 'chat', 'settings', 'notebook', 'ui']
+  const namespaces: Namespace[] = ['common', 'chat', 'settings', 'notebook', 'ui', 'quiz']
   const promises = namespaces.map(async (namespace) => {
     const cacheKey = `${lang}-${namespace}`
     if (!localeCache.has(cacheKey)) {

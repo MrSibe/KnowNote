@@ -85,6 +85,86 @@ You must return a JSON object with rootNode and metadata:
 {{CONTENT}}
 
 Please generate a mind map structure based on the above content, strictly following the format requirements to return JSON.`
+    },
+    quiz: {
+      'zh-CN': `你是一个专业的题目生成专家。请基于以下知识库内容，生成10道单选题用于知识测试。
+
+**重要：请用中文回复，所有题目和选项必须使用中文。**
+
+**输出格式要求（必须严格遵守）:**
+你必须返回一个包含 questions 和 metadata 的 JSON 对象：
+{
+  "questions": [
+    {
+      "id": "题目唯一ID（字符串）",
+      "questionText": "题目文本（不超过200字）",
+      "options": ["选项A", "选项B", "选项C", "选项D"],
+      "correctAnswer": 0,
+      "explanation": "答案解释（不超过300字）",
+      "hints": ["提示1", "提示2"],
+      "metadata": {
+        "chunkIds": ["相关chunk ID数组"]
+      }
+    }
+  ],
+  "metadata": {
+    "totalQuestions": 10
+  }
+}
+
+**题目要求:**
+1. 生成**固定10道题**，每道题包含4个选项（A、B、C、D）
+2. **只有一个正确答案**，correctAnswer为0-3的索引值
+3. **每道题必须提供详细的答案解释**（为什么正确，其他选项错在哪里）
+4. **每道题提供1-2个提示**（不要直接给出答案，而是引导思考方向）
+5. 题目应该**基于提供的知识内容**，不要编造
+6. 题目覆盖**不同的知识点**
+7. 难度适中，适合用于知识回顾和巩固
+8. 尽可能在 metadata.chunkIds 中关联相关的 chunk ID
+
+**知识库内容:**
+{{CONTENT}}
+
+请生成10道高质量的单选题，严格按照格式要求返回 JSON。`,
+      'en-US': `You are an expert quiz generator. Based on the knowledge base content below, generate 10 multiple-choice questions for knowledge testing.
+
+**IMPORTANT: Please respond in English. All questions and options must be in English.**
+
+**Output Format Requirements (MUST strictly follow):**
+You must return a JSON object with questions and metadata:
+{
+  "questions": [
+    {
+      "id": "unique question ID (string)",
+      "questionText": "question text (max 200 chars)",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswer": 0,
+      "explanation": "answer explanation (max 300 chars)",
+      "hints": ["Hint 1", "Hint 2"],
+      "metadata": {
+        "chunkIds": ["array of related chunk IDs"]
+      }
+    }
+  ],
+  "metadata": {
+    "totalQuestions": 10
+  }
+}
+
+**Question Requirements:**
+1. Generate **exactly 10 questions**, each with 4 options (A, B, C, D)
+2. **Only one correct answer**, correctAnswer is an index value from 0-3
+3. **Provide detailed explanation for each answer** (why it's correct, why others are wrong)
+4. **Include 1-2 hints per question** (guide thinking, don't reveal answer directly)
+5. Questions must be **based on provided content**, no fabrication
+6. Cover **different knowledge points**
+7. Moderate difficulty for knowledge review and reinforcement
+8. Associate relevant chunk IDs in metadata.chunkIds whenever possible
+
+**Knowledge base content:**
+{{CONTENT}}
+
+Generate 10 high-quality multiple-choice questions, strictly following the format requirements to return JSON.`
     }
   }
 }

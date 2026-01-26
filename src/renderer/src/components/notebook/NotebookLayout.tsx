@@ -8,6 +8,7 @@ import ProcessPanel from './ProcessPanel'
 import NotePanel from './NotePanel'
 import { useNotebookStore } from '../../store/notebookStore'
 import { useChatStore } from '../../store/chatStore'
+import { setupQuizListeners } from '../../store/quizStore'
 
 export default function NotebookLayout(): ReactElement {
   const { t } = useTranslation('ui')
@@ -60,6 +61,12 @@ export default function NotebookLayout(): ReactElement {
       window.removeEventListener('shortcut:close-notebook', handleCloseShortcut)
     }
   }, [navigate, handleCreateNotebook, id, removeOpenedNotebook])
+
+  // 设置答题进度监听器
+  useEffect(() => {
+    const cleanup = setupQuizListeners()
+    return cleanup
+  }, [])
 
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
