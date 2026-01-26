@@ -129,7 +129,7 @@
   "quizPrompt": "Quiz Generation Prompt",
   "chinesePrompt": "Chinese Prompt",
   "englishPrompt": "English Prompt",
-  "resetPrompt": "Reset to Default",
+  "resetPrompt": "Revert Changes",
   "promptPlaceholder": "Enter prompt content...",
   "shortcuts": "Shortcuts",
   "shortcutsDesc": "View and customize application shortcut settings",

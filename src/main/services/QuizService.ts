@@ -52,44 +52,34 @@ async function getQuizPrompt(customPrompt?: string): Promise<string> {
 }
 
 /**
- * 添加难度指令到提示词
+ * 获取难度指令文本
  */
-function addDifficultyInstruction(prompt: string, difficulty: 'easy' | 'medium' | 'hard'): string {
+function getDifficultyInstruction(
+  difficulty: 'easy' | 'medium' | 'hard',
+  language: string
+): string {
   const difficultyInstructions = {
     easy: {
-      'zh-CN': '\n\n**难度要求：简单**\n请生成简单难度的题目，重点考察基础概念和定义，选项之间的差异要明显。',
-      'en-US': '\n\n**Difficulty: Easy**\nGenerate easy-difficulty questions that focus on basic concepts and definitions. Options should have clear differences.'
+      'zh-CN':
+        '难度要求：简单 - 请生成简单难度的题目，重点考察基础概念和定义，选项之间的差异要明显。',
+      'en-US':
+        'Difficulty: Easy - Generate easy-difficulty questions that focus on basic concepts and definitions. Options should have clear differences.'
     },
     medium: {
-      'zh-CN': '\n\n**难度要求：中等**\n请生成中等难度的题目，需要理解和应用知识点，适当增加选项的相似性。',
-      'en-US': '\n\n**Difficulty: Medium**\nGenerate medium-difficulty questions that require understanding and applying knowledge points, with moderately similar options.'
+      'zh-CN':
+        '难度要求：中等 - 请生成中等难度的题目，需要理解和应用知识点，适当增加选项的相似性。',
+      'en-US':
+        'Difficulty: Medium - Generate medium-difficulty questions that require understanding and applying knowledge points, with moderately similar options.'
     },
     hard: {
-      'zh-CN': '\n\n**难度要求：困难**\n请生成困难题目，需要深度理解、综合应用和分析能力，选项之间要有一定的迷惑性。',
-      'en-US': '\n\n**Difficulty: Hard**\nGenerate hard-difficulty questions that require deep understanding, comprehensive application, and analytical ability. Options should be somewhat confusing.'
+      'zh-CN':
+        '难度要求：困难 - 请生成困难题目，需要深度理解、综合应用和分析能力，选项之间要有一定的迷惑性。',
+      'en-US':
+        'Difficulty: Hard - Generate hard-difficulty questions that require deep understanding, comprehensive application, and analytical ability. Options should be somewhat confusing.'
     }
   }
 
-  // 检测提示词语言
-  const isChinese = prompt.includes('中文') || prompt.includes('题目') || prompt.includes('生成')
-  const language = isChinese ? 'zh-CN' : 'en-US'
-
-  return prompt + difficultyInstructions[difficulty][language]
-}
-
-/**
- * 调整提示词中的题目数量
- */
-function adjustQuestionCount(prompt: string, count: number): string {
-  // 替换中文提示词中的数量
-  let adjusted = prompt.replace(/\d+道题/g, `${count}道题`)
-  adjusted = adjusted.replace(/固定\d+道/g, `固定${count}道`)
-
-  // 替换英文提示词中的数量
-  adjusted = adjusted.replace(/\d+\s+questions/gi, `${count} questions`)
-  adjusted = adjusted.replace(/exactly\s+\d+/gi, `exactly ${count}`)
-
-  return adjusted
+  return difficultyInstructions[difficulty][language] || difficultyInstructions[difficulty]['zh-CN']
 }
 
 /**
@@ -114,7 +104,7 @@ const QuizQuestionSchema: z.ZodType<QuizQuestion> = z.object({
  */
 function createQuizSchema(questionCount: number) {
   return z.object({
-    questions: z.array(QuizQuestionSchema).min(1).max(20).describe(`生成${questionCount}道题`),
+    questions: z.array(QuizQuestionSchema).length(questionCount).describe(`${questionCount}道题目`),
     metadata: z.object({
       totalQuestions: z.number().describe('总题数')
     })
@@ -202,17 +192,23 @@ export class QuizService {
     // 获取基础提示词
     let promptTemplate = await getQuizPrompt(options?.customPrompt)
 
-    // 调整题目数量
+    // 获取生成参数
     const questionCount = options?.questionCount || 10
-    promptTemplate = adjustQuestionCount(promptTemplate, questionCount)
+    const difficulty = options?.difficulty || 'medium'
 
-    // 添加难度指令
-    if (options?.difficulty) {
-      promptTemplate = addDifficultyInstruction(promptTemplate, options.difficulty)
-    }
+    // 检测提示词语言
+    const isChinese = promptTemplate.includes('中文') || promptTemplate.includes('题目')
+    const language = isChinese ? 'zh-CN' : 'en-US'
+
+    // 获取难度指令
+    const difficultyInstruction = getDifficultyInstruction(difficulty, language)
+
+    // 替换变量占位符
+    let prompt = promptTemplate.replace(/\{\{QUESTION_COUNT\}\}/g, questionCount.toString())
+    prompt = prompt.replace(/\{\{DIFFICULTY_INSTRUCTION\}\}/g, difficultyInstruction)
 
     // 替换内容占位符
-    const prompt = promptTemplate.replace('{{CONTENT}}', content)
+    prompt = prompt.replace(/\{\{CONTENT\}\}/g, content)
 
     try {
       onProgress?.('generating_quiz', 30)
@@ -354,7 +350,8 @@ export class QuizService {
       const newVersion = (latestVersion?.version || 0) + 1
 
       // 根据语言生成标题
-      const titleTemplate = language === 'en-US' ? `${notebook.title} Quiz` : `${notebook.title}的答题`
+      const titleTemplate =
+        language === 'en-US' ? `${notebook.title} Quiz` : `${notebook.title}的答题`
 
       const newQuiz: NewQuiz = {
         id: quizId,

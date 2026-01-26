@@ -11,13 +11,7 @@ import {
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
 import { Textarea } from '../../ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '../../ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
 
 export interface QuizStartParams {
   questionCount: number
@@ -75,7 +69,7 @@ export default function QuizStartDialog({
         <div className="flex flex-col gap-6 py-4">
           {/* 题目数量 */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="questionCount" className="text-sm font-medium text-foreground">
+            <label htmlFor="questionCount" className="text-sm font-medium">
               {t('questionCount')}
             </label>
             <Input
@@ -92,12 +86,14 @@ export default function QuizStartDialog({
 
           {/* 题目难度 */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="difficulty" className="text-sm font-medium text-foreground">
-              {t('difficulty')}
-            </label>
+            <label className="text-sm font-medium">{t('difficulty')}</label>
             <Select value={difficulty} onValueChange={(value: any) => setDifficulty(value)}>
-              <SelectTrigger id="difficulty" className="w-full">
-                <SelectValue />
+              <SelectTrigger className="w-full">
+                <SelectValue>
+                  {difficulty === 'easy' && t('easy')}
+                  {difficulty === 'medium' && t('medium')}
+                  {difficulty === 'hard' && t('hard')}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="easy">{t('easy')}</SelectItem>
@@ -109,7 +105,7 @@ export default function QuizStartDialog({
 
           {/* 自定义提示词 */}
           <div className="flex flex-col gap-2">
-            <label htmlFor="customPrompt" className="text-sm font-medium text-foreground">
+            <label htmlFor="customPrompt" className="text-sm font-medium">
               {t('customPrompt')} <span className="text-muted-foreground">({t('optional')})</span>
             </label>
             <Textarea

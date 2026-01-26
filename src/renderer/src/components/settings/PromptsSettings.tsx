@@ -1,4 +1,4 @@
-import { ReactElement, useState, useEffect } from 'react'
+import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RotateCcw } from 'lucide-react'
 import SettingItem from './SettingItem'
@@ -21,20 +21,6 @@ export default function PromptsSettings({
   // 后端的 mergeSettings 已经确保所有字段都有默认值，前端直接使用
   const currentMindMapPrompt = settings.prompts?.mindMap?.[currentLanguage] || ''
   const currentQuizPrompt = settings.prompts?.quiz?.[currentLanguage] || ''
-
-  // 保存初始提示词（来自后端的默认值或用户之前保存的值）
-  const [initialMindMapPrompt, setInitialMindMapPrompt] = useState<string>(currentMindMapPrompt)
-  const [initialQuizPrompt, setInitialQuizPrompt] = useState<string>(currentQuizPrompt)
-
-  // 当组件首次加载或语言切换时，保存初始值
-  useEffect(() => {
-    setInitialMindMapPrompt(currentMindMapPrompt)
-    setInitialQuizPrompt(currentQuizPrompt)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentLanguage]) // 只在语言切换时更新
-
-  const isMindMapModified = currentMindMapPrompt !== initialMindMapPrompt
-  const isQuizModified = currentQuizPrompt !== initialQuizPrompt
 
   const handleMindMapPromptChange = (value: string) => {
     onSettingsChange({
@@ -60,29 +46,11 @@ export default function PromptsSettings({
     })
   }
 
-  const handleMindMapReset = () => {
-    // 只重置当前语言的提示词到初始值
+  const handleResetToDefault = async () => {
+    // 从 defaults.ts 获取默认提示词
+    const defaultPrompts = await window.api.settings.getDefaultPrompts()
     onSettingsChange({
-      prompts: {
-        ...settings.prompts,
-        mindMap: {
-          ...settings.prompts?.mindMap,
-          [currentLanguage]: initialMindMapPrompt
-        }
-      }
-    })
-  }
-
-  const handleQuizReset = () => {
-    // 只重置当前语言的提示词到初始值
-    onSettingsChange({
-      prompts: {
-        ...settings.prompts,
-        quiz: {
-          ...settings.prompts?.quiz,
-          [currentLanguage]: initialQuizPrompt
-        }
-      }
+      prompts: defaultPrompts
     })
   }
 
@@ -93,12 +61,10 @@ export default function PromptsSettings({
         description=""
         layout="vertical"
         action={
-          isMindMapModified ? (
-            <Button variant="outline" size="sm" onClick={handleMindMapReset}>
-              <RotateCcw className="w-4 h-4 mr-2" />
-              {t('resetPrompt')}
-            </Button>
-          ) : undefined
+          <Button variant="outline" size="sm" onClick={handleResetToDefault}>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            {t('resetToDefault')}
+          </Button>
         }
       >
         <div className="relative">
@@ -116,12 +82,10 @@ export default function PromptsSettings({
         description=""
         layout="vertical"
         action={
-          isQuizModified ? (
-            <Button variant="outline" size="sm" onClick={handleQuizReset}>
-              <RotateCcw className="w-4 h-4 mr-2" />
-              {t('resetPrompt')}
-            </Button>
-          ) : undefined
+          <Button variant="outline" size="sm" onClick={handleResetToDefault}>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            {t('resetToDefault')}
+          </Button>
         }
       >
         <div className="relative">

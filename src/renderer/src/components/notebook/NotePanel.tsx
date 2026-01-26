@@ -262,24 +262,23 @@ export default function NotePanel(): ReactElement {
     if (!notebookId) return
     try {
       // 立即开始生成（异步）
-      window.api.quiz.generate(notebookId, {
-        questionCount: params.questionCount,
-        difficulty: params.difficulty,
-        customPrompt: params.customPrompt
-      }).then((result) => {
-        if (result.success) {
-          // 生成完成后重新加载列表
-          loadItems(notebookId)
-        }
-      })
+      window.api.quiz
+        .generate(notebookId, {
+          questionCount: params.questionCount,
+          difficulty: params.difficulty,
+          customPrompt: params.customPrompt
+        })
+        .then((result) => {
+          if (result.success) {
+            // 生成完成后重新加载列表
+            loadItems(notebookId)
+          }
+        })
 
       // 等待一小段时间后刷新列表，以显示"正在生成"的 item
       setTimeout(() => {
         loadItems(notebookId)
       }, 500)
-
-      // 打开答题窗口
-      await window.api.quiz.openWindow(notebookId)
     } catch (error) {
       console.error('[NotePanel] Failed to start quiz:', error)
     }
@@ -303,35 +302,44 @@ export default function NotePanel(): ReactElement {
         // 列表页面
         <>
           {/* 顶部工具栏 */}
-          <div
-            className="h-14 flex items-center justify-between px-4 border-b border-border/50"
-            style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-          >
-            <span className="text-sm text-foreground">{t('creativeSpace')}</span>
-            <div
-              className="flex items-center gap-2"
-              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            >
-              <Button
-                onClick={handleGenerateMindMap}
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8"
-                title={t('generateMindMap')}
-              >
-                <Network className="w-4 h-4" />
-              </Button>
-              <Button
-                onClick={handleCreateNote}
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8"
-                title={t('createNote')}
-              >
-                <FileText className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+          <PanelHeader
+            draggable
+            left={<span className="text-sm text-foreground">{t('creativeSpace')}</span>}
+            right={
+              <>
+                <Button
+                  onClick={handleGenerateMindMap}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('generateMindMap')}
+                >
+                  <Network className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleGenerateQuiz}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('generateQuiz')}
+                >
+                  <ClipboardCheck className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleCreateNote}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('createNote')}
+                >
+                  <FileText className="w-4 h-4" />
+                </Button>
+              </>
+            }
+          />
 
           {/* Items 列表（笔记 + 思维导图等） */}
           <ScrollArea className="flex-1">

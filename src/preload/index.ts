@@ -36,6 +36,7 @@ const api = {
     update: (updates: any) => ipcRenderer.invoke('settings:update', { updates }),
     set: (key: string, value: any) => ipcRenderer.invoke('settings:set', { key, value }),
     reset: () => ipcRenderer.invoke('settings:reset'),
+    getDefaultPrompts: () => ipcRenderer.invoke('settings:getDefaultPrompts'),
     // 监听设置变化
     onSettingsChange: (callback: (newSettings: any, oldSettings: any) => void) => {
       const listener = (_event: any, newSettings: any, oldSettings: any) =>
@@ -209,7 +210,8 @@ const api = {
   // Quiz 答题相关
   quiz: {
     // 生成题目
-    generate: (notebookId: string) => ipcRenderer.invoke('quiz:generate', { notebookId }),
+    generate: (notebookId: string, options?: any) =>
+      ipcRenderer.invoke('quiz:generate', { notebookId, options }),
     // 获取最新题库
     getLatest: (notebookId: string) => ipcRenderer.invoke('quiz:get-latest', { notebookId }),
     // 获取题库详情

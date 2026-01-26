@@ -56,6 +56,7 @@ declare global {
         update: (updates: Partial<AppSettings>) => Promise<AppSettings>
         set: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => Promise<AppSettings[K]>
         reset: () => Promise<AppSettings>
+        getDefaultPrompts: () => Promise<AppSettings['prompts']>
         onSettingsChange: (
           callback: (newSettings: AppSettings, oldSettings: AppSettings) => void
         ) => () => void
