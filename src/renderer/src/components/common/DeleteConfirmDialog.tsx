@@ -26,23 +26,25 @@ export default function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps): ReactElement {
   const { t } = useTranslation(['common', 'notebook'])
 
-  const handleConfirm = (): void => {
-    onConfirm()
-    onClose()
-  }
-
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t('notebook:deleteNotebook')}</AlertDialogTitle>
+          <AlertDialogTitle className="text-foreground">
+            {t('notebook:deleteNotebook')}
+          </AlertDialogTitle>
           <AlertDialogDescription>
             {t('notebook:deleteConfirm', { name: notebookTitle })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>{t('common:cancel')}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} className="bg-destructive hover:bg-destructive/90">
+          <AlertDialogCancel onClick={onClose} className="text-foreground">
+            {t('common:cancel')}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={onConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
             {t('common:delete')}
           </AlertDialogAction>
         </AlertDialogFooter>

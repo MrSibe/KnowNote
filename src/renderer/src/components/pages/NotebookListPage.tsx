@@ -53,7 +53,6 @@ export default function NotebookListPage(): ReactElement {
     if (deleteNotebookId) {
       await deleteNotebook(deleteNotebookId)
       removeOpenedNotebook(deleteNotebookId)
-      setDeleteNotebookId(null)
     }
   }
 
