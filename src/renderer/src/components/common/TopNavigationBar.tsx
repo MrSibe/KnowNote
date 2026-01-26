@@ -2,8 +2,10 @@ import { Home, Plus, X, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useNotebookStore } from '../../store/notebookStore'
-import { ReactElement } from 'react'
+import { useUIStore } from '../../store/uiStore'
+import { ReactElement, useState } from 'react'
 import { Button } from '../ui/button'
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
 import { isMac, isLinux, isWindows } from '../../lib/platform'
 
 interface TopNavigationBarProps {
@@ -17,19 +19,36 @@ export default function TopNavigationBar({
 }: TopNavigationBarProps): ReactElement {
   const { t } = useTranslation('ui')
   const navigate = useNavigate()
+  const { openSettings } = useUIStore()
   const { currentNotebook, openedNotebooks, removeOpenedNotebook, setCurrentNotebook } =
     useNotebookStore()
 
-  const handleHomeClick = (): void => {
-    navigate('/')
+  // 确定当前激活的标签
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (isHomePage) return 'home'
+    return currentNotebook?.id ?? 'home'
+  })
+
+  // 当 isHomePage 或 currentNotebook 改变时，更新 activeTab
+  if (isHomePage && activeTab !== 'home') {
+    setActiveTab('home')
+  } else if (!isHomePage && currentNotebook && activeTab !== currentNotebook.id) {
+    setActiveTab(currentNotebook.id)
   }
 
-  const handleOpenedNotebookClick = (id: string): void => {
-    setCurrentNotebook(id)
-    navigate(`/notebook/${id}`)
+  const handleTabChange = (value: string): void => {
+    setActiveTab(value)
+    if (value === 'home') {
+      navigate('/')
+    } else {
+      setCurrentNotebook(value)
+      navigate(`/notebook/${value}`)
+    }
   }
 
-  const handleCloseOpenedNotebook = (id: string): void => {
+  const handleCloseOpenedNotebook = (id: string, e: React.MouseEvent): void => {
+    e.stopPropagation()
+
     // 如果关闭的是当前笔记本，需要跳转
     if (currentNotebook?.id === id && !isHomePage) {
       // 找到当前笔记本在列表中的索引
@@ -50,17 +69,13 @@ export default function TopNavigationBar({
     removeOpenedNotebook(id)
   }
 
-  const handleSettingsClick = async (): Promise<void> => {
-    try {
-      await window.api.openSettings()
-    } catch (error) {
-      console.error('Failed to open settings:', error)
-    }
+  const handleSettingsClick = (): void => {
+    openSettings()
   }
 
   return (
     <div
-      className="h-12 shrink-0 flex items-center justify-between px-3"
+      className="h-12 shrink-0 flex items-center justify-between px-2 gap-0.5"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* macOS 左侧空白区域（留给窗口控制按钮） */}
@@ -68,7 +83,7 @@ export default function TopNavigationBar({
 
       {/* Linux 左侧设置按钮区域 */}
       {isLinux() && (
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <Button
             onClick={handleSettingsClick}
             variant="ghost"
@@ -82,59 +97,53 @@ export default function TopNavigationBar({
         </div>
       )}
 
-      {/* 导航按钮 */}
+      {/* 导航标签 */}
       <div className="flex items-center gap-2 flex-1">
-        <Button
-          onClick={handleHomeClick}
-          disabled={isHomePage}
-          variant={isHomePage ? 'ghost' : 'outline'}
-          size="sm"
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          className="h-7 gap-2 shadow-sm"
-        >
-          <Home className="w-4 h-4" />
-          <span>{t('home')}</span>
-        </Button>
-
-        {/* 打开的笔记本标签 - 所有页面都显示 */}
-        {openedNotebooks.map((notebook) => {
-          const isActive = currentNotebook?.id === notebook.id
-          return (
-            <Button
-              key={notebook.id}
-              onClick={() => handleOpenedNotebookClick(notebook.id)}
-              variant={isActive && !isHomePage ? 'ghost' : 'outline'}
-              size="sm"
-              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-              className="h-7 gap-1 shadow-sm"
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="flex-1">
+          <TabsList
+            className="bg-transparent border-0 gap-2 h-auto p-0 justify-start"
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          >
+            {/* 首页标签 */}
+            <TabsTrigger
+              value="home"
+              className="h-7 gap-2 px-3 data-[state=active]:bg-muted/50 data-[state=active]:shadow-sm rounded-md border data-[state=active]:border-border/50 border-transparent hover:bg-accent/50 transition-all"
             >
-              <span className="max-w-[200px] truncate">{notebook.title}</span>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleCloseOpenedNotebook(notebook.id)
-                }}
-                variant="ghost"
-                size="icon"
-                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-                className="ml-2 h-auto w-auto p-1"
-                title={t('closeTab')}
-              >
-                <X className="w-3.5 h-3.5" />
-              </Button>
-            </Button>
-          )
-        })}
+              <Home className="w-4 h-4" />
+              <span>{t('home')}</span>
+            </TabsTrigger>
 
-        <Button
-          onClick={onCreateClick}
-          variant="ghost"
-          size="icon"
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          className="w-7 h-7"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
+            {/* 打开的笔记本标签 */}
+            {openedNotebooks.map((notebook) => (
+              <TabsTrigger
+                key={notebook.id}
+                value={notebook.id}
+                className="h-7 gap-1 pr-2 pl-3 data-[state=active]:bg-muted/50 data-[state=active]:shadow-sm rounded-md border data-[state=active]:border-border/50 border-transparent hover:bg-accent/50 transition-all max-w-[200px]"
+              >
+                <span className="truncate">{notebook.title}</span>
+                <button
+                  onClick={(e) => handleCloseOpenedNotebook(notebook.id, e)}
+                  type="button"
+                  className="ml-1 inline-flex items-center justify-center h-4 w-4 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition-colors"
+                  title={t('closeTab')}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </TabsTrigger>
+            ))}
+
+            {/* 新建按钮 */}
+            <Button
+              onClick={onCreateClick}
+              variant="ghost"
+              size="icon"
+              className="w-7 h-7"
+              title={t('create', { ns: 'common' })}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* 非Linux平台的设置按钮（Windows和macOS保持在右侧） */}

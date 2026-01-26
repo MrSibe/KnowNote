@@ -19,9 +19,6 @@ async function invokeWithTimeout<T>(channel: string, timeout: number, ...args: a
 
 // Custom APIs for renderer
 const api = {
-  // 窗口设置相关
-  openSettings: () => ipcRenderer.invoke('open-settings'),
-
   // 获取平台信息
   getPlatform: (): Promise<string> => ipcRenderer.invoke('get-platform'),
 

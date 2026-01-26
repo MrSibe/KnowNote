@@ -18,6 +18,7 @@
   "defaultEmbeddingModelDesc": "选择知识库索引时使用的嵌入模型",
   "noAvailableModel": "没有可用的模型，请前往提供商页面启用供应商并选择模型",
   "pleaseSelectModel": "请选择默认模型",
+  "pleaseSelect": "请选择",
   "none": "无",
   "about": "关于",
   "officialWebsite": "官方网站",
@@ -86,5 +87,11 @@
   "englishPrompt": "英文提示词",
   "resetPrompt": "恢复默认",
   "promptPlaceholder": "请输入提示词内容...",
-  "shortcuts": "快捷键"
+  "shortcuts": "快捷键",
+  "shortcutsDesc": "查看和自定义应用的快捷键设置",
+  "cancel": "取消",
+  "confirm": "确认",
+  "generalSettingsDesc": "配置应用的基本设置，包括语言、主题和默认AI模型",
+  "aiProvidersDesc": "管理AI服务提供商的配置，包括API密钥和模型选择",
+  "aboutDesc": "查看应用版本信息和相关说明"
 }

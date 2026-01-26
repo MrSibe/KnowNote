@@ -1,8 +1,17 @@
-import { useState, useEffect, useRef, ReactElement } from 'react'
+import { useState, useEffect, ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { Field, FieldLabel } from '../ui/field'
 
 interface RenameDialogProps {
   isOpen: boolean
@@ -19,23 +28,10 @@ export default function RenameDialog({
 }: RenameDialogProps): ReactElement | null {
   const { t } = useTranslation(['common', 'notebook'])
   const [title, setTitle] = useState(currentTitle)
-  const inputRef = useRef<HTMLInputElement>(null)
 
-  // 同步 currentTitle 变化
   useEffect(() => {
     setTitle(currentTitle)
   }, [currentTitle])
-
-  // 自动聚焦并选中文本
-  useEffect(() => {
-    if (isOpen && inputRef.current) {
-      // 使用 setTimeout 确保 Dialog 动画完成后再聚焦
-      setTimeout(() => {
-        inputRef.current?.focus()
-        inputRef.current?.select()
-      }, 50)
-    }
-  }, [isOpen])
 
   const handleSubmit = (e: React.FormEvent): void => {
     e.preventDefault()
@@ -46,29 +42,35 @@ export default function RenameDialog({
     }
   }
 
-  // 判断是否可以提交
   const canSubmit = title.trim() && title.trim() !== currentTitle
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md **:data-radix-dialog-close:text-foreground **:data-radix-dialog-close:opacity-100">
         <DialogHeader>
-          <DialogTitle>{t('notebook:renameNotebook')}</DialogTitle>
+          <DialogTitle className="text-foreground">{t('notebook:renameNotebook')}</DialogTitle>
+          <DialogDescription>{t('notebook:enterNotebookName')}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <Input
-            ref={inputRef}
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={t('notebook:enterNotebookName')}
-          />
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <Field>
+            <FieldLabel htmlFor="notebook-title" className="text-foreground">
+              {t('notebook:notebookName')}
+            </FieldLabel>
+            <Input
+              id="notebook-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="text-foreground"
+            />
+          </Field>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('common:cancel')}
-            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" className="text-foreground">
+                {t('common:cancel')}
+              </Button>
+            </DialogClose>
             <Button type="submit" disabled={!canSubmit}>
               {t('common:confirm')}
             </Button>

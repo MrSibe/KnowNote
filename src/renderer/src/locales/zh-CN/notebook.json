@@ -1,6 +1,7 @@
 {
   "renameNotebook": "重命名笔记本",
   "deleteNotebook": "删除笔记本",
+  "notebookName": "笔记本名称",
   "enterNotebookName": "请输入笔记本名称",
   "deleteConfirm": "确定要删除笔记本 \"{{name}}\" 吗？\n此操作无法撤销。",
   "notes": "笔记",

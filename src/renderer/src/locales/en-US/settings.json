@@ -62,6 +62,7 @@
   "defaultEmbeddingModelDesc": "Select the embedding model for knowledge base indexing",
   "noAvailableModel": "No available models, please go to provider page to enable providers and select models",
   "pleaseSelectModel": "Please select default model",
+  "pleaseSelect": "Please Select",
   "none": "None",
   "about": "About",
   "officialWebsite": "Official Website",
@@ -128,5 +129,12 @@
   "chinesePrompt": "Chinese Prompt",
   "englishPrompt": "English Prompt",
   "resetPrompt": "Reset to Default",
-  "promptPlaceholder": "Enter prompt content..."
+  "promptPlaceholder": "Enter prompt content...",
+  "shortcuts": "Shortcuts",
+  "shortcutsDesc": "View and customize application shortcut settings",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "generalSettingsDesc": "Configure basic application settings including language, theme, and default AI models",
+  "aiProvidersDesc": "Manage AI service provider configurations including API keys and model selection",
+  "aboutDesc": "View application version information and related details"
 }

@@ -128,7 +128,7 @@ function DocumentItem({ document, onDelete, onSelect }: DocumentItemProps): Reac
         <h3 className="text-sm font-medium truncate">{document.title}</h3>
         <p className="text-xs text-muted-foreground">{document.chunkCount} chunks</p>
         {document.status === 'processing' && (
-          <p className="text-xs text-yellow-600 flex items-center gap-1">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Loader2 className="w-3 h-3 animate-spin" />
             {t('indexing')}
           </p>
