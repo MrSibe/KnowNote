@@ -7,9 +7,7 @@ import ProvidersSettings from './ProvidersSettings'
 import PromptsSettings from './PromptsSettings'
 import ShortcutSettings from './ShortcutSettings'
 import AboutSettings from './AboutSettings'
-import SettingsActionBar from './SettingsActionBar'
-import { ScrollArea } from '../ui/scroll-area'
-import { Separator } from '../ui/separator'
+import SettingsContentPanel from './SettingsContentPanel'
 import { Dialog, DialogContent } from '../ui/dialog'
 import {
   Sidebar,
@@ -72,27 +70,37 @@ export default function SettingsDialog(): ReactElement {
     {
       id: 'general',
       icon: Globe,
-      label: t('generalSettings')
+      label: t('generalSettings'),
+      title: t('generalSettings'),
+      description: t('generalSettingsDesc')
     },
     {
       id: 'provider',
       icon: Database,
-      label: t('aiProviders')
+      label: t('aiProviders'),
+      title: t('aiProviders'),
+      description: t('aiProvidersDesc')
     },
     {
       id: 'prompts',
       icon: MessageSquare,
-      label: t('promptSettings')
+      label: t('promptSettings'),
+      title: t('promptSettings'),
+      description: t('mindMapPromptDesc')
     },
     {
       id: 'shortcuts',
       icon: Keyboard,
-      label: t('shortcuts')
+      label: t('shortcuts'),
+      title: t('shortcuts'),
+      description: t('shortcutsDesc')
     },
     {
       id: 'about',
       icon: HelpCircle,
-      label: t('about')
+      label: t('about'),
+      title: t('about'),
+      description: t('aboutDesc')
     }
   ]
 
@@ -142,7 +150,10 @@ export default function SettingsDialog(): ReactElement {
 
   return (
     <Dialog open={isSettingsOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl h-[80vh] p-0 flex flex-col bg-sidebar">
+      <DialogContent
+        className="max-w-5xl h-[80vh] p-0 flex flex-col bg-sidebar"
+        showCloseButton={false}
+      >
         <SidebarProvider className="flex flex-1 min-h-0">
           <div className="flex flex-1 min-h-0 gap-3 p-3 w-full">
             {/* 使用 Shadcn Sidebar */}
@@ -173,12 +184,20 @@ export default function SettingsDialog(): ReactElement {
               </SidebarContent>
             </Sidebar>
 
-          {/* 主内容区域 - 岛屿样式 */}
-          <div className="flex-1 flex flex-col min-w-0 bg-background rounded-lg shadow-sm overflow-hidden">
-            {/* 内容区域 */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <ScrollArea className="h-full">
-                <div className="p-4">
+            {/* 获取当前活跃项的配置 */}
+            {(() => {
+              const currentItem = menuItems.find((item) => item.id === activeSection)
+              if (!currentItem) return null
+
+              return (
+                <SettingsContentPanel
+                  title={currentItem.title}
+                  description={currentItem.description}
+                  hasChanges={hasChanges}
+                  onCancel={handleCancel}
+                  onConfirm={handleConfirm}
+                  onClose={() => closeSettings()}
+                >
                   {pendingSettings && activeSection === 'general' && (
                     <GeneralSettings
                       settings={pendingSettings}
@@ -201,19 +220,10 @@ export default function SettingsDialog(): ReactElement {
                   )}
                   {activeSection === 'shortcuts' && <ShortcutSettings />}
                   {activeSection === 'about' && <AboutSettings />}
-                </div>
-              </ScrollArea>
-            </div>
-
-            {/* 底部操作栏 */}
-            <Separator className="h-px" />
-            <SettingsActionBar
-              hasChanges={hasChanges}
-              onCancel={handleCancel}
-              onConfirm={handleConfirm}
-            />
+                </SettingsContentPanel>
+              )
+            })()}
           </div>
-        </div>
         </SidebarProvider>
       </DialogContent>
     </Dialog>

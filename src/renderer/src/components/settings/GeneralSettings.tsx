@@ -3,10 +3,16 @@ import { Sun, Moon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useI18nStore } from '../../store/i18nStore'
 import type { AppSettings } from '../../../../shared/types'
-import { Button } from '../ui/button'
-import { Switch } from '../ui/switch'
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet
+} from '../ui/field'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { Field, FieldDescription, FieldLabel, FieldGroup, FieldSet } from '../ui/field'
+import { Button } from '../ui/button'
 
 interface ProviderConfig {
   providerName: string
@@ -53,51 +59,37 @@ export default function GeneralSettings({
           }
 
           // 根据类型分类
-          // 如果模型有明确的type字段，按type分类
-          // 如果没有type字段，默认当作chat模型（大部分模型都是chat模型）
           if (modelDetail?.type === 'embedding') {
             embeddingModels.push(modelObj)
           } else if (modelDetail?.type === 'chat' || !modelDetail?.type) {
-            // chat模型或未分类的模型都放入chat列表
             chatModels.push(modelObj)
           }
         })
       }
     })
 
-    console.log('[GeneralSettings] Available chat models:', chatModels)
-    console.log('[GeneralSettings] Available embedding models:', embeddingModels)
-    console.log('[GeneralSettings] Current defaultChatModel:', settings.defaultChatModel)
-    console.log('[GeneralSettings] Current defaultEmbeddingModel:', settings.defaultEmbeddingModel)
-
     return { availableChatModels: chatModels, availableEmbeddingModels: embeddingModels }
-  }, [providers, t, settings.defaultChatModel, settings.defaultEmbeddingModel])
+  }, [providers])
 
   // 检查默认模型是否仍然可用，如果不可用则清空
-  // 注意：只有当 providers 不为空时才执行检查，避免在 providers 加载期间误清空用户设置
   useEffect(() => {
-    // 如果 providers 还在加载中（为空或只有"无"选项），不执行检查
     if (providers.length === 0) {
       return
     }
 
-    // 检查默认对话模型
     const isChatModelAvailable = settings.defaultChatModel
       ? availableChatModels.some((model) => model.id === settings.defaultChatModel)
       : true
 
     if (!isChatModelAvailable && settings.defaultChatModel) {
-      console.log('[GeneralSettings] 默认对话模型不可用，清空设置:', settings.defaultChatModel)
       onSettingsChange({ defaultChatModel: '' })
     }
 
-    // 检查默认嵌入模型
     const isEmbeddingModelAvailable = settings.defaultEmbeddingModel
       ? availableEmbeddingModels.some((model) => model.id === settings.defaultEmbeddingModel)
       : true
 
     if (!isEmbeddingModelAvailable && settings.defaultEmbeddingModel) {
-      console.log('[GeneralSettings] 默认嵌入模型不可用，清空设置:', settings.defaultEmbeddingModel)
       onSettingsChange({ defaultEmbeddingModel: '' })
     }
   }, [
@@ -123,25 +115,25 @@ export default function GeneralSettings({
       <FieldGroup>
         {/* 主题模式设置 */}
         <Field orientation="horizontal">
-          <div className="flex-1">
+          <FieldContent>
             <FieldLabel>{t('themeMode')}</FieldLabel>
             <FieldDescription>{t('selectTheme')}</FieldDescription>
-          </div>
-          <div className="flex items-center gap-2">
+          </FieldContent>
+          <div className="inline-flex rounded-lg border bg-muted p-1">
             <Button
               onClick={() => onSettingsChange({ theme: 'light' })}
-              variant={settings.theme === 'light' ? 'default' : 'outline'}
+              variant={settings.theme === 'light' ? 'default' : 'ghost'}
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 rounded-md"
             >
               <Sun className="w-3.5 h-3.5" />
               <span className="text-xs font-medium">{t('light')}</span>
             </Button>
             <Button
               onClick={() => onSettingsChange({ theme: 'dark' })}
-              variant={settings.theme === 'dark' ? 'default' : 'outline'}
+              variant={settings.theme === 'dark' ? 'default' : 'ghost'}
               size="sm"
-              className="gap-1.5"
+              className="gap-1.5 rounded-md"
             >
               <Moon className="w-3.5 h-3.5" />
               <span className="text-xs font-medium">{t('dark')}</span>
@@ -149,24 +141,12 @@ export default function GeneralSettings({
           </div>
         </Field>
 
-        {/* 开机自启动设置 */}
-        <Field orientation="horizontal">
-          <div className="flex-1">
-            <FieldLabel>{t('autoLaunch')}</FieldLabel>
-            <FieldDescription>{t('autoLaunchDesc')}</FieldDescription>
-          </div>
-          <Switch
-            checked={settings.autoLaunch}
-            onCheckedChange={(checked) => onSettingsChange({ autoLaunch: checked })}
-          />
-        </Field>
-
         {/* 语言设置 */}
         <Field orientation="horizontal">
-          <div className="flex-1">
+          <FieldContent>
             <FieldLabel htmlFor="language-select">{t('language')}</FieldLabel>
             <FieldDescription>{t('languageDesc')}</FieldDescription>
-          </div>
+          </FieldContent>
           <Select
             value={settings.language}
             onValueChange={(value) => {
@@ -176,15 +156,15 @@ export default function GeneralSettings({
             }}
           >
             <SelectTrigger id="language-select" className="w-56">
-              <SelectValue />
+              <SelectValue placeholder={t('pleaseSelect')}>
+                {languages.find((lang) => lang.value === settings.language)?.native}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {languages.map((language) => (
                 <SelectItem key={language.value} value={language.value}>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{language.native}</span>
-                    <span className="text-xs text-muted-foreground">{language.label}</span>
-                  </div>
+                  <span className="text-sm font-medium">{language.native}</span>
+                  <span className="text-xs text-muted-foreground">{language.label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -193,29 +173,29 @@ export default function GeneralSettings({
 
         {/* 默认对话模型设置 */}
         <Field orientation="horizontal">
-          <div className="flex-1">
+          <FieldContent>
             <FieldLabel htmlFor="chat-model-select">{t('defaultChatModel')}</FieldLabel>
             <FieldDescription>
               {availableChatModels.length > 0 ? t('defaultChatModelDesc') : t('noAvailableModel')}
             </FieldDescription>
-          </div>
+          </FieldContent>
           {availableChatModels.length > 0 && (
             <Select
               value={settings.defaultChatModel || undefined}
               onValueChange={(value) => onSettingsChange({ defaultChatModel: value })}
             >
               <SelectTrigger id="chat-model-select" className="w-56">
-                <SelectValue placeholder={t('pleaseSelectModel')} />
+                <SelectValue placeholder={t('pleaseSelectModel')}>
+                  {availableChatModels.find((m) => m.id === settings.defaultChatModel)?.label}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {availableChatModels.map((model) => (
                   <SelectItem key={model.id} value={model.id}>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium">{model.label}</span>
                       {model.provider && (
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {model.provider}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{model.provider}</span>
                       )}
                     </div>
                   </SelectItem>
@@ -227,31 +207,34 @@ export default function GeneralSettings({
 
         {/* 默认嵌入模型设置 */}
         <Field orientation="horizontal">
-          <div className="flex-1">
+          <FieldContent>
             <FieldLabel htmlFor="embedding-model-select">{t('defaultEmbeddingModel')}</FieldLabel>
             <FieldDescription>
               {availableEmbeddingModels.length > 0
                 ? t('defaultEmbeddingModelDesc')
                 : t('noAvailableModel')}
             </FieldDescription>
-          </div>
+          </FieldContent>
           {availableEmbeddingModels.length > 0 && (
             <Select
               value={settings.defaultEmbeddingModel || undefined}
               onValueChange={(value) => onSettingsChange({ defaultEmbeddingModel: value })}
             >
               <SelectTrigger id="embedding-model-select" className="w-56">
-                <SelectValue placeholder={t('pleaseSelectModel')} />
+                <SelectValue placeholder={t('pleaseSelectModel')}>
+                  {
+                    availableEmbeddingModels.find((m) => m.id === settings.defaultEmbeddingModel)
+                      ?.label
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {availableEmbeddingModels.map((model) => (
                   <SelectItem key={model.id} value={model.id}>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-0.5">
                       <span className="text-sm font-medium">{model.label}</span>
                       {model.provider && (
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {model.provider}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{model.provider}</span>
                       )}
                     </div>
                   </SelectItem>
