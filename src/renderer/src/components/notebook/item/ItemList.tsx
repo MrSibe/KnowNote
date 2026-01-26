@@ -89,8 +89,10 @@ function SortableItemRow({
   const mindMap = isMindMap ? item.resource : null
   const quiz = isQuiz ? item.resource : null
   const isCurrentNote = isNote && currentNote?.id === item.resourceId
-  const isGenerating = (isMindMap || isQuiz) && (mindMap?.status === 'generating' || quiz?.status === 'generating')
-  const isFailed = (isMindMap || isQuiz) && (mindMap?.status === 'failed' || quiz?.status === 'failed')
+  const isGenerating =
+    (isMindMap || isQuiz) && (mindMap?.status === 'generating' || quiz?.status === 'generating')
+  const isFailed =
+    (isMindMap || isQuiz) && (mindMap?.status === 'failed' || quiz?.status === 'failed')
 
   const handleRename = () => {
     const currentTitle = isNote ? note?.title : isMindMap ? mindMap?.title : quiz?.title
@@ -155,7 +157,9 @@ function SortableItemRow({
         {isNote && <FileText className="w-4 h-4 text-muted-foreground" />}
         {isMindMap && !isGenerating && <Network className="w-4 h-4 text-chart-1" />}
         {isQuiz && !isGenerating && <ClipboardList className="w-4 h-4 text-chart-2" />}
-        {(isMindMap || isQuiz) && isGenerating && <Loader2 className="w-4 h-4 text-chart-1 animate-spin" />}
+        {(isMindMap || isQuiz) && isGenerating && (
+          <Loader2 className="w-4 h-4 text-chart-1 animate-spin" />
+        )}
       </div>
 
       {/* 内容列 - 可被压缩 */}
@@ -255,9 +259,15 @@ function SortableItemRow({
       <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{isNote ? t('renameNote') : isMindMap ? t('renameMindMap') : t('renameQuiz')}</DialogTitle>
+            <DialogTitle>
+              {isNote ? t('renameNote') : isMindMap ? t('renameMindMap') : t('renameQuiz')}
+            </DialogTitle>
             <DialogDescription>
-              {isNote ? t('renameNoteDesc') : isMindMap ? t('renameMindMapDesc') : t('renameNoteDesc')}
+              {isNote
+                ? t('renameNoteDesc')
+                : isMindMap
+                  ? t('renameMindMapDesc')
+                  : t('renameNoteDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -270,7 +280,13 @@ function SortableItemRow({
                   handleRenameConfirm()
                 }
               }}
-              placeholder={isNote ? t('noteTitlePlaceholder') : isMindMap ? t('mindMapTitlePlaceholder') : t('noteTitlePlaceholder')}
+              placeholder={
+                isNote
+                  ? t('noteTitlePlaceholder')
+                  : isMindMap
+                    ? t('mindMapTitlePlaceholder')
+                    : t('noteTitlePlaceholder')
+              }
             />
           </div>
           <DialogFooter>
@@ -290,7 +306,13 @@ function SortableItemRow({
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
         title={isNote ? t('deleteNote') : isMindMap ? t('deleteMindMap') : t('deleteQuiz')}
-        message={isNote ? t('deleteNoteWarning') : isMindMap ? t('confirmDeleteMindMap') : t('confirmDeleteQuiz')}
+        message={
+          isNote
+            ? t('deleteNoteWarning')
+            : isMindMap
+              ? t('confirmDeleteMindMap')
+              : t('confirmDeleteQuiz')
+        }
       />
     </>
   )

@@ -206,9 +206,7 @@ function DocumentViewerPanel({ document, onBack }: DocumentViewerPanelProps) {
             <ArrowLeft className="w-4 h-4" />
           </Button>
         }
-        center={
-          <span className="text-sm font-medium truncate">{document.title}</span>
-        }
+        center={<span className="text-sm font-medium truncate">{document.title}</span>}
       />
 
       {/* 文档内容 */}
@@ -450,7 +448,10 @@ export default function SourcePanel(): ReactElement {
             draggable
             left={<span className="text-sm text-foreground">{t('knowledgeBase')}</span>}
             right={
-              <div className="relative" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+              <div
+                className="relative"
+                style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              >
                 <Button
                   onClick={() => setShowAddMenu(!showAddMenu)}
                   disabled={!defaultEmbeddingModel}
@@ -462,53 +463,53 @@ export default function SourcePanel(): ReactElement {
                   <Plus className="w-4 h-4" />
                 </Button>
 
-              {/* 添加菜单 */}
-              {showAddMenu && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-10">
-                  <Button
-                    onClick={handleFileUpload}
-                    variant="ghost"
-                    className="w-full justify-start text-sm font-normal rounded-none"
-                  >
-                    <FileUp className="w-4 h-4" />
-                    {t('uploadFile')}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setModalType('url')
-                      setShowAddMenu(false)
-                    }}
-                    variant="ghost"
-                    className="w-full justify-start text-sm font-normal rounded-none"
-                  >
-                    <Globe className="w-4 h-4" />
-                    {t('importUrl')}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setModalType('text')
-                      setShowAddMenu(false)
-                    }}
-                    variant="ghost"
-                    className="w-full justify-start text-sm font-normal rounded-none"
-                  >
-                    <FileText className="w-4 h-4" />
-                    {t('pasteText')}
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setModalType('note')
-                      setShowAddMenu(false)
-                    }}
-                    variant="ghost"
-                    className="w-full justify-start text-sm font-normal rounded-none"
-                  >
-                    <StickyNote className="w-4 h-4" />
-                    {t('importNote')}
-                  </Button>
-                </div>
-              )}
-            </div>
+                {/* 添加菜单 */}
+                {showAddMenu && (
+                  <div className="absolute right-0 top-full mt-1 w-40 bg-popover border border-border rounded-lg shadow-lg overflow-hidden z-10">
+                    <Button
+                      onClick={handleFileUpload}
+                      variant="ghost"
+                      className="w-full justify-start text-sm font-normal rounded-none"
+                    >
+                      <FileUp className="w-4 h-4" />
+                      {t('uploadFile')}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setModalType('url')
+                        setShowAddMenu(false)
+                      }}
+                      variant="ghost"
+                      className="w-full justify-start text-sm font-normal rounded-none"
+                    >
+                      <Globe className="w-4 h-4" />
+                      {t('importUrl')}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setModalType('text')
+                        setShowAddMenu(false)
+                      }}
+                      variant="ghost"
+                      className="w-full justify-start text-sm font-normal rounded-none"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {t('pasteText')}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setModalType('note')
+                        setShowAddMenu(false)
+                      }}
+                      variant="ghost"
+                      className="w-full justify-start text-sm font-normal rounded-none"
+                    >
+                      <StickyNote className="w-4 h-4" />
+                      {t('importNote')}
+                    </Button>
+                  </div>
+                )}
+              </div>
             }
           />
 

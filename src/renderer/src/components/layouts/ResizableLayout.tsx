@@ -53,6 +53,7 @@ export default function ResizableLayout({
         panel.collapse()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 折叠/展开右侧面板
@@ -65,6 +66,7 @@ export default function ResizableLayout({
         panel.collapse()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // 监听面板切换快捷键
@@ -106,6 +108,7 @@ export default function ResizableLayout({
 
         {/* 中间面板 */}
         <ResizablePanel defaultSize={defaultCenterSize} minSize={minCenterWidth}>
+          {}
           {React.cloneElement(
             centerPanel as ReactElement,
             {

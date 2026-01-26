@@ -20,7 +20,11 @@ function App(): React.JSX.Element {
   const initTheme = useThemeStore((state) => state.initTheme)
   const loadNotebooks = useNotebookStore((state) => state.loadNotebooks)
   const { language, initLanguage } = useI18nStore()
-  const { hasCompletedOnboarding, isLoading: onboardingLoading, initOnboarding } = useOnboardingStore()
+  const {
+    hasCompletedOnboarding,
+    isLoading: onboardingLoading,
+    initOnboarding
+  } = useOnboardingStore()
 
   // 激活快捷键执行器
   useShortcutExecutor()
@@ -82,17 +86,14 @@ function App(): React.JSX.Element {
       <HashRouter>
         <Routes>
           {/* 引导页路由 */}
-          {!hasCompletedOnboarding && (
-            <Route path="/onboarding" element={<OnboardingPage />} />
-          )}
+          {!hasCompletedOnboarding && <Route path="/onboarding" element={<OnboardingPage />} />}
           {/* 主应用路由 */}
-          <Route path="/" element={
-            hasCompletedOnboarding ? (
-              <NotebookListPage />
-            ) : (
-              <Navigate to="/onboarding" replace />
-            )
-          } />
+          <Route
+            path="/"
+            element={
+              hasCompletedOnboarding ? <NotebookListPage /> : <Navigate to="/onboarding" replace />
+            }
+          />
           <Route path="/notebook/:id" element={<NotebookLayout />} />
           <Route path="/mindmap/:notebookId" element={<MindMapPage />} />
           <Route path="/mindmap/view/:mindMapId" element={<MindMapPage />} />

@@ -104,7 +104,9 @@ export default function QuizQuestionView() {
                     // 查看详情模式：禁用点击
                     isReviewMode ? 'cursor-default' : 'cursor-pointer',
                     isSelected && !showResult && 'border-primary bg-primary/5',
-                    showResult && isCorrectOption && 'border-green-500 bg-green-50 dark:bg-green-950',
+                    showResult &&
+                      isCorrectOption &&
+                      'border-green-500 bg-green-50 dark:bg-green-950',
                     showResult &&
                       isSelected &&
                       !isCorrectOption &&
@@ -193,7 +195,12 @@ export default function QuizQuestionView() {
         </div>
 
         {/* 底部按钮 */}
-        <div className={cn('pt-6 border-t', isReviewMode ? 'flex justify-between' : 'flex justify-end')}>
+        <div
+          className={cn(
+            'pt-6 border-t',
+            isReviewMode ? 'flex justify-between' : 'flex justify-end'
+          )}
+        >
           {isReviewMode && (
             <Button
               variant="outline"

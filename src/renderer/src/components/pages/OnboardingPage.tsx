@@ -26,7 +26,7 @@ export default function OnboardingPage() {
     navigate('/')
   }
 
-  const selectedLangName = languages.find(l => l.code === selectedLanguage)?.name
+  const selectedLangName = languages.find((l) => l.code === selectedLanguage)?.name
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
@@ -34,9 +34,7 @@ export default function OnboardingPage() {
         {/* Logo */}
         <div className="mb-8">
           <img src={logo} alt="KnowNote" className="w-24 h-24 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            KnowNote
-          </h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">KnowNote</h1>
           <p className="text-sm text-muted-foreground">
             More convenient, more lightweight, and understands you better!
           </p>
@@ -44,11 +42,12 @@ export default function OnboardingPage() {
 
         {/* 语言选择 */}
         <div className="mb-6">
-          <Select value={selectedLanguage} onValueChange={(value) => setSelectedLanguage(value as Language)}>
+          <Select
+            value={selectedLanguage}
+            onValueChange={(value) => setSelectedLanguage(value as Language)}
+          >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Language">
-                {selectedLangName}
-              </SelectValue>
+              <SelectValue placeholder="Select Language">{selectedLangName}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               {languages.map((lang) => (
@@ -61,12 +60,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* 确认按钮 */}
-        <Button
-          size="lg"
-          onClick={handleComplete}
-          disabled={isCompleting}
-          className="w-full"
-        >
+        <Button size="lg" onClick={handleComplete} disabled={isCompleting} className="w-full">
           {isCompleting ? 'Starting...' : 'Get Started'}
         </Button>
       </div>

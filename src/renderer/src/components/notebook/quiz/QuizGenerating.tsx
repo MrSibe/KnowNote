@@ -22,9 +22,7 @@ export default function QuizGenerating() {
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-16 h-16 animate-spin text-primary" />
           <div className="text-center space-y-2">
-            <p className="text-3xl font-bold text-primary">
-              {generationProgress?.progress || 0}%
-            </p>
+            <p className="text-3xl font-bold text-primary">{generationProgress?.progress || 0}%</p>
             <p className="text-base text-muted-foreground">
               {generationProgress?.stage && getStageText(generationProgress.stage)}
             </p>
@@ -40,9 +38,7 @@ export default function QuizGenerating() {
         </div>
 
         {/* 提示文本 */}
-        <p className="text-center text-sm text-muted-foreground">
-          {t('generatingHint')}
-        </p>
+        <p className="text-center text-sm text-muted-foreground">{t('generatingHint')}</p>
       </div>
     </div>
   )

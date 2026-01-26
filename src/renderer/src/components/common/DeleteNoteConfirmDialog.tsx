@@ -38,7 +38,10 @@ export default function DeleteNoteConfirmDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>{t('common:cancel')}</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} className="bg-destructive hover:bg-destructive/90">
+          <AlertDialogAction
+            onClick={handleConfirm}
+            className="bg-destructive hover:bg-destructive/90"
+          >
             {t('common:delete')}
           </AlertDialogAction>
         </AlertDialogFooter>

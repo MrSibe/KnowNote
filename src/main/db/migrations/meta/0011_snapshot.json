@@ -60,10 +60,7 @@
       "indexes": {
         "idx_messages_session": {
           "name": "idx_messages_session",
-          "columns": [
-            "session_id",
-            "created_at"
-          ],
+          "columns": ["session_id", "created_at"],
           "isUnique": false
         }
       },
@@ -72,12 +69,8 @@
           "name": "chat_messages_session_id_chat_sessions_id_fk",
           "tableFrom": "chat_messages",
           "tableTo": "chat_sessions",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["session_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -158,10 +151,7 @@
       "indexes": {
         "idx_sessions_notebook": {
           "name": "idx_sessions_notebook",
-          "columns": [
-            "notebook_id",
-            "updated_at"
-          ],
+          "columns": ["notebook_id", "updated_at"],
           "isUnique": false
         }
       },
@@ -170,12 +160,8 @@
           "name": "chat_sessions_notebook_id_notebooks_id_fk",
           "tableFrom": "chat_sessions",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -183,12 +169,8 @@
           "name": "chat_sessions_parent_session_id_chat_sessions_id_fk",
           "tableFrom": "chat_sessions",
           "tableTo": "chat_sessions",
-          "columnsFrom": [
-            "parent_session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_session_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -274,16 +256,12 @@
       "indexes": {
         "idx_chunks_document": {
           "name": "idx_chunks_document",
-          "columns": [
-            "document_id"
-          ],
+          "columns": ["document_id"],
           "isUnique": false
         },
         "idx_chunks_notebook": {
           "name": "idx_chunks_notebook",
-          "columns": [
-            "notebook_id"
-          ],
+          "columns": ["notebook_id"],
           "isUnique": false
         }
       },
@@ -292,12 +270,8 @@
           "name": "chunks_document_id_documents_id_fk",
           "tableFrom": "chunks",
           "tableTo": "documents",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -305,12 +279,8 @@
           "name": "chunks_notebook_id_notebooks_id_fk",
           "tableFrom": "chunks",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -447,17 +417,12 @@
       "indexes": {
         "idx_documents_notebook": {
           "name": "idx_documents_notebook",
-          "columns": [
-            "notebook_id",
-            "updated_at"
-          ],
+          "columns": ["notebook_id", "updated_at"],
           "isUnique": false
         },
         "idx_documents_status": {
           "name": "idx_documents_status",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         }
       },
@@ -466,12 +431,8 @@
           "name": "documents_notebook_id_notebooks_id_fk",
           "tableFrom": "documents",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -479,12 +440,8 @@
           "name": "documents_source_note_id_notes_id_fk",
           "tableFrom": "documents",
           "tableTo": "notes",
-          "columnsFrom": [
-            "source_note_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["source_note_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -542,23 +499,17 @@
       "indexes": {
         "idx_embeddings_chunk": {
           "name": "idx_embeddings_chunk",
-          "columns": [
-            "chunk_id"
-          ],
+          "columns": ["chunk_id"],
           "isUnique": false
         },
         "idx_embeddings_notebook": {
           "name": "idx_embeddings_notebook",
-          "columns": [
-            "notebook_id"
-          ],
+          "columns": ["notebook_id"],
           "isUnique": false
         },
         "idx_embeddings_model": {
           "name": "idx_embeddings_model",
-          "columns": [
-            "model"
-          ],
+          "columns": ["model"],
           "isUnique": false
         }
       },
@@ -567,12 +518,8 @@
           "name": "embeddings_chunk_id_chunks_id_fk",
           "tableFrom": "embeddings",
           "tableTo": "chunks",
-          "columnsFrom": [
-            "chunk_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chunk_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -580,12 +527,8 @@
           "name": "embeddings_notebook_id_notebooks_id_fk",
           "tableFrom": "embeddings",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -651,25 +594,17 @@
       "indexes": {
         "idx_items_notebook_order": {
           "name": "idx_items_notebook_order",
-          "columns": [
-            "notebook_id",
-            "order"
-          ],
+          "columns": ["notebook_id", "order"],
           "isUnique": false
         },
         "idx_items_type": {
           "name": "idx_items_type",
-          "columns": [
-            "type"
-          ],
+          "columns": ["type"],
           "isUnique": false
         },
         "idx_items_resource": {
           "name": "idx_items_resource",
-          "columns": [
-            "type",
-            "resource_id"
-          ],
+          "columns": ["type", "resource_id"],
           "isUnique": false
         }
       },
@@ -678,12 +613,8 @@
           "name": "items_notebook_id_notebooks_id_fk",
           "tableFrom": "items",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -778,18 +709,12 @@
       "indexes": {
         "idx_mindmaps_notebook": {
           "name": "idx_mindmaps_notebook",
-          "columns": [
-            "notebook_id",
-            "updated_at"
-          ],
+          "columns": ["notebook_id", "updated_at"],
           "isUnique": false
         },
         "idx_mindmaps_version": {
           "name": "idx_mindmaps_version",
-          "columns": [
-            "notebook_id",
-            "version"
-          ],
+          "columns": ["notebook_id", "version"],
           "isUnique": false
         }
       },
@@ -798,12 +723,8 @@
           "name": "mind_maps_notebook_id_notebooks_id_fk",
           "tableFrom": "mind_maps",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -854,9 +775,7 @@
       "indexes": {
         "idx_notebooks_updated": {
           "name": "idx_notebooks_updated",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -914,10 +833,7 @@
       "indexes": {
         "idx_notes_notebook": {
           "name": "idx_notes_notebook",
-          "columns": [
-            "notebook_id",
-            "updated_at"
-          ],
+          "columns": ["notebook_id", "updated_at"],
           "isUnique": false
         }
       },
@@ -926,12 +842,8 @@
           "name": "notes_notebook_id_notebooks_id_fk",
           "tableFrom": "notes",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1010,18 +922,12 @@
       "indexes": {
         "idx_quiz_sessions_quiz": {
           "name": "idx_quiz_sessions_quiz",
-          "columns": [
-            "quiz_id",
-            "created_at"
-          ],
+          "columns": ["quiz_id", "created_at"],
           "isUnique": false
         },
         "idx_quiz_sessions_notebook": {
           "name": "idx_quiz_sessions_notebook",
-          "columns": [
-            "notebook_id",
-            "created_at"
-          ],
+          "columns": ["notebook_id", "created_at"],
           "isUnique": false
         }
       },
@@ -1030,12 +936,8 @@
           "name": "quiz_sessions_quiz_id_quizzes_id_fk",
           "tableFrom": "quiz_sessions",
           "tableTo": "quizzes",
-          "columnsFrom": [
-            "quiz_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["quiz_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1043,12 +945,8 @@
           "name": "quiz_sessions_notebook_id_notebooks_id_fk",
           "tableFrom": "quiz_sessions",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1143,18 +1041,12 @@
       "indexes": {
         "idx_quizzes_notebook": {
           "name": "idx_quizzes_notebook",
-          "columns": [
-            "notebook_id",
-            "updated_at"
-          ],
+          "columns": ["notebook_id", "updated_at"],
           "isUnique": false
         },
         "idx_quizzes_version": {
           "name": "idx_quizzes_version",
-          "columns": [
-            "notebook_id",
-            "version"
-          ],
+          "columns": ["notebook_id", "version"],
           "isUnique": false
         }
       },
@@ -1163,12 +1055,8 @@
           "name": "quizzes_notebook_id_notebooks_id_fk",
           "tableFrom": "quizzes",
           "tableTo": "notebooks",
-          "columnsFrom": [
-            "notebook_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["notebook_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }

@@ -11,6 +11,7 @@ function mergeSettings(stored: Partial<AppSettings>): AppSettings {
     theme: stored.theme ?? defaultSettings.theme,
     language: stored.language ?? defaultSettings.language,
     autoLaunch: stored.autoLaunch ?? defaultSettings.autoLaunch,
+    hasCompletedOnboarding: stored.hasCompletedOnboarding ?? defaultSettings.hasCompletedOnboarding,
     defaultChatModel: stored.defaultChatModel ?? defaultSettings.defaultChatModel,
     defaultEmbeddingModel: stored.defaultEmbeddingModel ?? defaultSettings.defaultEmbeddingModel,
     prompts: {

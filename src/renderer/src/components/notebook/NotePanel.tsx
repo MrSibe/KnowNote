@@ -374,7 +374,6 @@ export default function NotePanel(): ReactElement {
       {notebookId && (
         <QuizStartDialog
           isOpen={showQuizStartDialog}
-          notebookId={notebookId}
           onClose={() => setShowQuizStartDialog(false)}
           onStart={handleQuizStart}
         />

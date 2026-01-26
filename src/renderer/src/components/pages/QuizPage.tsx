@@ -10,14 +10,8 @@ import QuizResultView from '../notebook/quiz/QuizResultView'
 export default function QuizPage() {
   const { notebookId, quizId } = useParams<{ notebookId?: string; quizId?: string }>()
   const { t } = useTranslation('quiz')
-  const {
-    currentQuiz,
-    isGenerating,
-    isResultMode,
-    loadLatestQuiz,
-    loadQuiz,
-    resetQuiz
-  } = useQuizStore()
+  const { currentQuiz, isGenerating, isResultMode, loadLatestQuiz, loadQuiz, resetQuiz } =
+    useQuizStore()
 
   const [isLoading, setIsLoading] = useState(true)
   const [platform, setPlatform] = useState<string>('')
@@ -37,7 +31,7 @@ export default function QuizPage() {
 
   // 加载答题数据
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = async (): Promise<void> => {
       setIsLoading(true)
       try {
         // 设置进度监听
@@ -50,7 +44,7 @@ export default function QuizPage() {
         }
 
         // 清理监听器
-        return cleanup
+        cleanup()
       } catch (error) {
         console.error('[QuizPage] Failed to load quiz:', error)
       } finally {

@@ -190,7 +190,7 @@ export class QuizService {
     Logger.info('QuizService', `Using provider: ${provider.name}`)
 
     // 获取基础提示词
-    let promptTemplate = await getQuizPrompt(options?.customPrompt)
+    const promptTemplate = await getQuizPrompt(options?.customPrompt)
 
     // 获取生成参数
     const questionCount = options?.questionCount || 10

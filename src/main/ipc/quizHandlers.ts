@@ -96,14 +96,17 @@ export function registerQuizHandlers(quizService: QuizService) {
   /**
    * 更新题库
    */
-  ipcMain.handle('quiz:update', async (_, args: { quizId: string; updates: { title?: string } }) => {
-    try {
-      quizService.updateQuiz(args.quizId, args.updates)
-      return { success: true }
-    } catch (error) {
-      return { success: false, error: (error as Error).message }
+  ipcMain.handle(
+    'quiz:update',
+    async (_, args: { quizId: string; updates: { title?: string } }) => {
+      try {
+        quizService.updateQuiz(args.quizId, args.updates)
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: (error as Error).message }
+      }
     }
-  })
+  )
 
   /**
    * 删除题库
@@ -120,15 +123,12 @@ export function registerQuizHandlers(quizService: QuizService) {
   /**
    * 打开答题窗口
    */
-  ipcMain.handle(
-    'quiz:open-window',
-    async (_, args: { notebookId: string; quizId?: string }) => {
-      try {
-        createQuizWindow(args.notebookId, args.quizId)
-        return { success: true }
-      } catch (error) {
-        return { success: false, error: (error as Error).message }
-      }
+  ipcMain.handle('quiz:open-window', async (_, args: { notebookId: string; quizId?: string }) => {
+    try {
+      createQuizWindow(args.notebookId, args.quizId)
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: (error as Error).message }
     }
-  )
+  })
 }

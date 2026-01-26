@@ -1,4 +1,4 @@
-import { ReactElement, useState, useEffect } from 'react'
+import { ReactElement, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Dialog,
@@ -21,14 +21,12 @@ export interface QuizStartParams {
 
 interface QuizStartDialogProps {
   isOpen: boolean
-  notebookId: string
   onClose: () => void
   onStart: (params: QuizStartParams) => void
 }
 
 export default function QuizStartDialog({
   isOpen,
-  notebookId,
   onClose,
   onStart
 }: QuizStartDialogProps): ReactElement {
@@ -37,15 +35,6 @@ export default function QuizStartDialog({
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [customPrompt, setCustomPrompt] = useState('')
 
-  // 重置状态
-  useEffect(() => {
-    if (isOpen) {
-      setQuestionCount(10)
-      setDifficulty('medium')
-      setCustomPrompt('')
-    }
-  }, [isOpen])
-
   const handleStart = () => {
     const params: QuizStartParams = {
       questionCount,
@@ -53,6 +42,10 @@ export default function QuizStartDialog({
       customPrompt: customPrompt.trim() || undefined
     }
     onStart(params)
+    // 重置状态
+    setQuestionCount(10)
+    setDifficulty('medium')
+    setCustomPrompt('')
     onClose()
   }
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuizStore } from '../../../store/quizStore'
 import { Button } from '../../ui/button'
@@ -16,13 +16,6 @@ export default function QuizResultView() {
     submitQuiz
   } = useQuizStore()
 
-  if (!currentQuiz) return null
-
-  const correctCount = getCorrectCount()
-  const totalQuestions = getTotalQuestions()
-  const wrongCount = totalQuestions - correctCount
-  const percentage = Math.round((correctCount / totalQuestions) * 100)
-
   // 提交答题会话（保存到数据库）
   const handleSubmit = async () => {
     await submitQuiz()
@@ -30,8 +23,17 @@ export default function QuizResultView() {
 
   // 首次进入结果页自动提交
   useEffect(() => {
-    handleSubmit()
+    if (currentQuiz) {
+      handleSubmit()
+    }
   }, [])
+
+  if (!currentQuiz) return null
+
+  const correctCount = getCorrectCount()
+  const totalQuestions = getTotalQuestions()
+  const wrongCount = totalQuestions - correctCount
+  const percentage = Math.round((correctCount / totalQuestions) * 100)
 
   const getEncouragementText = () => {
     if (percentage >= 90) return t('greatJob')
