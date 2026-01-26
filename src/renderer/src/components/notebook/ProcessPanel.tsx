@@ -14,6 +14,8 @@ import MessageList from './chat/MessageList'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
+import { Card } from '../ui/card'
+import { PanelHeader } from '../ui/panel-header'
 
 interface ProcessPanelProps {
   onToggleLeft?: () => void
@@ -201,33 +203,29 @@ export default function ProcessPanel({
   }
 
   return (
-    <div className="relative flex flex-col bg-card rounded-xl overflow-hidden h-full mx-0 shadow-md">
-      {/* 顶部标题栏 */}
-      <div
-        className="h-14 flex items-center justify-between px-4 border-b border-border/50 shrink-0"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-      >
-        {/* 左侧折叠按钮 */}
-        {onToggleLeft && (
-          <Button
-            onClick={onToggleLeft}
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 shrink-0"
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            title={isLeftCollapsed ? '展开知识库' : '折叠知识库'}
-          >
-            {isLeftCollapsed ? (
-              <PanelLeftOpen className="w-4 h-4" />
-            ) : (
-              <PanelLeftClose className="w-4 h-4" />
-            )}
-          </Button>
-        )}
-
-        {/* 中间标题区域 */}
-        <div className="flex-1 flex items-center justify-center px-2 min-w-0">
-          {currentNotebook ? (
+    <Card className="relative flex flex-col rounded-xl border-0 overflow-hidden h-full mx-0 shadow-md">
+      <PanelHeader
+        draggable
+        left={
+          onToggleLeft && (
+            <Button
+              onClick={onToggleLeft}
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 shrink-0"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              title={isLeftCollapsed ? '展开知识库' : '折叠知识库'}
+            >
+              {isLeftCollapsed ? (
+                <PanelLeftOpen className="w-4 h-4" />
+              ) : (
+                <PanelLeftClose className="w-4 h-4" />
+              )}
+            </Button>
+          )
+        }
+        center={
+          currentNotebook ? (
             isEditingTitle ? (
               <Input
                 type="text"
@@ -252,27 +250,27 @@ export default function ProcessPanel({
             )
           ) : (
             <span className="text-sm text-muted-foreground">{t('selectOrCreateNotebook')}</span>
-          )}
-        </div>
-
-        {/* 右侧折叠按钮 */}
-        {onToggleRight && (
-          <Button
-            onClick={onToggleRight}
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 shrink-0"
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            title={isRightCollapsed ? '展开笔记' : '折叠笔记'}
-          >
-            {isRightCollapsed ? (
-              <PanelRightOpen className="w-4 h-4" />
-            ) : (
-              <PanelRightClose className="w-4 h-4" />
-            )}
-          </Button>
-        )}
-      </div>
+          )
+        }
+        right={
+          onToggleRight && (
+            <Button
+              onClick={onToggleRight}
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 shrink-0"
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+              title={isRightCollapsed ? '展开笔记' : '折叠笔记'}
+            >
+              {isRightCollapsed ? (
+                <PanelRightOpen className="w-4 h-4" />
+              ) : (
+                <PanelRightClose className="w-4 h-4" />
+              )}
+            </Button>
+          )
+        }
+      />
 
       {/* 对话消息区域 - 使用 absolute 定位占满剩余空间 */}
       <div className="absolute top-14 bottom-0 left-0 right-0 overflow-hidden">
@@ -342,6 +340,6 @@ export default function ProcessPanel({
           )}
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

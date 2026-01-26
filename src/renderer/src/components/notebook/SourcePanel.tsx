@@ -10,6 +10,8 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Card } from '../ui/card'
+import { PanelHeader } from '../ui/panel-header'
 import DocumentList from './source/DocumentList'
 import type { KnowledgeDocument } from '../../../../shared/types/knowledge'
 
@@ -189,12 +191,9 @@ function DocumentViewerPanel({ document, onBack }: DocumentViewerPanelProps) {
 
   return (
     <>
-      {/* 顶部工具栏 */}
-      <div
-        className="h-14 flex items-center justify-between px-4 border-b border-border/50"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-      >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+      <PanelHeader
+        draggable
+        left={
           <Button
             onClick={onBack}
             variant="ghost"
@@ -205,9 +204,11 @@ function DocumentViewerPanel({ document, onBack }: DocumentViewerPanelProps) {
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <span className="flex-1 min-w-0 text-sm font-medium truncate">{document.title}</span>
-        </div>
-      </div>
+        }
+        center={
+          <span className="text-sm font-medium truncate">{document.title}</span>
+        }
+      />
 
       {/* 文档内容 */}
       <ScrollArea className="flex-1">
@@ -431,7 +432,7 @@ export default function SourcePanel(): ReactElement {
   )
 
   return (
-    <div className="flex flex-col bg-card rounded-xl overflow-hidden h-full shadow-md">
+    <Card className="flex flex-col rounded-xl border-0 overflow-hidden h-full shadow-md">
       {selectedDocument ? (
         // 文档预览页面
         <DocumentViewerPanel
@@ -442,23 +443,21 @@ export default function SourcePanel(): ReactElement {
       ) : (
         // 文档列表页面
         <>
-          {/* 顶部工具栏 */}
-          <div
-            className="h-14 flex items-center justify-between px-4 border-b border-border/50"
-            style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-          >
-            <span className="text-sm text-foreground">{t('knowledgeBase')}</span>
-            <div className="relative" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
-              <Button
-                onClick={() => setShowAddMenu(!showAddMenu)}
-                disabled={!defaultEmbeddingModel}
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8"
-                title={!defaultEmbeddingModel ? t('noEmbeddingModelConfigured') : t('addSource')}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+          <PanelHeader
+            draggable
+            left={<span className="text-sm text-foreground">{t('knowledgeBase')}</span>}
+            right={
+              <div className="relative" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
+                <Button
+                  onClick={() => setShowAddMenu(!showAddMenu)}
+                  disabled={!defaultEmbeddingModel}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  title={!defaultEmbeddingModel ? t('noEmbeddingModelConfigured') : t('addSource')}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
 
               {/* 添加菜单 */}
               {showAddMenu && (
@@ -507,7 +506,8 @@ export default function SourcePanel(): ReactElement {
                 </div>
               )}
             </div>
-          </div>
+            }
+          />
 
           {/* 索引进度 */}
           <IndexingProgress />
@@ -548,6 +548,6 @@ export default function SourcePanel(): ReactElement {
 
       {/* 点击外部关闭菜单 */}
       {showAddMenu && <div className="fixed inset-0 z-0" onClick={() => setShowAddMenu(false)} />}
-    </div>
+    </Card>
   )
 }

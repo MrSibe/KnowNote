@@ -9,6 +9,7 @@ import ItemList from './item/ItemList'
 import { ScrollArea } from '../ui/scroll-area'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { PanelHeader } from '../ui/panel-header'
 import UnsavedChangesDialog from '../common/UnsavedChangesDialog'
 import DeleteNoteConfirmDialog from '../common/DeleteNoteConfirmDialog'
 import type { Note } from '../../../../shared/types'
@@ -54,12 +55,9 @@ function NoteEditorPanel({
 
   return (
     <>
-      {/* 顶部工具栏 */}
-      <div
-        className="h-14 flex items-center justify-between px-4 border-b border-border/50"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-      >
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+      <PanelHeader
+        draggable
+        left={
           <Button
             onClick={onBack}
             variant="ghost"
@@ -70,40 +68,43 @@ function NoteEditorPanel({
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
+        }
+        center={
           <Input
             type="text"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
-            className="flex-1 min-w-0 bg-transparent border-0 text-sm font-medium p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="bg-transparent border-0 text-sm font-medium p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
             style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
             placeholder={t('noteTitle')}
           />
-        </div>
-        <div
-          className="flex items-center gap-2 shrink-0"
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-        >
-          <Button
-            onClick={handleSave}
-            disabled={isSaving}
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8"
-            title={t('save')}
-          >
-            <Save className="w-4 h-4" />
-          </Button>
-          <Button
-            onClick={onDelete}
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            title={t('delete')}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
+        }
+        right={
+          <>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8"
+              title={t('save')}
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >
+              <Save className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={onDelete}
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              title={t('delete')}
+              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </>
+        }
+      />
 
       {/* 编辑器内容 */}
       <div className="flex-1 overflow-hidden">
@@ -255,36 +256,34 @@ export default function NotePanel(): ReactElement {
       ) : (
         // 列表页面
         <>
-          {/* 顶部工具栏 */}
-          <div
-            className="h-14 flex items-center justify-between px-4 border-b border-border/50"
-            style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-          >
-            <span className="text-sm text-foreground">{t('creativeSpace')}</span>
-            <div
-              className="flex items-center gap-2"
-              style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            >
-              <Button
-                onClick={handleGenerateMindMap}
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8"
-                title={t('generateMindMap')}
-              >
-                <Network className="w-4 h-4" />
-              </Button>
-              <Button
-                onClick={handleCreateNote}
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8"
-                title={t('createNote')}
-              >
-                <FileText className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+          <PanelHeader
+            draggable
+            left={<span className="text-sm text-foreground">{t('creativeSpace')}</span>}
+            right={
+              <>
+                <Button
+                  onClick={handleGenerateMindMap}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  title={t('generateMindMap')}
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                >
+                  <Network className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleCreateNote}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  title={t('createNote')}
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                >
+                  <FileText className="w-4 h-4" />
+                </Button>
+              </>
+            }
+          />
 
           {/* Items 列表（笔记 + 思维导图等） */}
           <ScrollArea className="flex-1">

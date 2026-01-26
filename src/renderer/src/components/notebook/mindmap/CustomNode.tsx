@@ -48,35 +48,35 @@ function CustomNode({ data, sourcePosition, targetPosition }: NodeProps) {
           ...baseStyle,
           backgroundColor: 'var(--chart-1)',
           borderColor: 'var(--chart-1)',
-          color: '#ffffff'
+          color: 'var(--primary-foreground)'
         }
       case 2: // 第二层 - 绿色
         return {
           ...baseStyle,
           backgroundColor: 'var(--chart-2)',
           borderColor: 'var(--chart-2)',
-          color: '#ffffff'
+          color: 'var(--primary-foreground)'
         }
       case 3: // 第三层 - 红色
         return {
           ...baseStyle,
           backgroundColor: 'var(--chart-3)',
           borderColor: 'var(--chart-3)',
-          color: '#ffffff'
+          color: 'var(--primary-foreground)'
         }
       case 4: // 第四层 - 黄色
         return {
           ...baseStyle,
           backgroundColor: 'var(--chart-4)',
           borderColor: 'var(--chart-4)',
-          color: '#ffffff'
+          color: 'var(--primary-foreground)'
         }
       default: // 第五层及以上 - 紫色
         return {
           ...baseStyle,
           backgroundColor: 'var(--chart-5)',
           borderColor: 'var(--chart-5)',
-          color: '#ffffff',
+          color: 'var(--primary-foreground)',
           fontSize: '13px'
         }
     }

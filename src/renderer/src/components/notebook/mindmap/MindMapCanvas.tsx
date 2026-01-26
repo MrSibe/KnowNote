@@ -98,12 +98,12 @@ function treeToFlowElements(
         type: 'simplebezier',
         animated: false,
         style: {
-          stroke: '#94a3b8',
+          stroke: 'var(--muted-foreground)',
           strokeWidth: 2
         },
         markerEnd: {
           type: 'arrowclosed',
-          color: '#94a3b8'
+          color: 'var(--muted-foreground)'
         }
       })
     }
@@ -174,7 +174,7 @@ export default function MindMapCanvas({ mindMap, direction = 'LR' }: MindMapCanv
         defaultEdgeOptions={{
           type: 'simplebezier',
           animated: false,
-          style: { stroke: '#94a3b8', strokeWidth: 2 }
+          style: { stroke: 'var(--muted-foreground)', strokeWidth: 2 }
         }}
         proOptions={{ hideAttribution: true }}
       >
