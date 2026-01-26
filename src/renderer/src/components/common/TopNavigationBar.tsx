@@ -5,7 +5,6 @@ import { useNotebookStore } from '../../store/notebookStore'
 import { ReactElement, useState } from 'react'
 import { Button } from '../ui/button'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
-import { Separator } from '../ui/separator'
 import { isMac, isLinux, isWindows } from '../../lib/platform'
 
 interface TopNavigationBarProps {
@@ -78,7 +77,7 @@ export default function TopNavigationBar({
 
   return (
     <div
-      className="h-12 shrink-0 flex items-center justify-between px-3 border-b border-border/50"
+      className="h-12 shrink-0 flex items-center justify-between px-3 border-b border-border/50 gap-0.5"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* macOS 左侧空白区域（留给窗口控制按钮） */}
@@ -97,7 +96,6 @@ export default function TopNavigationBar({
           >
             <Settings className="w-4 h-4" />
           </Button>
-          <Separator orientation="vertical" className="h-6" />
         </div>
       )}
 
@@ -135,39 +133,33 @@ export default function TopNavigationBar({
                 </button>
               </TabsTrigger>
             ))}
+
+            {/* 新建按钮 */}
+            <Button
+              onClick={onCreateClick}
+              variant="ghost"
+              size="icon"
+              className="w-7 h-7"
+              title={t('create', { ns: 'common' })}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
           </TabsList>
         </Tabs>
-
-        {/* 分隔线 */}
-        <Separator orientation="vertical" className="h-6 mx-2" />
-
-        {/* 新建按钮 */}
-        <Button
-          onClick={onCreateClick}
-          variant="ghost"
-          size="icon"
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          className="w-7 h-7"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
       </div>
 
       {/* 非Linux平台的设置按钮（Windows和macOS保持在右侧） */}
       {!isLinux() && (
-        <>
-          <Separator orientation="vertical" className="h-6" />
-          <Button
-            onClick={handleSettingsClick}
-            variant="ghost"
-            size="icon"
-            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-            className="w-7 h-7"
-            title={t('settings')}
-          >
-            <Settings className="w-4 h-4" />
-          </Button>
-        </>
+        <Button
+          onClick={handleSettingsClick}
+          variant="ghost"
+          size="icon"
+          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+          className="w-7 h-7"
+          title={t('settings')}
+        >
+          <Settings className="w-4 h-4" />
+        </Button>
       )}
 
       {/* Windows 右侧空白区域（留给窗口控制按钮） */}
