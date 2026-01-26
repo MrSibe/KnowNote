@@ -14,6 +14,7 @@ interface QuizStore {
   // Dialog状态
   isDialogOpen: boolean
   isResultMode: boolean // 是否显示结果页
+  isReviewMode: boolean // 是否查看详情模式（浏览已答题，不可修改）
 
   // Actions
   setCurrentQuiz: (quiz: Quiz | null) => void
@@ -24,6 +25,7 @@ interface QuizStore {
   setGenerationProgress: (progress: { stage: string; progress: number } | null) => void
   setDialogOpen: (open: boolean) => void
   setResultMode: (isResult: boolean) => void
+  setReviewMode: (isReview: boolean) => void
 
   // 计算属性
   getCorrectCount: () => number
@@ -54,6 +56,7 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
   generationProgress: null,
   isDialogOpen: false,
   isResultMode: false,
+  isReviewMode: false,
 
   // Setters
   setCurrentQuiz: (quiz) => set({ currentQuiz: quiz }),
@@ -70,6 +73,7 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
   setGenerationProgress: (progress) => set({ generationProgress: progress }),
   setDialogOpen: (open) => set({ isDialogOpen: open }),
   setResultMode: (isResult) => set({ isResultMode: isResult }),
+  setReviewMode: (isReview) => set({ isReviewMode: isReview }),
 
   // 计算属性
   getCorrectCount: () => {
@@ -170,7 +174,8 @@ export const useQuizStore = create<QuizStore>()((set, get) => ({
       currentQuestionIndex: 0,
       answers: {},
       showHints: {},
-      isResultMode: false
+      isResultMode: false,
+      isReviewMode: false
     })
   }
 }))

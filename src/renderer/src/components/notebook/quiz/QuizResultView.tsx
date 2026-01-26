@@ -6,8 +6,15 @@ import { Trophy, RefreshCw } from 'lucide-react'
 
 export default function QuizResultView() {
   const { t } = useTranslation('quiz')
-  const { currentQuiz, getCorrectCount, getTotalQuestions, resetQuiz, setResultMode, submitQuiz } =
-    useQuizStore()
+  const {
+    currentQuiz,
+    getCorrectCount,
+    getTotalQuestions,
+    resetQuiz,
+    setResultMode,
+    setReviewMode,
+    submitQuiz
+  } = useQuizStore()
 
   if (!currentQuiz) return null
 
@@ -34,12 +41,14 @@ export default function QuizResultView() {
 
   const handleReview = () => {
     setResultMode(false)
+    setReviewMode(true)
     useQuizStore.setState({ currentQuestionIndex: 0 })
   }
 
   const handleRetry = () => {
     resetQuiz()
     setResultMode(false)
+    setReviewMode(false)
   }
 
   return (

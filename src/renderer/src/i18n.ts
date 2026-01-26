@@ -8,6 +8,7 @@ import zhCNSettings from './locales/zh-CN/settings.json'
 import zhCNNotebook from './locales/zh-CN/notebook.json'
 import zhCNUI from './locales/zh-CN/ui.json'
 import zhCNQuiz from './locales/zh-CN/quiz.json'
+import zhCNShortcuts from './locales/zh-CN/shortcuts.json'
 
 import enUSCommon from './locales/en-US/common.json'
 import enUSChat from './locales/en-US/chat.json'
@@ -15,6 +16,7 @@ import enUSSettings from './locales/en-US/settings.json'
 import enUSNotebook from './locales/en-US/notebook.json'
 import enUSUI from './locales/en-US/ui.json'
 import enUSQuiz from './locales/en-US/quiz.json'
+import enUSShortcuts from './locales/en-US/shortcuts.json'
 
 const resources = {
   'zh-CN': {
@@ -23,7 +25,8 @@ const resources = {
     settings: zhCNSettings,
     notebook: zhCNNotebook,
     ui: zhCNUI,
-    quiz: zhCNQuiz
+    quiz: zhCNQuiz,
+    shortcuts: zhCNShortcuts
   },
   'en-US': {
     common: enUSCommon,
@@ -31,7 +34,8 @@ const resources = {
     settings: enUSSettings,
     notebook: enUSNotebook,
     ui: enUSUI,
-    quiz: enUSQuiz
+    quiz: enUSQuiz,
+    shortcuts: enUSShortcuts
   }
 }
 

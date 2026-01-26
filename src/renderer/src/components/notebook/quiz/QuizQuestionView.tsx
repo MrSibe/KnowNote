@@ -18,7 +18,8 @@ export default function QuizQuestionView() {
     showHints,
     toggleHint,
     getTotalQuestions,
-    setResultMode
+    setResultMode,
+    isReviewMode
   } = useQuizStore()
 
   const [showExplanation, setShowExplanation] = useState(false)
@@ -31,7 +32,13 @@ export default function QuizQuestionView() {
   const selectedAnswer = answers[currentQuestion.id]
   const showHint = showHints[currentQuestion.id] || false
 
+  // 查看详情模式下，始终显示解析
+  const shouldShowExplanation = isReviewMode || showExplanation
+
   const handleSelectAnswer = (answerIndex: number) => {
+    // 查看详情模式下不允许修改答案
+    if (isReviewMode) return
+
     if (!showExplanation) {
       setAnswer(currentQuestion.id, answerIndex)
       setShowExplanation(true)
@@ -41,7 +48,9 @@ export default function QuizQuestionView() {
   const handleNext = () => {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1)
-      setShowExplanation(false)
+      if (!isReviewMode) {
+        setShowExplanation(false)
+      }
     } else {
       // 最后一题，显示结果
       setResultMode(true)
@@ -51,7 +60,9 @@ export default function QuizQuestionView() {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
-      setShowExplanation(false)
+      if (!isReviewMode) {
+        setShowExplanation(false)
+      }
     }
   }
 
@@ -83,24 +94,26 @@ export default function QuizQuestionView() {
             {currentQuestion.options.map((option, index) => {
               const isSelected = selectedAnswer === index
               const isCorrectOption = index === currentQuestion.correctAnswer
-              const showResult = showExplanation
+              const showResult = shouldShowExplanation
 
               return (
                 <div
                   key={index}
                   className={cn(
-                    'flex items-center gap-4 p-4 rounded-lg border cursor-pointer transition-colors',
+                    'flex items-center gap-4 p-4 rounded-lg border transition-colors',
+                    // 查看详情模式：禁用点击
+                    isReviewMode ? 'cursor-default' : 'cursor-pointer',
                     isSelected && !showResult && 'border-primary bg-primary/5',
                     showResult && isCorrectOption && 'border-green-500 bg-green-50 dark:bg-green-950',
                     showResult &&
                       isSelected &&
                       !isCorrectOption &&
                       'border-red-500 bg-red-50 dark:bg-red-950',
-                    !isSelected && !showResult && 'border-border hover:bg-muted/50'
+                    !isSelected && !showResult && !isReviewMode && 'border-border hover:bg-muted/50'
                   )}
                   onClick={() => handleSelectAnswer(index)}
                 >
-                  <Checkbox checked={isSelected} disabled={showResult} />
+                  <Checkbox checked={isSelected} disabled={showResult || isReviewMode} />
                   <span className="text-base flex-1 text-foreground">
                     {String.fromCharCode(65 + index)}. {option}
                   </span>
@@ -129,8 +142,8 @@ export default function QuizQuestionView() {
             </div>
           )}
 
-          {/* 答案解释（答题后显示） */}
-          {showExplanation && selectedAnswer !== undefined && (
+          {/* 答案解释（答题后或查看详情时显示） */}
+          {shouldShowExplanation && selectedAnswer !== undefined && (
             <div
               className={cn(
                 'border rounded-lg p-4',
@@ -180,12 +193,24 @@ export default function QuizQuestionView() {
         </div>
 
         {/* 底部按钮 */}
-        <div className="flex justify-between pt-6 border-t">
-          <Button variant="outline" onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-            {t('previous')}
-          </Button>
-          <Button onClick={handleNext} disabled={selectedAnswer === undefined}>
-            {currentQuestionIndex === totalQuestions - 1 ? t('viewResult') : t('next')}
+        <div className={cn('pt-6 border-t', isReviewMode ? 'flex justify-between' : 'flex justify-end')}>
+          {isReviewMode && (
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentQuestionIndex === 0}
+            >
+              {t('previous')}
+            </Button>
+          )}
+          <Button onClick={handleNext} disabled={!isReviewMode && selectedAnswer === undefined}>
+            {isReviewMode
+              ? currentQuestionIndex === totalQuestions - 1
+                ? t('backToResult')
+                : t('next')
+              : currentQuestionIndex === totalQuestions - 1
+                ? t('viewResult')
+                : t('next')}
           </Button>
         </div>
       </div>
