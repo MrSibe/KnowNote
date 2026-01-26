@@ -3,6 +3,7 @@ import { SessionAutoSwitchService } from '../services/SessionAutoSwitchService'
 import { KnowledgeService } from '../services/KnowledgeService'
 import { UpdateService } from '../services/UpdateService'
 import { MindMapService } from '../services/MindMapService'
+import { QuizService } from '../services/QuizService'
 import { ShortcutManager } from '../services/ShortcutManager'
 import type Store from 'electron-store'
 import type { StoreSchema } from '../config/types'
@@ -13,6 +14,7 @@ import { registerNotebookHandlers } from './notebookHandlers'
 import { registerNoteHandlers } from './noteHandlers'
 import { registerKnowledgeHandlers } from './knowledgeHandlers'
 import { registerMindMapHandlers } from './mindmapHandlers'
+import { registerQuizHandlers } from './quizHandlers'
 import { registerUpdateHandlers } from './updateHandlers'
 import { registerItemHandlers } from './itemHandlers'
 import { registerShortcutHandlers } from './shortcutHandlers'
@@ -30,6 +32,8 @@ export function registerAllHandlers(
 ) {
   // 实例化 MindMapService
   const mindMapService = new MindMapService(providerManager)
+  // 实例化 QuizService
+  const quizService = new QuizService(providerManager)
 
   registerChatHandlers(providerManager, sessionAutoSwitchService, knowledgeService)
   registerProviderHandlers(providerManager)
@@ -38,6 +42,7 @@ export function registerAllHandlers(
   registerNoteHandlers(providerManager)
   registerKnowledgeHandlers(knowledgeService)
   registerMindMapHandlers(mindMapService)
+  registerQuizHandlers(quizService)
   registerUpdateHandlers(updateService)
   registerItemHandlers()
   registerShortcutHandlers(shortcutManager, store)
@@ -50,5 +55,6 @@ export {
   registerSettingsHandlers,
   registerNotebookHandlers,
   registerNoteHandlers,
-  registerKnowledgeHandlers
+  registerKnowledgeHandlers,
+  registerQuizHandlers
 }

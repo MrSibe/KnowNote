@@ -36,6 +36,7 @@ const api = {
     update: (updates: any) => ipcRenderer.invoke('settings:update', { updates }),
     set: (key: string, value: any) => ipcRenderer.invoke('settings:set', { key, value }),
     reset: () => ipcRenderer.invoke('settings:reset'),
+    getDefaultPrompts: () => ipcRenderer.invoke('settings:getDefaultPrompts'),
     // 监听设置变化
     onSettingsChange: (callback: (newSettings: any, oldSettings: any) => void) => {
       const listener = (_event: any, newSettings: any, oldSettings: any) =>
@@ -203,6 +204,38 @@ const api = {
       const listener = (_event: any, data: any) => callback(data)
       ipcRenderer.on('mindmap:progress', listener)
       return () => ipcRenderer.removeListener('mindmap:progress', listener)
+    }
+  },
+
+  // Quiz 答题相关
+  quiz: {
+    // 生成题目
+    generate: (notebookId: string, options?: any) =>
+      ipcRenderer.invoke('quiz:generate', { notebookId, options }),
+    // 获取最新题库
+    getLatest: (notebookId: string) => ipcRenderer.invoke('quiz:get-latest', { notebookId }),
+    // 获取题库详情
+    get: (quizId: string) => ipcRenderer.invoke('quiz:get', { quizId }),
+    // 提交答题会话
+    submitSession: (quizId: string, answers: Record<string, number>) =>
+      ipcRenderer.invoke('quiz:submit-session', { quizId, answers }),
+    // 获取答题会话
+    getSession: (sessionId: string) => ipcRenderer.invoke('quiz:get-session', { sessionId }),
+    // 更新题库
+    update: (quizId: string, updates: { title?: string }) =>
+      ipcRenderer.invoke('quiz:update', { quizId, updates }),
+    // 删除题库
+    delete: (quizId: string) => ipcRenderer.invoke('quiz:delete', { quizId }),
+    // 打开答题窗口
+    openWindow: (notebookId: string, quizId?: string) =>
+      ipcRenderer.invoke('quiz:open-window', { notebookId, quizId }),
+    // 监听生成进度
+    onProgress: (
+      callback: (data: { notebookId: string; stage: string; progress: number }) => void
+    ) => {
+      const listener = (_event: any, data: any) => callback(data)
+      ipcRenderer.on('quiz:progress', listener)
+      return () => ipcRenderer.removeListener('quiz:progress', listener)
     }
   },
 

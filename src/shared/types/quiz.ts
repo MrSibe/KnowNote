@@ -1,0 +1,65 @@
+/**
+ * Quiz相关类型定义
+ * 答题功能的共享类型
+ */
+
+/**
+ * 题目
+ */
+export interface QuizQuestion {
+  id: string
+  questionText: string
+  options: string[] // 固定4个选项
+  correctAnswer: number // 0-3
+  explanation: string
+  hints: string[] // 1-2个提示
+  metadata?: {
+    chunkIds: string[]
+  }
+}
+
+/**
+ * 题库
+ */
+export interface Quiz {
+  id: string
+  notebookId: string
+  title: string
+  version: number
+  questions: QuizQuestion[]
+  chunkMapping: Record<string, string[]>
+  metadata: {
+    model: string
+    totalQuestions: number
+    generationTime: number
+  }
+  status: 'generating' | 'completed' | 'failed'
+  errorMessage?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+/**
+ * 答题会话
+ */
+export interface QuizSession {
+  id: string
+  quizId: string
+  notebookId: string
+  answers: Record<string, number> // questionId -> selectedAnswerIndex
+  score?: number
+  totalQuestions: number
+  correctCount?: number
+  completedAt?: Date
+  createdAt: Date
+}
+
+/**
+ * Quiz生成结果（用于LLM streamObject返回）
+ */
+export interface QuizGenerationResult {
+  questions: QuizQuestion[]
+  metadata: {
+    totalQuestions: number
+  }
+}

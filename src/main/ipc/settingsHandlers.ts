@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { settingsManager, type AppSettings } from '../config'
+import { settingsManager, type AppSettings, defaultSettings } from '../config'
 import { SettingsSchemas, validate } from './validation'
 
 /**
@@ -52,6 +52,11 @@ export function registerSettingsHandlers(): void {
   ipcMain.handle('settings:reset', async () => {
     await settingsManager.resetSettings()
     return await settingsManager.getAllSettings()
+  })
+
+  // 获取默认提示词
+  ipcMain.handle('settings:getDefaultPrompts', async () => {
+    return defaultSettings.prompts
   })
 
   // 监听设置变化并广播到所有窗口

@@ -1,11 +1,12 @@
 import { ReactElement, useEffect, useState } from 'react'
-import { Save, Trash2, ArrowLeft, Network, FileText } from 'lucide-react'
+import { Save, Trash2, ArrowLeft, Network, FileText, ClipboardCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useItemStore } from '../../store/itemStore'
 import { setupMindMapListeners } from '../../store/mindmapStore'
 import NoteEditor from './note/NoteEditor'
 import ItemList from './item/ItemList'
+import QuizStartDialog, { QuizStartParams } from './quiz/QuizStartDialog'
 import { ScrollArea } from '../ui/scroll-area'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -135,6 +136,7 @@ export default function NotePanel(): ReactElement {
   // Dialog 状态管理
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showQuizStartDialog, setShowQuizStartDialog] = useState(false)
 
   // 监听Notebook切换，清空当前编辑状态
   useEffect(() => {
@@ -217,6 +219,17 @@ export default function NotePanel(): ReactElement {
     }
   }
 
+  // 打开答题窗口（查看特定版本）
+  const handleOpenQuiz = async (quizId: string) => {
+    try {
+      if (notebookId) {
+        await window.api.quiz.openWindow(notebookId, quizId)
+      }
+    } catch (error) {
+      console.error('[NotePanel] Failed to open quiz window:', error)
+    }
+  }
+
   // 生成新思维导图（在后台生成，不打开窗口）
   const handleGenerateMindMap = async () => {
     if (notebookId) {
@@ -239,6 +252,38 @@ export default function NotePanel(): ReactElement {
     }
   }
 
+  // 打开答题启动对话框
+  const handleGenerateQuiz = () => {
+    setShowQuizStartDialog(true)
+  }
+
+  // 开始生成答题
+  const handleQuizStart = async (params: QuizStartParams) => {
+    if (!notebookId) return
+    try {
+      // 立即开始生成（异步）
+      window.api.quiz
+        .generate(notebookId, {
+          questionCount: params.questionCount,
+          difficulty: params.difficulty,
+          customPrompt: params.customPrompt
+        })
+        .then((result) => {
+          if (result.success) {
+            // 生成完成后重新加载列表
+            loadItems(notebookId)
+          }
+        })
+
+      // 等待一小段时间后刷新列表，以显示"正在生成"的 item
+      setTimeout(() => {
+        loadItems(notebookId)
+      }, 500)
+    } catch (error) {
+      console.error('[NotePanel] Failed to start quiz:', error)
+    }
+  }
+
   return (
     <div className="flex flex-col bg-card rounded-xl overflow-hidden h-full shadow-md">
       {isEditing && currentNote ? (
@@ -256,6 +301,7 @@ export default function NotePanel(): ReactElement {
       ) : (
         // 列表页面
         <>
+          {/* 顶部工具栏 */}
           <PanelHeader
             draggable
             left={<span className="text-sm text-foreground">{t('creativeSpace')}</span>}
@@ -266,18 +312,28 @@ export default function NotePanel(): ReactElement {
                   variant="ghost"
                   size="icon"
                   className="w-8 h-8"
-                  title={t('generateMindMap')}
                   style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('generateMindMap')}
                 >
                   <Network className="w-4 h-4" />
+                </Button>
+                <Button
+                  onClick={handleGenerateQuiz}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('generateQuiz')}
+                >
+                  <ClipboardCheck className="w-4 h-4" />
                 </Button>
                 <Button
                   onClick={handleCreateNote}
                   variant="ghost"
                   size="icon"
                   className="w-8 h-8"
-                  title={t('createNote')}
                   style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('createNote')}
                 >
                   <FileText className="w-4 h-4" />
                 </Button>
@@ -292,6 +348,7 @@ export default function NotePanel(): ReactElement {
               currentNote={currentNote}
               onSelectNote={setCurrentNote}
               onOpenMindMap={handleOpenMindMap}
+              onOpenQuiz={handleOpenQuiz}
               onDeleteItem={(itemId) => deleteItem(itemId, true)}
               onRefresh={() => notebookId && loadItems(notebookId)}
             />
@@ -312,6 +369,16 @@ export default function NotePanel(): ReactElement {
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={confirmDelete}
       />
+
+      {/* 答题启动对话框 */}
+      {notebookId && (
+        <QuizStartDialog
+          isOpen={showQuizStartDialog}
+          notebookId={notebookId}
+          onClose={() => setShowQuizStartDialog(false)}
+          onStart={handleQuizStart}
+        />
+      )}
     </div>
   )
 }

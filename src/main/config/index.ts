@@ -8,6 +8,7 @@ export { ProviderConfigManager } from './ProviderConfigManager'
 // 向后兼容导出(已废弃)
 export { ProviderConfigManager as ProvidersManager } from './ProviderConfigManager'
 export type { AppSettings, ProviderConfig, StoreSchema } from './types'
+export { defaultSettings } from './defaults'
 
 // 导出单例实例
 import { getStore } from './store'

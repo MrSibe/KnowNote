@@ -78,6 +78,13 @@
       "when": 1766131062370,
       "tag": "0010_premium_the_leader",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1768805329327,
+      "tag": "0011_big_kulan_gath",
+      "breakpoints": true
     }
   ]
 }
