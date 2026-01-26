@@ -77,7 +77,7 @@ export default function TopNavigationBar({
 
   return (
     <div
-      className="h-12 shrink-0 flex items-center justify-between px-3 border-b border-border/50 gap-0.5"
+      className="h-12 shrink-0 flex items-center justify-between px-2 gap-0.5"
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       {/* macOS 左侧空白区域（留给窗口控制按钮） */}
