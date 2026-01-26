@@ -22,7 +22,8 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    fallbackLng: 'zh-CN',
+    fallbackLng: 'en-US',
+    lng: 'en-US', // 默认语言
     debug: process.env.NODE_ENV === 'development',
 
     interpolation: {
@@ -49,7 +50,7 @@ i18n
     },
 
     detection: {
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      order: ['localStorage'], // 只使用 localStorage，不使用浏览器检测
       caches: ['localStorage'],
       lookupLocalStorage: 'i18nextLng'
     },
