@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { I18nextProvider } from 'react-i18next'
 import NotebookLayout from './components/notebook/NotebookLayout'
-import NotebookList from './components/pages/NotebookList'
+import NotebookListPage from './components/pages/NotebookListPage'
 import MindMapPage from './components/pages/MindMapPage'
 import SettingsWindow from './components/settings/SettingsWindow'
 import { setupChatListeners } from './store/chatStore'
@@ -63,7 +63,7 @@ function App(): React.JSX.Element {
     <I18nextProvider i18n={i18n}>
       <HashRouter>
         <Routes>
-          <Route path="/" element={<NotebookList />} />
+          <Route path="/" element={<NotebookListPage />} />
           <Route path="/notebook/:id" element={<NotebookLayout />} />
           <Route path="/mindmap/:notebookId" element={<MindMapPage />} />
           <Route path="/mindmap/view/:mindMapId" element={<MindMapPage />} />

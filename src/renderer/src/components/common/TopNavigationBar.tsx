@@ -5,6 +5,7 @@ import { useNotebookStore } from '../../store/notebookStore'
 import { ReactElement, useState } from 'react'
 import { Button } from '../ui/button'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
+import { Separator } from '../ui/separator'
 import { isMac, isLinux, isWindows } from '../../lib/platform'
 
 interface TopNavigationBarProps {
@@ -85,7 +86,7 @@ export default function TopNavigationBar({
 
       {/* Linux 左侧设置按钮区域 */}
       {isLinux() && (
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <Button
             onClick={handleSettingsClick}
             variant="ghost"
@@ -96,6 +97,7 @@ export default function TopNavigationBar({
           >
             <Settings className="w-4 h-4" />
           </Button>
+          <Separator orientation="vertical" className="h-6" />
         </div>
       )}
 
@@ -123,19 +125,21 @@ export default function TopNavigationBar({
                 className="h-7 gap-1 pr-2 pl-3 data-[state=active]:bg-muted/50 data-[state=active]:shadow-sm rounded-md border data-[state=active]:border-border/50 border-transparent hover:bg-accent/50 transition-all max-w-[200px]"
               >
                 <span className="truncate">{notebook.title}</span>
-                <Button
+                <button
                   onClick={(e) => handleCloseOpenedNotebook(notebook.id, e)}
-                  variant="ghost"
-                  size="icon"
-                  className="ml-1 h-4 w-4 p-0.5 hover:bg-destructive/20 hover:text-destructive transition-colors"
+                  type="button"
+                  className="ml-1 inline-flex items-center justify-center h-4 w-4 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition-colors"
                   title={t('closeTab')}
                 >
                   <X className="w-3 h-3" />
-                </Button>
+                </button>
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
+
+        {/* 分隔线 */}
+        <Separator orientation="vertical" className="h-6 mx-2" />
 
         {/* 新建按钮 */}
         <Button
@@ -151,16 +155,19 @@ export default function TopNavigationBar({
 
       {/* 非Linux平台的设置按钮（Windows和macOS保持在右侧） */}
       {!isLinux() && (
-        <Button
-          onClick={handleSettingsClick}
-          variant="ghost"
-          size="icon"
-          style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-          className="w-7 h-7"
-          title={t('settings')}
-        >
-          <Settings className="w-4 h-4" />
-        </Button>
+        <>
+          <Separator orientation="vertical" className="h-6" />
+          <Button
+            onClick={handleSettingsClick}
+            variant="ghost"
+            size="icon"
+            style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+            className="w-7 h-7"
+            title={t('settings')}
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
+        </>
       )}
 
       {/* Windows 右侧空白区域（留给窗口控制按钮） */}

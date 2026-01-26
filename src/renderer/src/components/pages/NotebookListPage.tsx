@@ -1,24 +1,13 @@
 import { useState, ReactElement } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import NotebookCard from '../common/NotebookCard'
 import TopNavigationBar from '../common/TopNavigationBar'
 import RenameDialog from '../common/RenameDialog'
 import DeleteConfirmDialog from '../common/DeleteConfirmDialog'
+import Home from '../home/Home'
 import { useNotebookStore } from '../../store/notebookStore'
-import { ScrollArea } from '../ui/scroll-area'
-import { Button } from '../ui/button'
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle
-} from '../ui/empty'
 
-export default function NotebookList(): ReactElement {
+export default function NotebookListPage(): ReactElement {
   const { t } = useTranslation('ui')
   const navigate = useNavigate()
   const {
@@ -95,58 +84,14 @@ export default function NotebookList(): ReactElement {
     <div className="flex flex-col h-screen bg-background text-foreground">
       <TopNavigationBar isHomePage={true} onCreateClick={handleCreateNotebook} />
 
-      {/* 主内容区域 */}
-      <ScrollArea className="flex-1">
-        {notebooks.length === 0 ? (
-          /* 空状态 - 占满整个区域 */
-          <div className="flex items-center justify-center min-h-[calc(100vh-80px)] px-12">
-            <Empty>
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <BookOpen className="w-16 h-16 text-muted-foreground" />
-                </EmptyMedia>
-                <EmptyTitle className="text-foreground">{t('noNotebooks')}</EmptyTitle>
-                <EmptyDescription className="text-muted-foreground">
-                  {t('noNotebooksDesc')}
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent>
-                <Button onClick={handleCreateNotebook} size="lg">
-                  <Plus className="w-4 h-4" />
-                  {t('createFirstNotebook')}
-                </Button>
-              </EmptyContent>
-            </Empty>
-          </div>
-        ) : (
-          <div className="px-12 py-8">
-            {/* 有笔记本时显示列表 */}
-            <div className="max-w-7xl mx-auto flex flex-col gap-8">
-              {/* 标题 */}
-              <div className="flex flex-col gap-2">
-                <h1 className="text-display text-foreground">{t('myNotebooks')}</h1>
-                <p className="text-muted-foreground">
-                  {t('totalNotebooks', { count: notebooks.length })}
-                </p>
-              </div>
-
-              {/* 笔记本网格 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                {notebooks.map((notebook) => (
-                  <div key={notebook.id} className="stagger-item">
-                    <NotebookCard
-                      notebook={notebook}
-                      onClick={() => handleNotebookClick(notebook.id)}
-                      onDelete={() => handleOpenDeleteDialog(notebook.id)}
-                      onRename={() => handleOpenRenameDialog(notebook.id)}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </ScrollArea>
+      {/* 主内容区域 - 使用 Home 组件 */}
+      <Home
+        notebooks={notebooks}
+        onNotebookClick={handleNotebookClick}
+        onNotebookDelete={handleOpenDeleteDialog}
+        onNotebookRename={handleOpenRenameDialog}
+        onCreateNotebook={handleCreateNotebook}
+      />
 
       {/* 重命名对话框 */}
       <RenameDialog

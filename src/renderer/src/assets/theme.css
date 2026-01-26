@@ -1,88 +1,48 @@
-/* ============================================
-   Tailwind v4 主题配色方案
-   基于 shadcn/ui 设计系统
-   ============================================ */
+@import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
-
-/* 浅色模式 - Atom 主题 */
 :root {
-  /* 基础颜色 */
   --background: oklch(0.9851 0 0);
   --foreground: oklch(0.3496 0.0141 274.5028);
-
-  /* 卡片 */
-  --card: oklch(1.0000 0 0);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.3496 0.0141 274.5028);
-
-  /* 弹出层 */
-  --popover: oklch(1.0000 0 0);
+  --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.3496 0.0141 274.5028);
-
-  /* 主色调 */
-  --primary: oklch(0.6017 0.1930 263.2461);
-  --primary-foreground: oklch(1.0000 0 0);
-
-  /* 次要色调 */
+  --primary: oklch(0.6017 0.193 263.2461);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.9504 0.0042 236.4983);
   --secondary-foreground: oklch(0.3496 0.0141 274.5028);
-
-  /* 柔和色调 */
   --muted: oklch(0.9551 0 0);
   --muted-foreground: oklch(0.7055 0.0107 267.3269);
-
-  /* 强调色 */
   --accent: oklch(0.9335 0.0017 247.8402);
   --accent-foreground: oklch(0.3496 0.0141 274.5028);
-
-  /* 危险/删除色 */
   --destructive: oklch(0.6058 0.1839 29.6718);
-  --destructive-foreground: oklch(1.0000 0 0);
-
-  /* 边框和输入 */
+  --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.9067 0 0);
   --input: oklch(0.9551 0 0);
-  --ring: oklch(0.6017 0.1930 263.2461);
-
-  /* 滚动条颜色 */
-  --scrollbar-thumb: #383a4233;
-  --scrollbar-thumb-hover: #383a4259;
-  --scrollbar-thumb-active: #383a4280;
-
-  /* 图表颜色 */
+  --ring: oklch(0.6017 0.193 263.2461);
   --chart-1: oklch(0.7304 0.1213 245.2972);
-  --chart-2: oklch(0.7683 0.1103 133.0000);
+  --chart-2: oklch(0.7683 0.1103 133);
   --chart-3: oklch(0.6709 0.1448 16.9989);
-  --chart-4: oklch(0.8249 0.0970 82.2597);
+  --chart-4: oklch(0.8249 0.097 82.2597);
   --chart-5: oklch(0.6936 0.1635 318.2073);
-
-  /* 侧边栏 */
   --sidebar: oklch(0.9551 0 0);
   --sidebar-foreground: oklch(0.3496 0.0141 274.5028);
-  --sidebar-primary: oklch(0.6017 0.1930 263.2461);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.8249 0.0970 82.2597);
+  --sidebar-primary: oklch(0.6017 0.193 263.2461);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.8249 0.097 82.2597);
   --sidebar-accent-foreground: oklch(0.3496 0.0141 274.5028);
   --sidebar-border: oklch(0.8576 0 0);
-  --sidebar-ring: oklch(0.6017 0.1930 263.2461);
-
-  /* 字体 */
+  --sidebar-ring: oklch(0.6017 0.193 263.2461);
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Lora', serif;
   --font-mono: 'Fira Code', monospace;
-
-  /* 圆角 */
   --radius: 0.5rem;
-
-  /* 阴影配置 */
   --shadow-x: 0px;
   --shadow-y: 2px;
   --shadow-blur: 8px;
   --shadow-spread: 0px;
   --shadow-opacity: 0.08;
   --shadow-color: #000000;
-
-  /* 预设阴影 */
   --shadow-2xs: 0px 2px 8px 0px hsl(0 0% 0% / 0.04);
   --shadow-xs: 0px 2px 8px 0px hsl(0 0% 0% / 0.04);
   --shadow-sm: 0px 2px 8px 0px hsl(0 0% 0% / 0.08), 0px 1px 2px -1px hsl(0 0% 0% / 0.08);
@@ -90,103 +50,66 @@
   --shadow-md: 0px 2px 8px 0px hsl(0 0% 0% / 0.08), 0px 2px 4px -1px hsl(0 0% 0% / 0.08);
   --shadow-lg: 0px 2px 8px 0px hsl(0 0% 0% / 0.08), 0px 4px 6px -1px hsl(0 0% 0% / 0.08);
   --shadow-xl: 0px 2px 8px 0px hsl(0 0% 0% / 0.08), 0px 8px 10px -1px hsl(0 0% 0% / 0.08);
-  --shadow-2xl: 0px 2px 8px 0px hsl(0 0% 0% / 0.20);
-
-  /* 字间距 */
+  --shadow-2xl: 0px 2px 8px 0px hsl(0 0% 0% / 0.2);
   --tracking-normal: 0em;
-
-  /* 间距单位 */
   --spacing: 0.25rem;
   --shadow-offset-x: 0px;
   --shadow-offset-y: 2px;
   --letter-spacing: 0em;
 }
 
-/* 深色模式 - Atom 主题 */
+@custom-variant dark (&:is(.dark *));
+
 .dark {
-  /* 基础颜色 */
   --background: oklch(0.2925 0.0157 264.2965);
   --foreground: oklch(0.7621 0.0202 262.9873);
-
-  /* 卡片 */
-  --card: oklch(0.2630 0.0127 258.3724);
+  --card: oklch(0.263 0.0127 258.3724);
   --card-foreground: oklch(0.7621 0.0202 262.9873);
-
-  /* 弹出层 */
   --popover: oklch(0.2925 0.0157 264.2965);
   --popover-foreground: oklch(0.7621 0.0202 262.9873);
-
-  /* 主色调 */
   --primary: oklch(0.7304 0.1213 245.2972);
-  --primary-foreground: oklch(1.0000 0 0);
-
-  /* 次要色调 */
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.3863 0.0235 265.6941);
   --secondary-foreground: oklch(0.7621 0.0202 262.9873);
-
-  /* 柔和色调 */
   --muted: oklch(0.3863 0.0235 265.6941);
   --muted-foreground: oklch(0.4983 0.0225 262.9131);
-
-  /* 强调色 */
   --accent: oklch(0.3863 0.0235 265.6941);
   --accent-foreground: oklch(0.7621 0.0202 262.9873);
-
-  /* 危险/删除色 */
   --destructive: oklch(0.6709 0.1448 16.9989);
-  --destructive-foreground: oklch(1.0000 0 0);
-
-  /* 边框和输入 */
+  --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.3863 0.0235 265.6941);
   --input: oklch(0.3863 0.0235 265.6941);
   --ring: oklch(0.7304 0.1213 245.2972);
-
-  /* 滚动条颜色 */
-  --scrollbar-thumb: #abb2bf33;
-  --scrollbar-thumb-hover: #abb2bf59;
-  --scrollbar-thumb-active: #abb2bf80;
-
-  /* 图表颜色 */
   --chart-1: oklch(0.7304 0.1213 245.2972);
-  --chart-2: oklch(0.7683 0.1103 133.0000);
+  --chart-2: oklch(0.7683 0.1103 133);
   --chart-3: oklch(0.6709 0.1448 16.9989);
-  --chart-4: oklch(0.8249 0.0970 82.2597);
+  --chart-4: oklch(0.8249 0.097 82.2597);
   --chart-5: oklch(0.6936 0.1635 318.2073);
-
-  /* 侧边栏 */
-  --sidebar: oklch(0.2630 0.0127 258.3724);
+  --sidebar: oklch(0.263 0.0127 258.3724);
   --sidebar-foreground: oklch(0.7621 0.0202 262.9873);
   --sidebar-primary: oklch(0.7304 0.1213 245.2972);
-  --sidebar-primary-foreground: oklch(1.0000 0 0);
-  --sidebar-accent: oklch(0.8249 0.0970 82.2597);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.8249 0.097 82.2597);
   --sidebar-accent-foreground: oklch(0.2925 0.0157 264.2965);
   --sidebar-border: oklch(0.3863 0.0235 265.6941);
   --sidebar-ring: oklch(0.7304 0.1213 245.2972);
-
-  /* 字体 */
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Lora', serif;
   --font-mono: 'Fira Code', monospace;
-
-  /* 圆角 */
   --radius: 0.5rem;
-
-  /* 阴影配置 */
   --shadow-x: 0px;
   --shadow-y: 6px;
   --shadow-blur: 15px;
   --shadow-spread: 0px;
   --shadow-opacity: 0.3;
   --shadow-color: #000000;
-
-  /* 预设阴影 */
   --shadow-2xs: 0px 6px 15px 0px hsl(0 0% 0% / 0.15);
   --shadow-xs: 0px 6px 15px 0px hsl(0 0% 0% / 0.15);
-  --shadow-sm: 0px 6px 15px 0px hsl(0 0% 0% / 0.30), 0px 1px 2px -1px hsl(0 0% 0% / 0.30);
-  --shadow: 0px 6px 15px 0px hsl(0 0% 0% / 0.30), 0px 1px 2px -1px hsl(0 0% 0% / 0.30);
-  --shadow-md: 0px 6px 15px 0px hsl(0 0% 0% / 0.30), 0px 2px 4px -1px hsl(0 0% 0% / 0.30);
-  --shadow-lg: 0px 6px 15px 0px hsl(0 0% 0% / 0.30), 0px 4px 6px -1px hsl(0 0% 0% / 0.30);
-  --shadow-xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.30), 0px 8px 10px -1px hsl(0 0% 0% / 0.30);
+  --shadow-sm: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 1px 2px -1px hsl(0 0% 0% / 0.3);
+  --shadow-md: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 2px 4px -1px hsl(0 0% 0% / 0.3);
+  --shadow-lg: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 4px 6px -1px hsl(0 0% 0% / 0.3);
+  --shadow-xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.3), 0px 8px 10px -1px hsl(0 0% 0% / 0.3);
   --shadow-2xl: 0px 6px 15px 0px hsl(0 0% 0% / 0.75);
   --shadow-offset-x: 0px;
   --shadow-offset-y: 6px;
@@ -194,12 +117,7 @@
   --spacing: 0.25rem;
 }
 
-/* ============================================
-   Tailwind v4 主题映射
-   使用 @theme inline 将 CSS 变量暴露给 Tailwind
-   ============================================ */
 @theme inline {
-  /* 颜色系统 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -219,15 +137,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-
-  /* 图表颜色 */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-
-  /* 侧边栏 */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -237,18 +151,15 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* 字体系统 */
   --font-sans: 'Inter', sans-serif;
   --font-mono: 'Fira Code', monospace;
   --font-serif: 'Lora', serif;
 
-  /* 圆角系统 */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* 阴影系统 */
   --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
@@ -257,11 +168,6 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
-
-  /* z-index 层级系统 */
-  --z-dropdown: 50;
-  --z-modal: 100;
-  --z-toast: 200;
   --radius: 0.5rem;
   --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
   --tracking-tight: calc(var(--tracking-normal) - 0.025em);
@@ -281,37 +187,6 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 }
-
-/* ============================================
-   使用示例：
-
-   颜色：
-   - bg-background
-   - text-foreground
-   - bg-primary
-   - text-primary-foreground
-   - border-border
-
-   圆角：
-   - rounded-sm  (--radius-sm)
-   - rounded-md  (--radius-md)
-   - rounded-lg  (--radius-lg)
-   - rounded-xl  (--radius-xl)
-
-   阴影：
-   - shadow-sm
-   - shadow-md
-   - shadow-lg
-
-   z-index 层级：
-   - z-dropdown  (50)
-   - z-modal     (100)
-   - z-toast     (200)
-
-   图表：
-   - bg-chart-1
-   - bg-chart-2
-   ============================================ */
 
 @layer base {
   body {
