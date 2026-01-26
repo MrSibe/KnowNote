@@ -93,6 +93,7 @@ export interface AppSettings {
   theme: 'light' | 'dark'
   language: 'zh-CN' | 'en-US'
   autoLaunch: boolean
+  hasCompletedOnboarding: boolean
   defaultChatModel?: string // 默认对话模型
   defaultEmbeddingModel?: string // 默认嵌入模型
   prompts?: {

@@ -7,8 +7,9 @@ import { ShortcutAction, type ShortcutConfig } from '../../shared/types'
  */
 export const defaultSettings: AppSettings = {
   theme: 'dark',
-  language: 'zh-CN',
+  language: 'en-US',
   autoLaunch: false,
+  hasCompletedOnboarding: false,
   defaultChatModel: undefined,
   defaultEmbeddingModel: undefined,
   prompts: {

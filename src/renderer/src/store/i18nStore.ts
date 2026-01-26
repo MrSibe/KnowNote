@@ -20,13 +20,13 @@ export const useI18nStore = create<I18nStore>((set) => {
   }
 
   return {
-    language: 'zh-CN',
+    language: 'en-US',
     isLoading: true,
 
     initLanguage: async () => {
       try {
         const language = await window.api.settings.get('language')
-        set({ language: language || 'zh-CN', isLoading: false })
+        set({ language: language || 'en-US', isLoading: false })
       } catch (error) {
         console.error('Failed to load language:', error)
         set({ isLoading: false })
