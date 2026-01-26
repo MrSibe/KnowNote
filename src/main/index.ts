@@ -12,7 +12,7 @@ import { SessionAutoSwitchService } from './services/SessionAutoSwitchService'
 import { KnowledgeService } from './services/KnowledgeService'
 import { UpdateService } from './services/UpdateService'
 import { ShortcutManager } from './services/ShortcutManager'
-import { createMainWindow, createSettingsWindow, destroySettingsWindow } from './windows'
+import { createMainWindow } from './windows'
 import { registerAllHandlers } from './ipc'
 import { getStore } from './config/store'
 import Logger from '../shared/utils/logger'
@@ -91,11 +91,6 @@ app.whenReady().then(async () => {
     ipcMain.on('ping', () => console.log('pong'))
   }
 
-  // Handle open settings window request
-  ipcMain.handle('open-settings', () => {
-    createSettingsWindow()
-  })
-
   // Handle get platform request
   ipcMain.handle('get-platform', () => {
     return process.platform
@@ -170,7 +165,6 @@ app.on('before-quit', () => {
   Logger.info('Main', 'before-quit event triggered')
 
   isQuitting = true
-  destroySettingsWindow()
 
   // Unregister shortcuts
   if (shortcutManager) {

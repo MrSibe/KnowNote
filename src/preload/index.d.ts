@@ -30,9 +30,6 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: {
-      // 窗口设置相关
-      openSettings: () => Promise<void>
-
       // 获取平台信息
       getPlatform: () => Promise<string>
 

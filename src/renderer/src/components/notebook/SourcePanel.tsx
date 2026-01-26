@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Plus, FileText, Globe, FileUp, Loader2, StickyNote, ArrowLeft } from 'lucide-react'
 import { useKnowledgeStore, setupKnowledgeListeners } from '../../store/knowledgeStore'
 import { useItemStore } from '../../store/itemStore'
+import { useUIStore } from '../../store/uiStore'
 import { ScrollArea } from '../ui/scroll-area'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
@@ -252,6 +253,8 @@ export default function SourcePanel(): ReactElement {
 
   const { notes, loadNotes } = useItemStore()
 
+  const { openSettings } = useUIStore()
+
   // 加载默认嵌入模型设置
   useEffect(() => {
     const loadEmbeddingModel = async () => {
@@ -385,9 +388,9 @@ export default function SourcePanel(): ReactElement {
   )
 
   // 处理打开设置
-  const handleOpenSettings = useCallback(async () => {
-    await window.api.openSettings()
-  }, [])
+  const handleOpenSettings = useCallback(() => {
+    openSettings()
+  }, [openSettings])
 
   // 处理打开源文件
   const handleOpenSource = useCallback(async (documentId: string) => {

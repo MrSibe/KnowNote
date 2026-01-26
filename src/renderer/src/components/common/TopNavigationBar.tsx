@@ -2,6 +2,7 @@ import { Home, Plus, X, Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useNotebookStore } from '../../store/notebookStore'
+import { useUIStore } from '../../store/uiStore'
 import { ReactElement, useState } from 'react'
 import { Button } from '../ui/button'
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs'
@@ -18,6 +19,7 @@ export default function TopNavigationBar({
 }: TopNavigationBarProps): ReactElement {
   const { t } = useTranslation('ui')
   const navigate = useNavigate()
+  const { openSettings } = useUIStore()
   const { currentNotebook, openedNotebooks, removeOpenedNotebook, setCurrentNotebook } =
     useNotebookStore()
 
@@ -67,12 +69,8 @@ export default function TopNavigationBar({
     removeOpenedNotebook(id)
   }
 
-  const handleSettingsClick = async (): Promise<void> => {
-    try {
-      await window.api.openSettings()
-    } catch (error) {
-      console.error('Failed to open settings:', error)
-    }
+  const handleSettingsClick = (): void => {
+    openSettings()
   }
 
   return (

@@ -2,13 +2,23 @@ import { Globe, Database, HelpCircle, MessageSquare, Keyboard } from 'lucide-rea
 import { useState, useEffect, useMemo, ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import GeneralSettings from './GeneralSettings'
+import { useUIStore } from '../../store/uiStore'
 import ProvidersSettings from './ProvidersSettings'
 import PromptsSettings from './PromptsSettings'
 import ShortcutSettings from './ShortcutSettings'
 import AboutSettings from './AboutSettings'
 import SettingsActionBar from './SettingsActionBar'
 import { ScrollArea } from '../ui/scroll-area'
-import { Button } from '../ui/button'
+import { Separator } from '../ui/separator'
+import { Dialog, DialogContent } from '../ui/dialog'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider
+} from '../ui/sidebar'
 import type { AppSettings } from '../../../../shared/types'
 
 interface ProviderConfig {
@@ -18,13 +28,20 @@ interface ProviderConfig {
   updatedAt: number
 }
 
-export default function SettingsWindow(): ReactElement {
+export default function SettingsDialog(): ReactElement {
   const { t } = useTranslation('settings')
+  const { isSettingsOpen, closeSettings } = useUIStore()
   const [activeSection, setActiveSection] = useState<string>('general')
   const [originalSettings, setOriginalSettings] = useState<AppSettings | null>(null)
   const [pendingSettings, setPendingSettings] = useState<AppSettings | null>(null)
   const [originalProviders, setOriginalProviders] = useState<ProviderConfig[]>([])
   const [pendingProviders, setPendingProviders] = useState<ProviderConfig[]>([])
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      closeSettings()
+    }
+  }
 
   // 加载初始设置
   useEffect(() => {
@@ -123,94 +140,82 @@ export default function SettingsWindow(): ReactElement {
     }
   }
 
-  const renderContent = (): ReactElement | null => {
-    if (!pendingSettings) return null
-
-    switch (activeSection) {
-      case 'general':
-        return (
-          <GeneralSettings
-            settings={pendingSettings}
-            onSettingsChange={updatePendingSettings}
-            providers={pendingProviders}
-          />
-        )
-      case 'provider':
-        return (
-          <ProvidersSettings
-            providers={pendingProviders}
-            onProvidersChange={updatePendingProviders}
-            onRefresh={refreshProviders}
-          />
-        )
-      case 'prompts':
-        return (
-          <PromptsSettings settings={pendingSettings} onSettingsChange={updatePendingSettings} />
-        )
-      case 'shortcuts':
-        return <ShortcutSettings />
-      case 'about':
-        return <AboutSettings />
-      default:
-        return null
-    }
-  }
-
   return (
-    <div className="flex h-screen bg-background">
-      {/* 顶部可拖拽标题栏 */}
-      <div
-        className="absolute top-0 left-0 right-0 h-10 z-10 flex items-center justify-center bg-background"
-        style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-      >
-        <span className="text-sm text-muted-foreground font-medium">{t('settings')}</span>
-      </div>
+    <Dialog open={isSettingsOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-5xl h-[80vh] p-0 flex flex-col bg-sidebar">
+        <SidebarProvider className="flex flex-1 min-h-0">
+          <div className="flex flex-1 min-h-0 gap-3 p-3 w-full">
+            {/* 使用 Shadcn Sidebar */}
+            <Sidebar className="w-40" collapsible="none">
+              <SidebarContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => {
+                    const Icon = item.icon
+                    const isActive = activeSection === item.id
+                    return (
+                      <SidebarMenuItem key={item.id}>
+                        <SidebarMenuButton
+                          onClick={() => setActiveSection(item.id)}
+                          isActive={isActive}
+                          className={
+                            isActive
+                              ? 'bg-sidebar-primary! text-sidebar-primary-foreground!'
+                              : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                          }
+                        >
+                          <Icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    )
+                  })}
+                </SidebarMenu>
+              </SidebarContent>
+            </Sidebar>
 
-      {/* Island风格布局容器 */}
-      <div className="flex w-full h-full pt-10 px-3 pb-3 gap-3">
-        {/* 左侧菜单 - Island */}
-        <div className="w-48 min-w-48 bg-card rounded-xl p-4 flex flex-col shadow-md">
-          <div className="flex flex-col gap-2">
-            {menuItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <Button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  variant="ghost"
-                  className={`w-full p-3 rounded-lg justify-start h-auto ${
-                    activeSection === item.id
-                      ? 'bg-accent text-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </div>
-                </Button>
-              )
-            })}
+          {/* 主内容区域 - 岛屿样式 */}
+          <div className="flex-1 flex flex-col min-w-0 bg-background rounded-lg shadow-sm overflow-hidden">
+            {/* 内容区域 */}
+            <div className="flex-1 min-h-0 overflow-hidden">
+              <ScrollArea className="h-full">
+                <div className="p-4">
+                  {pendingSettings && activeSection === 'general' && (
+                    <GeneralSettings
+                      settings={pendingSettings}
+                      onSettingsChange={updatePendingSettings}
+                      providers={pendingProviders}
+                    />
+                  )}
+                  {activeSection === 'provider' && (
+                    <ProvidersSettings
+                      providers={pendingProviders}
+                      onProvidersChange={updatePendingProviders}
+                      onRefresh={refreshProviders}
+                    />
+                  )}
+                  {pendingSettings && activeSection === 'prompts' && (
+                    <PromptsSettings
+                      settings={pendingSettings}
+                      onSettingsChange={updatePendingSettings}
+                    />
+                  )}
+                  {activeSection === 'shortcuts' && <ShortcutSettings />}
+                  {activeSection === 'about' && <AboutSettings />}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* 底部操作栏 */}
+            <Separator className="h-px" />
+            <SettingsActionBar
+              hasChanges={hasChanges}
+              onCancel={handleCancel}
+              onConfirm={handleConfirm}
+            />
           </div>
         </div>
-
-        {/* 右侧内容区域 */}
-        <div className="flex-1 min-w-0 flex flex-col gap-3">
-          {/* 设置内容 - Island */}
-          <div className="flex-1 min-h-0 bg-card rounded-xl overflow-hidden shadow-md">
-            <ScrollArea className="h-full">
-              <div className="p-6">{renderContent()}</div>
-            </ScrollArea>
-          </div>
-
-          {/* 底部操作按钮 - Island */}
-          <SettingsActionBar
-            hasChanges={hasChanges}
-            onCancel={handleCancel}
-            onConfirm={handleConfirm}
-          />
-        </div>
-      </div>
-    </div>
+        </SidebarProvider>
+      </DialogContent>
+    </Dialog>
   )
 }

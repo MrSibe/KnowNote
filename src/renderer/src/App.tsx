@@ -4,7 +4,7 @@ import { I18nextProvider } from 'react-i18next'
 import NotebookLayout from './components/notebook/NotebookLayout'
 import NotebookListPage from './components/pages/NotebookListPage'
 import MindMapPage from './components/pages/MindMapPage'
-import SettingsWindow from './components/settings/SettingsWindow'
+import SettingsDialog from './components/settings/SettingsDialog'
 import { setupChatListeners } from './store/chatStore'
 import { useThemeStore } from './store/themeStore'
 import { useNotebookStore } from './store/notebookStore'
@@ -67,8 +67,8 @@ function App(): React.JSX.Element {
           <Route path="/notebook/:id" element={<NotebookLayout />} />
           <Route path="/mindmap/:notebookId" element={<MindMapPage />} />
           <Route path="/mindmap/view/:mindMapId" element={<MindMapPage />} />
-          <Route path="/settings" element={<SettingsWindow />} />
         </Routes>
+        <SettingsDialog />
       </HashRouter>
     </I18nextProvider>
   )
