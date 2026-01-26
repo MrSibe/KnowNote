@@ -1,8 +1,16 @@
-import { useState, useRef, useEffect, ReactElement } from 'react'
-import { MoreVertical } from 'lucide-react'
+import { ReactElement } from 'react'
+import { BookOpen, Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { Notebook } from '../../types/notebook'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card'
 import { Button } from '../ui/button'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger
+} from '../ui/context-menu'
 
 interface NotebookCardProps {
   notebook: Notebook
@@ -28,45 +36,9 @@ export default function NotebookCard({
   onRename
 }: NotebookCardProps): ReactElement {
   const { t, i18n } = useTranslation('ui')
-  const [showMenu, setShowMenu] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
 
   // 获取笔记本颜色
   const colorClass = getColorClass(notebook.id)
-
-  // 点击外部关闭菜单
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowMenu(false)
-      }
-    }
-
-    if (showMenu) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showMenu])
-
-  const handleMenuClick = (e: React.MouseEvent): void => {
-    e.stopPropagation()
-    setShowMenu(!showMenu)
-  }
-
-  const handleDelete = (e: React.MouseEvent): void => {
-    e.stopPropagation()
-    setShowMenu(false)
-    onDelete()
-  }
-
-  const handleRename = (e: React.MouseEvent): void => {
-    e.stopPropagation()
-    setShowMenu(false)
-    onRename()
-  }
 
   const formatDate = (date: Date): string => {
     const now = new Date()
@@ -83,64 +55,91 @@ export default function NotebookCard({
   }
 
   return (
-    <div
-      onClick={onClick}
-      className="group relative bg-card rounded-2xl p-8 min-h-[200px] cursor-pointer transition-all hover:bg-card/90 hover:scale-[1.02] border border-border/50 hover:border-border overflow-hidden flex flex-col gap-2"
-      style={{ boxShadow: 'var(--shadow-md)' }}
-    >
-      {/* 顶部彩色装饰条 - 使用主题图表颜色 */}
-      <div className={`absolute top-0 left-0 right-0 h-1 ${colorClass}`} />
-
-      {/* 右上角菜单按钮 */}
-      <div className="absolute top-4 right-4" ref={menuRef}>
-        <Button
-          onClick={handleMenuClick}
-          variant="ghost"
-          size="icon"
-          className="w-8 h-8 rounded-full opacity-0 group-hover:opacity-100"
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        <Card
+          onClick={onClick}
+          className="group relative min-h-[200px] cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:shadow-lg border-border/50 hover:border-border overflow-hidden flex flex-col"
         >
-          <MoreVertical className="w-4 h-4" />
-        </Button>
+          {/* 顶部彩色装饰条 - 使用主题图表颜色 */}
+          <div className={`absolute top-0 left-0 right-0 h-1 ${colorClass}`} />
 
-        {/* 下拉菜单 */}
-        {showMenu && (
-          <div className="absolute top-10 right-0 w-40 bg-card rounded-lg shadow-lg border border-border overflow-hidden z-10">
-            <Button
-              onClick={handleRename}
-              variant="ghost"
-              className="w-full justify-start text-sm font-normal rounded-none"
-            >
-              {t('renameNotebook')}
-            </Button>
-            <Button
-              onClick={handleDelete}
-              variant="ghost"
-              className="w-full justify-start text-sm font-normal text-destructive hover:text-destructive rounded-none"
-            >
-              {t('deleteNotebook')}
-            </Button>
-          </div>
-        )}
-      </div>
+          {/* Hover 效果光晕 - 使用主题图表颜色 */}
+          <div
+            className={`absolute inset-0 ${colorClass} opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none`}
+          />
 
-      {/* 内容区域 - 使用 flex 布局让底部信息靠下 */}
-      <div className="flex-1 flex flex-col gap-2">
-        <h3 className="text-h2 text-foreground line-clamp-2">{notebook.title}</h3>
+          <CardHeader className="flex-1 pb-4">
+            <CardTitle className="flex items-center gap-2 text-h2 line-clamp-2">
+              <BookOpen className={`w-5 h-5 shrink-0 ${colorClass.replace('bg-', 'text-').replace('-500', '-600')}`} />
+              <span>{notebook.title}</span>
+            </CardTitle>
+            {notebook.description && (
+              <CardDescription className="line-clamp-2">{notebook.description}</CardDescription>
+            )}
+          </CardHeader>
 
-        {notebook.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{notebook.description}</p>
-        )}
-      </div>
+          <CardContent className="pb-4">
+            {/* 可以在这里添加笔记本预览内容 */}
+          </CardContent>
 
-      {/* 底部信息 - 自动靠底部对齐 */}
-      <div className="flex items-center justify-end text-xs text-muted-foreground">
-        <span>{formatDate(notebook.updatedAt)}</span>
-      </div>
+          <CardFooter className="justify-between items-center border-t border-border/50 pt-4">
+            <span className="text-xs text-muted-foreground">{formatDate(notebook.updatedAt)}</span>
 
-      {/* Hover 效果光晕 - 使用主题图表颜色 */}
-      <div
-        className={`absolute inset-0 rounded-2xl ${colorClass} opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none`}
-      />
-    </div>
+            {/* 悬停时显示的操作按钮 */}
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRename()
+                }}
+                className="h-8 w-8 p-0"
+                title={t('renameNotebook')}
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete()
+                }}
+                className="h-8 w-8 p-0 hover:bg-destructive/20 hover:text-destructive"
+                title={t('deleteNotebook')}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </ContextMenuTrigger>
+
+      {/* 右键菜单 */}
+      <ContextMenuContent>
+        <ContextMenuItem
+          onClick={(e) => {
+            e.stopPropagation()
+            onRename()
+          }}
+        >
+          <Pencil className="w-4 h-4 mr-2" />
+          {t('renameNotebook')}
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}
+          className="text-destructive focus:text-destructive"
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          {t('deleteNotebook')}
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }

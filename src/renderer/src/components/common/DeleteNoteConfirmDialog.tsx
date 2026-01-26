@@ -1,14 +1,15 @@
 import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '../ui/dialog'
-import { Button } from '../ui/button'
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '../ui/alert-dialog'
 
 interface DeleteNoteConfirmDialogProps {
   isOpen: boolean
@@ -29,22 +30,19 @@ export default function DeleteNoteConfirmDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t('notebook:deleteNote')}</DialogTitle>
-          <DialogDescription>{t('notebook:deleteNoteWarning')}</DialogDescription>
-        </DialogHeader>
-
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
-            {t('common:cancel')}
-          </Button>
-          <Button type="button" variant="destructive" onClick={handleConfirm}>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('notebook:deleteNote')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('notebook:deleteNoteWarning')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>{t('common:cancel')}</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm} className="bg-destructive hover:bg-destructive/90">
             {t('common:delete')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }

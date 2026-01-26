@@ -1,14 +1,15 @@
 import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '../ui/dialog'
-import { Button } from '../ui/button'
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '../ui/alert-dialog'
 
 interface DeleteConfirmDialogProps {
   isOpen: boolean
@@ -31,24 +32,21 @@ export default function DeleteConfirmDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t('notebook:deleteNotebook')}</DialogTitle>
-          <DialogDescription>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('notebook:deleteNotebook')}</AlertDialogTitle>
+          <AlertDialogDescription>
             {t('notebook:deleteConfirm', { name: notebookTitle })}
-          </DialogDescription>
-        </DialogHeader>
-
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
-            {t('common:cancel')}
-          </Button>
-          <Button type="button" variant="destructive" onClick={handleConfirm}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>{t('common:cancel')}</AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirm} className="bg-destructive hover:bg-destructive/90">
             {t('common:delete')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
