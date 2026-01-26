@@ -1,35 +1,18 @@
 /* ============================================
-   Main CSS - 文件导入中心
-   Atom Enhanced 设计系统
+   Main CSS - Litebook
+   使用 shadcn/ui 主题系统
    ============================================ */
 
-/* 0. 字体导入 - 必须在最前面 */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+/* 字体导入 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@200;300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@200;300;400;500;600;700&display=swap');
 
-/* 1. CSS Reset */
-@import './base.css';
-
-/* 2. shadcn/Tailwind 主题 (不可修改) */
+/* shadcn/ui 主题变量 */
 @import './theme.css';
 
-/* 3. Tailwind 核心 */
+/* Tailwind 核心 */
 @import 'tailwindcss';
-
-/* 4. 字体系统 */
-@import './typography.css';
-
-/* 5. 视觉效果 */
-@import './effects.css';
-
-/* 6. 动画系统 */
-@import './animations.css';
-
-/* 7. 滚动条样式 */
-@import './scrollbar.css';
-
-/* 8. 实用工具类 */
-@import './utilities.css';
 
 /* ============================================
    基础全局样式
@@ -39,7 +22,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  /* Remove user-select: none to allow text selection in chat content */
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 
 code {
