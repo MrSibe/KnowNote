@@ -6,6 +6,7 @@ import NotebookListPage from './components/pages/NotebookListPage'
 import OnboardingPage from './components/pages/OnboardingPage'
 import MindMapPage from './components/pages/MindMapPage'
 import QuizPage from './components/pages/QuizPage'
+import AnkiPage from './components/pages/AnkiPage'
 import SettingsDialog from './components/settings/SettingsDialog'
 import { setupChatListeners } from './store/chatStore'
 import { useThemeStore } from './store/themeStore'
@@ -99,6 +100,8 @@ function App(): React.JSX.Element {
           <Route path="/mindmap/view/:mindMapId" element={<MindMapPage />} />
           <Route path="/quiz/:notebookId" element={<QuizPage />} />
           <Route path="/quiz/view/:quizId" element={<QuizPage />} />
+          <Route path="/anki/:notebookId" element={<AnkiPage />} />
+          <Route path="/anki/view/:ankiCardId" element={<AnkiPage />} />
         </Routes>
         <SettingsDialog />
       </HashRouter>

@@ -4,6 +4,7 @@ import { KnowledgeService } from '../services/KnowledgeService'
 import { UpdateService } from '../services/UpdateService'
 import { MindMapService } from '../services/MindMapService'
 import { QuizService } from '../services/QuizService'
+import { AnkiCardService } from '../services/AnkiCardService'
 import { ShortcutManager } from '../services/ShortcutManager'
 import type Store from 'electron-store'
 import type { StoreSchema } from '../config/types'
@@ -15,9 +16,11 @@ import { registerNoteHandlers } from './noteHandlers'
 import { registerKnowledgeHandlers } from './knowledgeHandlers'
 import { registerMindMapHandlers } from './mindmapHandlers'
 import { registerQuizHandlers } from './quizHandlers'
+import { registerAnkiHandlers } from './ankiHandlers'
 import { registerUpdateHandlers } from './updateHandlers'
 import { registerItemHandlers } from './itemHandlers'
 import { registerShortcutHandlers } from './shortcutHandlers'
+import { registerDialogHandlers } from './dialogHandlers'
 
 /**
  * 注册所有 IPC Handlers
@@ -34,15 +37,19 @@ export function registerAllHandlers(
   const mindMapService = new MindMapService(providerManager)
   // 实例化 QuizService
   const quizService = new QuizService(providerManager)
+  // 实例化 AnkiCardService
+  const ankiCardService = new AnkiCardService(providerManager)
 
   registerChatHandlers(providerManager, sessionAutoSwitchService, knowledgeService)
   registerProviderHandlers(providerManager)
   registerSettingsHandlers()
+  registerDialogHandlers()
   registerNotebookHandlers()
   registerNoteHandlers(providerManager)
   registerKnowledgeHandlers(knowledgeService)
   registerMindMapHandlers(mindMapService)
   registerQuizHandlers(quizService)
+  registerAnkiHandlers(ankiCardService)
   registerUpdateHandlers(updateService)
   registerItemHandlers()
   registerShortcutHandlers(shortcutManager, store)
@@ -56,5 +63,6 @@ export {
   registerNotebookHandlers,
   registerNoteHandlers,
   registerKnowledgeHandlers,
-  registerQuizHandlers
+  registerQuizHandlers,
+  registerAnkiHandlers
 }

@@ -166,6 +166,97 @@ You must return a JSON object with questions and metadata:
 {{CONTENT}}
 
 Generate {{QUESTION_COUNT}} high-quality multiple-choice questions, strictly following the format requirements to return JSON.`
+    },
+    anki: {
+      'zh-CN': `你是Anki卡片生成专家。请基于以下知识库内容，生成{{CARD_COUNT}}张高质量的间隔重复学习卡片。
+
+**重要：请用中文回复，所有卡片内容必须使用中文。**
+
+**输出格式要求（必须严格遵守）:**
+你必须返回一个包含 cards 和 metadata 的 JSON 对象：
+{
+  "cards": [
+    {
+      "id": "卡片唯一ID（字符串）",
+      "type": "basic",
+      "front": "问题文本",
+      "back": "答案文本",
+      "tags": ["标签1", "标签2"],
+      "metadata": {
+        "chunkIds": ["相关chunk ID数组"],
+        "difficulty": "medium"
+      }
+    }
+  ],
+  "metadata": {
+    "totalCards": 总卡片数
+  }
+}
+
+**Basic卡片说明:**
+- type: "basic"
+- front: 直接的问题
+- back: 详细答案
+- 适合：定义、概念、原理、问答
+
+**生成要求:**
+1. 生成**{{CARD_COUNT}}张卡片**，全部为basic类型
+2. 每张卡片必须包含front（问题）和back（答案）字段
+3. 问题要简洁明确，答案要详细且准确
+4. 每张卡片关联相关的chunkIds
+5. 添加适当的标签（如"重要"、"概念"、"原理"、"公式"等）
+6. 基于实际内容，不要编造
+7. {{DIFFICULTY_INSTRUCTION}}
+
+**知识库内容:**
+{{CONTENT}}
+
+请生成{{CARD_COUNT}}张高质量的Basic类型Anki卡片，严格按照格式要求返回 JSON。`,
+      'en-US': `You are an Anki card generation expert. Based on the knowledge base content below, generate {{CARD_COUNT}} high-quality spaced repetition learning cards.
+
+**IMPORTANT: Please respond in English. All card content must be in English.**
+
+**Output Format Requirements (MUST strictly follow):**
+You must return a JSON object with cards and metadata:
+{
+  "cards": [
+    {
+      "id": "unique card ID (string)",
+      "type": "basic",
+      "front": "question text",
+      "back": "answer text",
+      "tags": ["tag1", "tag2"],
+      "metadata": {
+        "chunkIds": ["array of related chunk IDs"],
+        "difficulty": "medium"
+      }
+    }
+  ],
+  "metadata": {
+    "totalCards": total number of cards
+  }
+}
+
+**Basic Card Description:**
+- type: "basic"
+- front: direct question
+- back: detailed answer
+- Best for: definitions, concepts, principles, Q&A
+
+**Generation Requirements:**
+1. Generate **{{CARD_COUNT}} cards**, all of basic type
+2. Each card must have front (question) and back (answer) fields
+3. Questions should be concise and clear
+4. Answers should be detailed and accurate
+5. Associate relevant chunkIds for each card
+6. Add appropriate tags (like "important", "concept", "principle", "formula")
+7. Based on actual content, no fabrication
+8. {{DIFFICULTY_INSTRUCTION}}
+
+**Knowledge base content:**
+{{CONTENT}}
+
+Generate {{CARD_COUNT}} high-quality Basic type Anki cards, strictly following the format requirements to return JSON.`
     }
   }
 }

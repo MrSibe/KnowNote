@@ -312,6 +312,43 @@ export type QuizSession = typeof quizSessions.$inferSelect
 export type NewQuizSession = typeof quizSessions.$inferInsert
 
 /**
+ * Anki卡片表
+ * 存储笔记本的Anki卡片集
+ */
+export const ankiCards = sqliteTable(
+  'anki_cards',
+  {
+    id: text('id').primaryKey(),
+    notebookId: text('notebook_id')
+      .notNull()
+      .references(() => notebooks.id, { onDelete: 'cascade' }),
+    title: text('title').notNull(),
+    version: integer('version').notNull().default(1), // 版本号
+    cardsData: text('cards_data', { mode: 'json' }).notNull(), // 卡片数组
+    chunkMapping: text('chunk_mapping', { mode: 'json' }).notNull(), // cardId -> chunkIds映射
+    metadata: text('metadata', { mode: 'json' }).$type<{
+      model: string
+      totalCards: number
+      cardTypes: string[]
+      generationTime: number
+    }>(),
+    status: text('status', { enum: ['generating', 'completed', 'failed'] })
+      .notNull()
+      .default('generating'),
+    errorMessage: text('error_message'),
+    createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+  },
+  (table) => ({
+    notebookIdx: index('idx_ankicards_notebook').on(table.notebookId, table.updatedAt),
+    versionIdx: index('idx_ankicards_version').on(table.notebookId, table.version)
+  })
+)
+
+export type AnkiCard = typeof ankiCards.$inferSelect
+export type NewAnkiCard = typeof ankiCards.$inferInsert
+
+/**
  * Items 表
  * 统一管理笔记本下的所有内容项（笔记、思维导图、PPT、音频等）
  */
@@ -322,7 +359,9 @@ export const items = sqliteTable(
     notebookId: text('notebook_id')
       .notNull()
       .references(() => notebooks.id, { onDelete: 'cascade' }),
-    type: text('type', { enum: ['note', 'mindmap', 'quiz', 'ppt', 'audio', 'video'] }).notNull(),
+    type: text('type', {
+      enum: ['note', 'mindmap', 'quiz', 'anki', 'ppt', 'audio', 'video']
+    }).notNull(),
     resourceId: text('resource_id').notNull(), // 指向实际资源的 ID (notes.id, mindMaps.id 等)
     order: integer('order').notNull().default(0), // 排序，数值越小越靠前
     createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),

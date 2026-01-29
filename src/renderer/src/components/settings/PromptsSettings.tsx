@@ -21,6 +21,7 @@ export default function PromptsSettings({
   // 后端的 mergeSettings 已经确保所有字段都有默认值，前端直接使用
   const currentMindMapPrompt = settings.prompts?.mindMap?.[currentLanguage] || ''
   const currentQuizPrompt = settings.prompts?.quiz?.[currentLanguage] || ''
+  const currentAnkiPrompt = settings.prompts?.anki?.[currentLanguage] || ''
 
   const handleMindMapPromptChange = (value: string) => {
     onSettingsChange({
@@ -46,6 +47,18 @@ export default function PromptsSettings({
     })
   }
 
+  const handleAnkiPromptChange = (value: string) => {
+    onSettingsChange({
+      prompts: {
+        ...settings.prompts,
+        anki: {
+          ...settings.prompts?.anki,
+          [currentLanguage]: value
+        }
+      }
+    })
+  }
+
   const handleResetToDefault = async () => {
     // 从 defaults.ts 获取默认提示词
     const defaultPrompts = await window.api.settings.getDefaultPrompts()
@@ -55,7 +68,7 @@ export default function PromptsSettings({
   }
 
   return (
-    <div className="max-w-2xl flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <SettingItem
         title={t('mindMapPrompt')}
         description=""
@@ -72,7 +85,7 @@ export default function PromptsSettings({
             value={currentMindMapPrompt}
             onChange={(e) => handleMindMapPromptChange(e.target.value)}
             placeholder={t('promptPlaceholder')}
-            className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto"
+            className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto themed-scrollbar"
           />
         </div>
       </SettingItem>
@@ -93,7 +106,28 @@ export default function PromptsSettings({
             value={currentQuizPrompt}
             onChange={(e) => handleQuizPromptChange(e.target.value)}
             placeholder={t('promptPlaceholder')}
-            className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto"
+            className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto themed-scrollbar"
+          />
+        </div>
+      </SettingItem>
+
+      <SettingItem
+        title={t('ankiPrompt')}
+        description=""
+        layout="vertical"
+        action={
+          <Button variant="outline" size="sm" onClick={handleResetToDefault}>
+            <RotateCcw className="w-4 h-4 mr-2" />
+            {t('resetToDefault')}
+          </Button>
+        }
+      >
+        <div className="relative">
+          <Textarea
+            value={currentAnkiPrompt}
+            onChange={(e) => handleAnkiPromptChange(e.target.value)}
+            placeholder={t('promptPlaceholder')}
+            className="w-full h-[400px] max-h-[400px] resize-none bg-input border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-ring font-mono text-sm leading-relaxed overflow-y-auto themed-scrollbar"
           />
         </div>
       </SettingItem>

@@ -202,3 +202,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .themed-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) transparent;
+  }
+  .themed-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .themed-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .themed-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--muted-foreground);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  .themed-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: var(--foreground);
+  }
+}

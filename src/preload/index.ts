@@ -29,6 +29,15 @@ const api = {
   openExternalUrl: (url: string): Promise<{ success: boolean; error?: string }> =>
     ipcRenderer.invoke('open-external-url', url),
 
+  // 系统对话框相关
+  dialog: {
+    saveFile: (options: {
+      title?: string
+      defaultPath?: string
+      filters?: { name: string; extensions: string[] }[]
+    }) => ipcRenderer.invoke('dialog:saveFile', options)
+  },
+
   // 应用设置相关
   settings: {
     getAll: () => ipcRenderer.invoke('settings:getAll'),
@@ -236,6 +245,39 @@ const api = {
       const listener = (_event: any, data: any) => callback(data)
       ipcRenderer.on('quiz:progress', listener)
       return () => ipcRenderer.removeListener('quiz:progress', listener)
+    }
+  },
+
+  // Anki 卡片相关
+  anki: {
+    // 生成卡片
+    generate: (notebookId: string, options?: any) =>
+      ipcRenderer.invoke('anki:generate', { notebookId, options }),
+    // 获取最新卡片集
+    getLatest: (notebookId: string) => ipcRenderer.invoke('anki:get-latest', { notebookId }),
+    // 获取卡片集详情
+    get: (ankiCardId: string) => ipcRenderer.invoke('anki:get', { ankiCardId }),
+    // 更新卡片集
+    update: (ankiCardId: string, updates: { title?: string }) =>
+      ipcRenderer.invoke('anki:update', { ankiCardId, updates }),
+    // 删除卡片集
+    delete: (ankiCardId: string) => ipcRenderer.invoke('anki:delete', { ankiCardId }),
+    // 导出卡片
+    export: (ankiCardId: string, format: any, deckName?: string) =>
+      ipcRenderer.invoke('anki:export', { ankiCardId, format, deckName }),
+    // 导出卡片到指定路径
+    exportToPath: (ankiCardId: string, filePath: string) =>
+      ipcRenderer.invoke('anki:exportToPath', { ankiCardId, filePath }),
+    // 打开Anki窗口
+    openWindow: (notebookId: string, ankiCardId?: string) =>
+      ipcRenderer.invoke('anki:open-window', { notebookId, ankiCardId }),
+    // 监听生成进度
+    onProgress: (
+      callback: (data: { notebookId: string; stage: string; progress: number }) => void
+    ) => {
+      const listener = (_event: any, data: any) => callback(data)
+      ipcRenderer.on('anki:progress', listener)
+      return () => ipcRenderer.removeListener('anki:progress', listener)
     }
   },
 

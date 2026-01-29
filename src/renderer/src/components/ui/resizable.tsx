@@ -20,9 +20,10 @@ const ResizableHandle = ({
 }: React.ComponentPropsWithoutRef<typeof ResizablePrimitive.Separator>) => (
   <ResizablePrimitive.Separator
     className={cn(
-      'relative flex w-px items-center justify-center bg-transparent hover:bg-transparent after:absolute after:inset-y-0 after:left-1/2 after:w-2 after:-translate-x-1/2 hover:after:bg-transparent data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-2 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0',
+      'relative flex w-px items-center justify-center bg-transparent hover:bg-transparent after:absolute after:inset-y-0 after:left-1/2 after:w-2 after:-translate-x-1/2 hover:after:bg-transparent data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-2 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 focus-visible:outline-none data-[state=drag]:outline-none data-[state=drag]:bg-transparent data-[state=drag]:after:bg-transparent data-[state=hover]:bg-transparent data-[state=hover]:after:bg-transparent',
       className
     )}
+    style={{ outline: 'none', boxShadow: 'none' }}
     {...props}
   />
 )

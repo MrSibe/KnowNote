@@ -1,12 +1,12 @@
 import { getDatabase } from '../db'
-import { items, notes, mindMaps, quizzes, type Item, type NewItem } from '../db/schema'
+import { items, notes, mindMaps, quizzes, ankiCards, type Item, type NewItem } from '../db/schema'
 import { eq, and } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
 /**
  * Item 类型枚举
  */
-export type ItemType = 'note' | 'mindmap' | 'quiz' | 'ppt' | 'audio' | 'video'
+export type ItemType = 'note' | 'mindmap' | 'quiz' | 'anki' | 'ppt' | 'audio' | 'video'
 
 /**
  * Item 详情（包含关联的资源数据）
@@ -65,6 +65,16 @@ export class ItemService {
             .where(eq(quizzes.id, item.resourceId))
             .limit(1)
           resource = quizResult[0] || null
+          break
+        }
+
+        case 'anki': {
+          const ankiCardResult = await db
+            .select()
+            .from(ankiCards)
+            .where(eq(ankiCards.id, item.resourceId))
+            .limit(1)
+          resource = ankiCardResult[0] || null
           break
         }
 
@@ -188,6 +198,9 @@ export class ItemService {
         break
       case 'quiz':
         await db.delete(quizzes).where(eq(quizzes.id, resourceId))
+        break
+      case 'anki':
+        await db.delete(ankiCards).where(eq(ankiCards.id, resourceId))
         break
       // 未来可以添加更多类型
     }

@@ -11,7 +11,7 @@ import type {
   IndexProgress
 } from '../shared/types/knowledge'
 import type { UpdateState, UpdateCheckResult, UpdateOperationResult } from '../shared/types/update'
-import type { MindMap, Quiz, QuizSession } from '../main/db/schema'
+import type { MindMap, Quiz, QuizSession, AnkiCard } from '../main/db/schema'
 
 // 重新导出共享类型
 export type {
@@ -23,7 +23,8 @@ export type {
   AppSettings,
   MindMap,
   Quiz,
-  QuizSession
+  QuizSession,
+  AnkiCard
 }
 export type {
   KnowledgeDocument,
@@ -48,6 +49,15 @@ declare global {
 
       // 在默认浏览器中打开外部链接
       openExternalUrl: (url: string) => Promise<{ success: boolean; error?: string }>
+
+      // 系统对话框相关
+      dialog: {
+        saveFile: (options: {
+          title?: string
+          defaultPath?: string
+          filters?: { name: string; extensions: string[] }[]
+        }) => Promise<string | null>
+      }
 
       // 应用设置相关
       settings: {
@@ -126,6 +136,36 @@ declare global {
         update: (quizId: string, updates: { title?: string }) => Promise<{ success: boolean }>
         delete: (quizId: string) => Promise<{ success: boolean }>
         openWindow: (notebookId: string, quizId?: string) => Promise<{ success: boolean }>
+        onProgress: (
+          callback: (data: { notebookId: string; stage: string; progress: number }) => void
+        ) => () => void
+      }
+
+      // Anki 卡片相关
+      anki: {
+        getLatest: (notebookId: string) => Promise<AnkiCard | null>
+        get: (ankiCardId: string) => Promise<AnkiCard | null>
+        generate: (
+          notebookId: string,
+          options?: {
+            cardCount?: number
+            cardTypes?: ('basic' | 'cloze' | 'fill-blank')[]
+            difficulty?: 'easy' | 'medium' | 'hard'
+            customPrompt?: string
+          }
+        ) => Promise<{ success: boolean; ankiCardId?: string; error?: string }>
+        update: (ankiCardId: string, updates: { title?: string }) => Promise<{ success: boolean }>
+        delete: (ankiCardId: string) => Promise<{ success: boolean }>
+        export: (
+          ankiCardId: string,
+          format: 'apkg',
+          deckName?: string
+        ) => Promise<{ success: boolean; filePath?: string; error?: string }>
+        exportToPath: (
+          ankiCardId: string,
+          filePath: string
+        ) => Promise<{ success: boolean; filePath?: string; error?: string }>
+        openWindow: (notebookId: string, ankiCardId?: string) => Promise<{ success: boolean }>
         onProgress: (
           callback: (data: { notebookId: string; stage: string; progress: number }) => void
         ) => () => void

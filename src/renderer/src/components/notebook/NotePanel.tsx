@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react'
-import { Save, Trash2, ArrowLeft, Network, FileText, ClipboardCheck } from 'lucide-react'
+import { Save, Trash2, ArrowLeft, Network, FileText, ClipboardCheck, Layers } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { useItemStore } from '../../store/itemStore'
@@ -7,6 +7,7 @@ import { setupMindMapListeners } from '../../store/mindmapStore'
 import NoteEditor from './note/NoteEditor'
 import ItemList from './item/ItemList'
 import QuizStartDialog, { QuizStartParams } from './quiz/QuizStartDialog'
+import AnkiConfigDialog from './anki/AnkiConfigDialog'
 import { ScrollArea } from '../ui/scroll-area'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -137,6 +138,7 @@ export default function NotePanel(): ReactElement {
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showQuizStartDialog, setShowQuizStartDialog] = useState(false)
+  const [showAnkiConfigDialog, setShowAnkiConfigDialog] = useState(false)
 
   // 监听Notebook切换，清空当前编辑状态
   useEffect(() => {
@@ -230,6 +232,17 @@ export default function NotePanel(): ReactElement {
     }
   }
 
+  // 打开Anki卡片窗口（查看特定版本）
+  const handleOpenAnki = async (ankiCardId: string) => {
+    try {
+      if (notebookId) {
+        await window.api.anki.openWindow(notebookId, ankiCardId)
+      }
+    } catch (error) {
+      console.error('[NotePanel] Failed to open anki window:', error)
+    }
+  }
+
   // 生成新思维导图（在后台生成，不打开窗口）
   const handleGenerateMindMap = async () => {
     if (notebookId) {
@@ -250,6 +263,11 @@ export default function NotePanel(): ReactElement {
         console.error('[NotePanel] Failed to generate mind map:', error)
       }
     }
+  }
+
+  // 打开Anki配置对话框
+  const handleGenerateAnki = () => {
+    setShowAnkiConfigDialog(true)
   }
 
   // 打开答题启动对话框
@@ -304,7 +322,7 @@ export default function NotePanel(): ReactElement {
           {/* 顶部工具栏 */}
           <PanelHeader
             draggable
-            left={<span className="text-sm text-foreground">{t('creativeSpace')}</span>}
+            left={<span className="text-sm text-foreground truncate w-full">{t('creativeSpace')}</span>}
             right={
               <>
                 <Button
@@ -328,6 +346,16 @@ export default function NotePanel(): ReactElement {
                   <ClipboardCheck className="w-4 h-4" />
                 </Button>
                 <Button
+                  onClick={handleGenerateAnki}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+                  title={t('generateAnki')}
+                >
+                  <Layers className="w-4 h-4" />
+                </Button>
+                <Button
                   onClick={handleCreateNote}
                   variant="ghost"
                   size="icon"
@@ -349,6 +377,7 @@ export default function NotePanel(): ReactElement {
               onSelectNote={setCurrentNote}
               onOpenMindMap={handleOpenMindMap}
               onOpenQuiz={handleOpenQuiz}
+              onOpenAnki={handleOpenAnki}
               onDeleteItem={(itemId) => deleteItem(itemId, true)}
               onRefresh={() => notebookId && loadItems(notebookId)}
             />
@@ -376,6 +405,16 @@ export default function NotePanel(): ReactElement {
           isOpen={showQuizStartDialog}
           onClose={() => setShowQuizStartDialog(false)}
           onStart={handleQuizStart}
+        />
+      )}
+
+      {/* Anki卡片生成配置对话框 */}
+      {notebookId && (
+        <AnkiConfigDialog
+          notebookId={notebookId}
+          open={showAnkiConfigDialog}
+          onOpenChange={setShowAnkiConfigDialog}
+          onGenerateStart={() => loadItems(notebookId)}
         />
       )}
     </div>

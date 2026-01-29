@@ -22,6 +22,10 @@ function mergeSettings(stored: Partial<AppSettings>): AppSettings {
       quiz: {
         'zh-CN': stored.prompts?.quiz?.['zh-CN'] ?? defaultSettings.prompts!.quiz!['zh-CN'],
         'en-US': stored.prompts?.quiz?.['en-US'] ?? defaultSettings.prompts!.quiz!['en-US']
+      },
+      anki: {
+        'zh-CN': stored.prompts?.anki?.['zh-CN'] ?? defaultSettings.prompts!.anki!['zh-CN'],
+        'en-US': stored.prompts?.anki?.['en-US'] ?? defaultSettings.prompts!.anki!['en-US']
       }
     }
   }

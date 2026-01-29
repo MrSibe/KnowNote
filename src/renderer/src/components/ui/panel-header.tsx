@@ -20,9 +20,9 @@ const PanelHeader = React.forwardRef<HTMLDivElement, PanelHeaderProps>(
         style={draggable ? ({ WebkitAppRegion: 'drag' } as React.CSSProperties) : undefined}
         {...props}
       >
-        {left && <div className="flex items-center gap-2">{left}</div>}
+        {left && <div className="flex items-center gap-2 min-w-0">{left}</div>}
         {center && <div className="flex-1 flex items-center justify-center min-w-0">{center}</div>}
-        {right && <div className="flex items-center gap-2">{right}</div>}
+        {right && <div className="flex items-center gap-2 min-w-0">{right}</div>}
       </div>
     )
   }

@@ -1,5 +1,5 @@
 import { ReactElement, useState, useEffect } from 'react'
-import { FileText, Network, Trash2, Loader2, Edit2, ClipboardList } from 'lucide-react'
+import { FileText, Network, Trash2, Loader2, Edit2, ClipboardList, Layers } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import {
   DndContext,
@@ -42,6 +42,7 @@ interface ItemListProps {
   onSelectNote: (note: Note) => void
   onOpenMindMap: (mindMapId: string) => void
   onOpenQuiz?: (quizId: string) => void
+  onOpenAnki?: (ankiCardId: string) => void
   onDeleteItem: (itemId: string) => void
   onRefresh?: () => void
 }
@@ -53,6 +54,7 @@ function SortableItemRow({
   onSelectNote,
   onOpenMindMap,
   onOpenQuiz,
+  onOpenAnki,
   onDeleteItem,
   onRefresh,
   t,
@@ -63,6 +65,7 @@ function SortableItemRow({
   onSelectNote: (note: Note) => void
   onOpenMindMap: (mindMapId: string) => void
   onOpenQuiz?: (quizId: string) => void
+  onOpenAnki?: (ankiCardId: string) => void
   onDeleteItem: (itemId: string) => void
   onRefresh?: () => void
   t: any
@@ -85,17 +88,29 @@ function SortableItemRow({
   const isNote = item.type === 'note'
   const isMindMap = item.type === 'mindmap'
   const isQuiz = item.type === 'quiz'
+  const isAnki = item.type === 'anki'
   const note = isNote ? (item.resource as Note) : null
   const mindMap = isMindMap ? item.resource : null
   const quiz = isQuiz ? item.resource : null
+  const ankiCard = isAnki ? item.resource : null
   const isCurrentNote = isNote && currentNote?.id === item.resourceId
   const isGenerating =
-    (isMindMap || isQuiz) && (mindMap?.status === 'generating' || quiz?.status === 'generating')
+    (isMindMap || isQuiz || isAnki) &&
+    (mindMap?.status === 'generating' ||
+      quiz?.status === 'generating' ||
+      ankiCard?.status === 'generating')
   const isFailed =
-    (isMindMap || isQuiz) && (mindMap?.status === 'failed' || quiz?.status === 'failed')
+    (isMindMap || isQuiz || isAnki) &&
+    (mindMap?.status === 'failed' || quiz?.status === 'failed' || ankiCard?.status === 'failed')
 
   const handleRename = () => {
-    const currentTitle = isNote ? note?.title : isMindMap ? mindMap?.title : quiz?.title
+    const currentTitle = isNote
+      ? note?.title
+      : isMindMap
+        ? mindMap?.title
+        : isQuiz
+          ? quiz?.title
+          : ankiCard?.title
     setNewTitle(currentTitle || '')
     setIsRenameDialogOpen(true)
   }
@@ -110,6 +125,8 @@ function SortableItemRow({
         await window.api.mindmap.update(mindMap.id, { title: newTitle.trim() })
       } else if (isQuiz && quiz) {
         await window.api.quiz.update(quiz.id, { title: newTitle.trim() })
+      } else if (isAnki && ankiCard) {
+        await window.api.anki.update(ankiCard.id, { title: newTitle.trim() })
       }
       setIsRenameDialogOpen(false)
       onRefresh?.()
@@ -139,6 +156,8 @@ function SortableItemRow({
           onOpenMindMap(mindMap.id)
         } else if (isQuiz && quiz && !isGenerating) {
           onOpenQuiz?.(quiz.id)
+        } else if (isAnki && ankiCard && !isGenerating) {
+          onOpenAnki?.(ankiCard.id)
         }
       }}
       className={`group grid grid-cols-[auto_1fr_auto] gap-2 items-start p-3 rounded-lg border ${isDragging ? 'cursor-grabbing opacity-75' : 'cursor-grab hover:cursor-grab'} ${
@@ -157,7 +176,8 @@ function SortableItemRow({
         {isNote && <FileText className="w-4 h-4 text-muted-foreground" />}
         {isMindMap && !isGenerating && <Network className="w-4 h-4 text-chart-1" />}
         {isQuiz && !isGenerating && <ClipboardList className="w-4 h-4 text-chart-2" />}
-        {(isMindMap || isQuiz) && isGenerating && (
+        {isAnki && !isGenerating && <Layers className="w-4 h-4 text-chart-3" />}
+        {(isMindMap || isQuiz || isAnki) && isGenerating && (
           <Loader2 className="w-4 h-4 text-chart-1 animate-spin" />
         )}
       </div>
@@ -204,6 +224,24 @@ function SortableItemRow({
             </p>
           </>
         )}
+        {isAnki && ankiCard && (
+          <>
+            <h3 className="text-sm font-medium truncate flex items-center gap-2">
+              {ankiCard.title}
+              {ankiCard.status === 'generating' && (
+                <span className="text-xs text-muted-foreground">{t('generating')}</span>
+              )}
+              {ankiCard.status === 'failed' && (
+                <span className="text-xs text-destructive">{t('failed')}</span>
+              )}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {ankiCard.status === 'generating'
+                ? t('generatingCards')
+                : t('ankiCards', { count: ankiCard.cardsData?.length || 0 })}
+            </p>
+          </>
+        )}
         <p className="text-xs text-muted-foreground">
           {new Date(item.updatedAt).toLocaleDateString(
             i18n.language === 'zh-CN' ? 'zh-CN' : 'en-US'
@@ -221,7 +259,15 @@ function SortableItemRow({
         variant="ghost"
         size="icon"
         className="opacity-0 group-hover:opacity-100 w-8 h-8 mt-0.5 text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
-        title={isNote ? t('deleteNote') : isMindMap ? t('deleteMindMap') : t('deleteQuiz')}
+        title={
+          isNote
+            ? t('deleteNote')
+            : isMindMap
+              ? t('deleteMindMap')
+              : isQuiz
+                ? t('deleteQuiz')
+                : t('deleteAnki')
+        }
       >
         <Trash2 className="w-4 h-4" />
       </Button>
@@ -260,14 +306,22 @@ function SortableItemRow({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {isNote ? t('renameNote') : isMindMap ? t('renameMindMap') : t('renameQuiz')}
+              {isNote
+                ? t('renameNote')
+                : isMindMap
+                  ? t('renameMindMap')
+                  : isQuiz
+                    ? t('renameQuiz')
+                    : t('renameAnki')}
             </DialogTitle>
             <DialogDescription>
               {isNote
                 ? t('renameNoteDesc')
                 : isMindMap
                   ? t('renameMindMapDesc')
-                  : t('renameNoteDesc')}
+                  : isQuiz
+                    ? t('renameQuizDesc')
+                    : t('renameAnkiDesc')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -285,7 +339,9 @@ function SortableItemRow({
                   ? t('noteTitlePlaceholder')
                   : isMindMap
                     ? t('mindMapTitlePlaceholder')
-                    : t('noteTitlePlaceholder')
+                    : isQuiz
+                      ? t('quizTitlePlaceholder')
+                      : t('ankiTitlePlaceholder')
               }
             />
           </div>
@@ -305,13 +361,23 @@ function SortableItemRow({
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={isNote ? t('deleteNote') : isMindMap ? t('deleteMindMap') : t('deleteQuiz')}
+        title={
+          isNote
+            ? t('deleteNote')
+            : isMindMap
+              ? t('deleteMindMap')
+              : isQuiz
+                ? t('deleteQuiz')
+                : t('deleteAnki')
+        }
         message={
           isNote
             ? t('deleteNoteWarning')
             : isMindMap
               ? t('confirmDeleteMindMap')
-              : t('confirmDeleteQuiz')
+              : isQuiz
+                ? t('confirmDeleteQuiz')
+                : t('confirmDeleteAnki')
         }
       />
     </>
@@ -324,6 +390,7 @@ export default function ItemList({
   onSelectNote,
   onOpenMindMap,
   onOpenQuiz,
+  onOpenAnki,
   onDeleteItem,
   onRefresh
 }: ItemListProps): ReactElement {
@@ -398,6 +465,7 @@ export default function ItemList({
               onSelectNote={onSelectNote}
               onOpenMindMap={onOpenMindMap}
               onOpenQuiz={onOpenQuiz}
+              onOpenAnki={onOpenAnki}
               onDeleteItem={onDeleteItem}
               onRefresh={onRefresh}
               t={t}

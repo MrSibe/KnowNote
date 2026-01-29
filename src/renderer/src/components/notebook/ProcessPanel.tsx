@@ -241,7 +241,7 @@ export default function ProcessPanel({
               <Button
                 onClick={handleStartEditTitle}
                 variant="ghost"
-                className="text-sm font-medium h-auto p-0"
+                className="text-sm font-medium h-auto p-0 truncate w-full"
                 style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
                 title={t('clickToEditTitle')}
               >
@@ -308,7 +308,7 @@ export default function ProcessPanel({
               !currentSession || isCurrentNotebookStreaming || !hasProvider || !defaultChatModel
             }
             rows={1}
-            className="w-full bg-transparent border-0 pl-4 pr-14 py-3 text-sm text-foreground placeholder-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto min-h-[84px] max-h-[280px]"
+            className="w-full bg-transparent border-0 pl-4 pr-14 py-3 text-sm text-foreground placeholder-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto min-h-[84px] max-h-[280px] themed-scrollbar"
           />
 
           {/* 发送/停止按钮 - 动态切换 */}

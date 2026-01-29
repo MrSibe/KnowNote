@@ -124,7 +124,7 @@ export default function ShortcutSettings(): ReactElement {
   )
 
   return (
-    <div className="max-w-2xl flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       {/* 重置按钮 */}
       <div className="flex justify-end">
         <Button
