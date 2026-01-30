@@ -52,6 +52,7 @@
   "newNoteContent": "",
   "backToList": "Back to List",
   "save": "Save",
+  "noteSaved": "Saved",
   "noNotesYet": "No notes yet",
   "noNotesYetDesc": "Click the \"+\" button in the top right to create a note",
   "deleteNote": "Delete Note",

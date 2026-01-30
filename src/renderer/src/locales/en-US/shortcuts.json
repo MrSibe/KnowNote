@@ -13,11 +13,13 @@
   "category": {
     "notebook": "Notebook Management",
     "panel": "Panel Toggle",
-    "chat": "Chat & Messages"
+    "chat": "Chat & Messages",
+    "editor": "Editor"
   },
 
   "createNotebook": "Create New Notebook",
   "closeNotebook": "Close Notebook",
   "toggleKnowledgeBase": "Toggle Knowledge Base",
-  "toggleCreativeSpace": "Toggle Creative Space"
+  "toggleCreativeSpace": "Toggle Creative Space",
+  "saveNote": "Save Note"
 }

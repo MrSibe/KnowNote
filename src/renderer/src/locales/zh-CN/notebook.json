@@ -12,6 +12,7 @@
   "noteTitle": "笔记标题",
   "backToList": "返回列表",
   "save": "保存",
+  "noteSaved": "已保存",
   "delete": "删除",
   "confirmDeleteNote": "确定要删除这个笔记吗？",
   "noNotesYet": "暂无笔记",

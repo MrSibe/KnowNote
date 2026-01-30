@@ -13,11 +13,13 @@
   "category": {
     "notebook": "笔记本管理",
     "panel": "面板切换",
-    "chat": "聊天与消息"
+    "chat": "聊天与消息",
+    "editor": "编辑器"
   },
 
   "createNotebook": "新建笔记本",
   "closeNotebook": "关闭笔记本",
   "toggleKnowledgeBase": "折叠/打开知识库",
-  "toggleCreativeSpace": "折叠/打开创造空间"
+  "toggleCreativeSpace": "折叠/打开创造空间",
+  "saveNote": "保存笔记"
 }

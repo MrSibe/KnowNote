@@ -1,7 +1,6 @@
-import { useEffect, useCallback, ReactNode, ReactElement, useRef } from 'react'
 import * as React from 'react'
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '../ui/resizable'
-import { usePanelRef } from 'react-resizable-panels'
+import { useEffect, useRef, useState, ReactNode, ReactElement } from 'react'
+import DragHandle from './DragHandle'
 
 export interface ResizableLayoutProps {
   leftPanel: ReactNode
@@ -13,137 +12,162 @@ export interface ResizableLayoutProps {
 
 // 黄金比例常量
 const GOLDEN_RATIO = 1.618
-
-// 计算黄金比例的默认大小（百分比）
-// - 左面板占比 = 1 / (2 + φ) ≈ 0.276 (27.6%)
-// - 中面板占比 = φ / (2 + φ) ≈ 0.447 (44.7%)
-// - 右面板占比 = 1 / (2 + φ) ≈ 0.276 (27.6%)
-const totalRatio = 2 + GOLDEN_RATIO
-const sideRatio = 1 / totalRatio
-const centerRatio = GOLDEN_RATIO / totalRatio
-
-const defaultLeftSize = sideRatio * 100 // ≈ 27.6
-const defaultCenterSize = centerRatio * 100 // ≈ 44.7
-const defaultRightSize = sideRatio * 100 // ≈ 27.6
-
-// 左右面板最小宽度（像素）
 const MIN_SIDE_WIDTH = 260
+const MIN_CENTER_WIDTH = 420
+const DRAG_HANDLE_WIDTH = 12 // w-3
+const CONTAINER_PADDING_X = 16 // p-2 左右总和
+
+const calculateGoldenRatioWidths = (containerWidth: number) => {
+  const availableWidth = containerWidth - CONTAINER_PADDING_X - DRAG_HANDLE_WIDTH * 2
+  const totalRatio = 2 + GOLDEN_RATIO
+  const sideRatio = 1 / totalRatio
+  const leftWidth = Math.floor(availableWidth * sideRatio)
+  const rightWidth = Math.floor(availableWidth * sideRatio)
+  return { leftWidth, rightWidth }
+}
 
 export default function ResizableLayout({
   leftPanel,
   centerPanel,
-  rightPanel
+  rightPanel,
+  defaultLeftWidth,
+  defaultRightWidth
 }: ResizableLayoutProps): ReactElement {
-  const leftPanelRef = usePanelRef()
-  const rightPanelRef = usePanelRef()
-  const lastLeftSizeRef = useRef(defaultLeftSize)
-  const lastRightSizeRef = useRef(defaultRightSize)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [leftWidth, setLeftWidth] = useState(defaultLeftWidth || 320)
+  const [rightWidth, setRightWidth] = useState(defaultRightWidth || 360)
+  const [isDraggingLeft, setIsDraggingLeft] = useState(false)
+  const [isDraggingRight, setIsDraggingRight] = useState(false)
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false)
+  const [isRightCollapsed, setIsRightCollapsed] = useState(false)
+  const [savedLeftWidth, setSavedLeftWidth] = useState<number | null>(null)
+  const [savedRightWidth, setSavedRightWidth] = useState<number | null>(null)
 
-  const [isLeftCollapsed, setIsLeftCollapsed] = React.useState(false)
-  const [isRightCollapsed, setIsRightCollapsed] = React.useState(false)
-  // 折叠/展开左侧面板
-  const toggleLeftPanel = useCallback(() => {
-    const panel = leftPanelRef.current
-    if (panel) {
-      if (isLeftCollapsed) {
-        setIsLeftCollapsed(false)
-        const nextSize = Math.max(lastLeftSizeRef.current || defaultLeftSize, 1)
-        requestAnimationFrame(() => {
-          panel.resize(nextSize)
-        })
-      } else {
-        const currentSize = panel.getSize()?.asPercentage ?? defaultLeftSize
-        lastLeftSizeRef.current = Math.max(currentSize, 1)
-        setIsLeftCollapsed(true)
-        requestAnimationFrame(() => {
-          panel.resize(0)
-        })
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLeftCollapsed])
-
-  // 折叠/展开右侧面板
-  const toggleRightPanel = useCallback(() => {
-    const panel = rightPanelRef.current
-    if (panel) {
-      if (isRightCollapsed) {
-        setIsRightCollapsed(false)
-        const nextSize = Math.max(lastRightSizeRef.current || defaultRightSize, 1)
-        requestAnimationFrame(() => {
-          panel.resize(nextSize)
-        })
-      } else {
-        const currentSize = panel.getSize()?.asPercentage ?? defaultRightSize
-        lastRightSizeRef.current = Math.max(currentSize, 1)
-        setIsRightCollapsed(true)
-        requestAnimationFrame(() => {
-          panel.resize(0)
-        })
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRightCollapsed])
-
-  // 监听面板切换快捷键
   useEffect(() => {
-    const handleToggleKnowledgeBase = () => {
-      toggleLeftPanel()
+    const updateWidths = () => {
+      if (!containerRef.current || isInitialized) return
+      const containerWidth = containerRef.current.getBoundingClientRect().width
+      const { leftWidth: goldenLeftWidth, rightWidth: goldenRightWidth } =
+        calculateGoldenRatioWidths(containerWidth)
+      setLeftWidth(defaultLeftWidth || goldenLeftWidth)
+      setRightWidth(defaultRightWidth || goldenRightWidth)
+      setIsInitialized(true)
     }
 
-    const handleToggleCreativeSpace = () => {
-      toggleRightPanel()
+    updateWidths()
+    const handleResize = () => {
+      if (!isInitialized) {
+        updateWidths()
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [defaultLeftWidth, defaultRightWidth, isInitialized])
+
+  const handleMouseDown = (side: 'left' | 'right') => {
+    if (side === 'left') {
+      setIsDraggingLeft(true)
+    } else {
+      setIsDraggingRight(true)
+    }
+  }
+
+  const handleMouseMove = (event: React.MouseEvent) => {
+    if (!containerRef.current) return
+
+    const containerRect = containerRef.current.getBoundingClientRect()
+    const containerWidth = containerRect.width - CONTAINER_PADDING_X
+    const leftVisible = !isLeftCollapsed
+    const rightVisible = !isRightCollapsed
+    const handlesWidth = (leftVisible ? 1 : 0) * DRAG_HANDLE_WIDTH + (rightVisible ? 1 : 0) * DRAG_HANDLE_WIDTH
+    const effectiveLeftWidth = leftVisible ? leftWidth : 0
+    const effectiveRightWidth = rightVisible ? rightWidth : 0
+
+    if (isDraggingLeft && leftVisible) {
+      const mouseX = event.clientX - containerRect.left - CONTAINER_PADDING_X / 2
+      const maxLeftWidth = containerWidth - effectiveRightWidth - MIN_CENTER_WIDTH - handlesWidth
+      const newWidth = Math.max(MIN_SIDE_WIDTH, Math.min(maxLeftWidth, mouseX))
+      setLeftWidth(newWidth)
     }
 
-    window.addEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
-    window.addEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
-
-    return () => {
-      window.removeEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
-      window.removeEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
+    if (isDraggingRight && rightVisible) {
+      const mouseX = containerRect.right - event.clientX - CONTAINER_PADDING_X / 2
+      const maxRightWidth = containerWidth - effectiveLeftWidth - MIN_CENTER_WIDTH - handlesWidth
+      const newWidth = Math.max(MIN_SIDE_WIDTH, Math.min(maxRightWidth, mouseX))
+      setRightWidth(newWidth)
     }
-  }, [toggleLeftPanel, toggleRightPanel])
+  }
+
+  const handleMouseUp = () => {
+    setIsDraggingLeft(false)
+    setIsDraggingRight(false)
+  }
+
+  const toggleLeftPanel = () => {
+    if (isLeftCollapsed) {
+      setLeftWidth(savedLeftWidth || defaultLeftWidth || leftWidth)
+      setSavedLeftWidth(null)
+    } else {
+      setSavedLeftWidth(leftWidth)
+    }
+    setIsLeftCollapsed(!isLeftCollapsed)
+  }
+
+  const toggleRightPanel = () => {
+    if (isRightCollapsed) {
+      setRightWidth(savedRightWidth || defaultRightWidth || rightWidth)
+      setSavedRightWidth(null)
+    } else {
+      setSavedRightWidth(rightWidth)
+    }
+    setIsRightCollapsed(!isRightCollapsed)
+  }
 
   return (
-    <div className="flex flex-1 overflow-hidden p-2">
-      <ResizablePanelGroup orientation="horizontal" className="h-full gap-1">
-        {/* 左侧面板 */}
-        <ResizablePanel
-          panelRef={leftPanelRef}
-          defaultSize={defaultLeftSize}
-          minSize={isLeftCollapsed ? 0 : MIN_SIDE_WIDTH}
+    <div
+      ref={containerRef}
+      className="flex flex-1 overflow-hidden p-2"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {!isLeftCollapsed && (
+        <div
+          className="h-full overflow-hidden"
+          style={{ width: `${leftWidth}px`, minWidth: `${MIN_SIDE_WIDTH}px` }}
         >
           {leftPanel}
-        </ResizablePanel>
+        </div>
+      )}
 
-        {/* 左侧拖拽条 */}
-        <ResizableHandle />
+      {!isLeftCollapsed && <DragHandle onMouseDown={() => handleMouseDown('left')} />}
 
-        {/* 中间面板 */}
-        <ResizablePanel defaultSize={defaultCenterSize} minSize={420}>
-          {React.cloneElement(
-            centerPanel as ReactElement,
-            {
-              onToggleLeft: toggleLeftPanel,
-              onToggleRight: toggleRightPanel,
-              isLeftCollapsed,
-              isRightCollapsed
-            } as any
-          )}
-        </ResizablePanel>
+      <div
+        className="flex-1 h-full overflow-hidden"
+        style={MIN_CENTER_WIDTH > 0 ? { minWidth: `${MIN_CENTER_WIDTH}px` } : undefined}
+      >
+        {React.cloneElement(
+          centerPanel as ReactElement,
+          {
+            onToggleLeft: toggleLeftPanel,
+            onToggleRight: toggleRightPanel,
+            isLeftCollapsed,
+            isRightCollapsed
+          } as any
+        )}
+      </div>
 
-        {/* 右侧拖拽条 */}
-        <ResizableHandle />
+      {!isRightCollapsed && <DragHandle onMouseDown={() => handleMouseDown('right')} />}
 
-        {/* 右侧面板 */}
-        <ResizablePanel
-          panelRef={rightPanelRef}
-          defaultSize={defaultRightSize}
-          minSize={isRightCollapsed ? 0 : MIN_SIDE_WIDTH}
+      {!isRightCollapsed && (
+        <div
+          className="h-full overflow-hidden"
+          style={{ width: `${rightWidth}px`, minWidth: `${MIN_SIDE_WIDTH}px` }}
         >
           {rightPanel}
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+      )}
     </div>
   )
 }

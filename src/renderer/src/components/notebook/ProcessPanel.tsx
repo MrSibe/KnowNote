@@ -122,6 +122,27 @@ export default function ProcessPanel({
     }
   }, [])
 
+  // 监听面板切换快捷键（与顶部按钮共用逻辑）
+  useEffect(() => {
+    if (!onToggleLeft && !onToggleRight) return
+
+    const handleToggleKnowledgeBase = () => {
+      onToggleLeft?.()
+    }
+
+    const handleToggleCreativeSpace = () => {
+      onToggleRight?.()
+    }
+
+    window.addEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
+    window.addEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
+
+    return () => {
+      window.removeEventListener('shortcut:toggle-knowledge-base', handleToggleKnowledgeBase)
+      window.removeEventListener('shortcut:toggle-creative-space', handleToggleCreativeSpace)
+    }
+  }, [onToggleLeft, onToggleRight])
+
   // Auto-resize textarea based on content
   const adjustTextareaHeight = (): void => {
     const textarea = textareaRef.current
@@ -241,7 +262,7 @@ export default function ProcessPanel({
               <Button
                 onClick={handleStartEditTitle}
                 variant="ghost"
-                className="text-sm font-medium h-auto p-0 truncate w-full"
+                className="text-sm font-medium h-auto p-0 truncate w-full select-none"
                 style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
                 title={t('clickToEditTitle')}
               >
@@ -249,7 +270,9 @@ export default function ProcessPanel({
               </Button>
             )
           ) : (
-            <span className="text-sm text-muted-foreground">{t('selectOrCreateNotebook')}</span>
+            <span className="text-sm text-muted-foreground select-none">
+              {t('selectOrCreateNotebook')}
+            </span>
           )
         }
         right={
@@ -288,7 +311,7 @@ export default function ProcessPanel({
 
       {/* 底部输入区域 - 绝对定位浮动在底部 */}
       <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none shrink-0 z-20">
-        <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:ring-2 focus-within:ring-ring shadow-lg pointer-events-auto">
+        <div className="relative bg-muted/95 backdrop-blur-md rounded-lg border border-border focus-within:ring-2 focus-within:ring-ring shadow-lg pointer-events-auto select-none">
           {/* 多行输入框 */}
           <Textarea
             ref={textareaRef}
@@ -308,7 +331,7 @@ export default function ProcessPanel({
               !currentSession || isCurrentNotebookStreaming || !hasProvider || !defaultChatModel
             }
             rows={1}
-            className="w-full bg-transparent border-0 pl-4 pr-14 py-3 text-sm text-foreground placeholder-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto min-h-[84px] max-h-[280px] themed-scrollbar"
+            className="w-full bg-transparent border-0 pl-4 pr-14 py-3 text-sm text-foreground placeholder-muted-foreground resize-none focus-visible:ring-0 focus-visible:ring-offset-0 overflow-y-auto min-h-[84px] max-h-[280px] themed-scrollbar select-text"
           />
 
           {/* 发送/停止按钮 - 动态切换 */}

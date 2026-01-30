@@ -5,14 +5,20 @@ import StarterKit from '@tiptap/starter-kit'
 import { Markdown } from 'tiptap-markdown'
 import { Placeholder } from '@tiptap/extensions'
 import { ScrollArea } from '../../ui/scroll-area'
+import { Toaster } from '../../ui/sonner'
 import './noteEditor.css'
 
 interface NoteEditorProps {
   content: string
   onChange: (content: string) => void
+  onSave?: () => void
 }
 
-export default function NoteEditor({ content, onChange }: NoteEditorProps): ReactElement {
+export default function NoteEditor({
+  content,
+  onChange,
+  onSave
+}: NoteEditorProps): ReactElement {
   const { t } = useTranslation('notebook')
 
   const editor = useEditor({
@@ -51,6 +57,20 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
     }
   }, [content, editor])
 
+  // 快捷键系统触发保存（仅编辑器聚焦时）
+  useEffect(() => {
+    if (!editor || !onSave) return
+
+    const handleSaveShortcut = () => {
+      if (editor.isFocused) {
+        onSave()
+      }
+    }
+
+    window.addEventListener('shortcut:save-note', handleSaveShortcut)
+    return () => window.removeEventListener('shortcut:save-note', handleSaveShortcut)
+  }, [editor, onSave])
+
   if (!editor) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground">加载中...</div>
@@ -59,6 +79,7 @@ export default function NoteEditor({ content, onChange }: NoteEditorProps): Reac
 
   return (
     <div className="h-full flex flex-col">
+      <Toaster />
       {/* 编辑器内容 */}
       <ScrollArea className="flex-1">
         <div className="p-4">

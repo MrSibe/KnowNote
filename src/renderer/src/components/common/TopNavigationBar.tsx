@@ -121,14 +121,20 @@ export default function TopNavigationBar({
                 className="h-7 gap-1 pr-2 pl-3 data-[state=active]:bg-muted/50 data-[state=active]:shadow-sm rounded-md border data-[state=active]:border-border/50 border-transparent hover:bg-accent/50 transition-all max-w-[200px]"
               >
                 <span className="truncate">{notebook.title}</span>
-                <button
+                <span
                   onClick={(e) => handleCloseOpenedNotebook(notebook.id, e)}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      handleCloseOpenedNotebook(notebook.id, e as unknown as React.MouseEvent)
+                    }
+                  }}
                   className="ml-1 inline-flex items-center justify-center h-4 w-4 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition-colors"
                   title={t('closeTab')}
                 >
                   <X className="w-3 h-3" />
-                </button>
+                </span>
               </TabsTrigger>
             ))}
 

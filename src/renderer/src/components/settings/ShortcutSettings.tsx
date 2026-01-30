@@ -220,6 +220,9 @@ function getCategoryByAction(action: ShortcutAction): string {
   if (actionStr.includes('message')) {
     return 'chat'
   }
+  if (actionStr.includes('note')) {
+    return 'editor'
+  }
   return 'other'
 }
 

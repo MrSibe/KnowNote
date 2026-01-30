@@ -54,7 +54,10 @@ export default function AnkiExportDialog() {
   }
 
   return (
-    <Dialog open={isExportDialogOpen} onOpenChange={setExportDialogOpen}>
+    <Dialog
+      open={isExportDialogOpen}
+      onOpenChange={(open) => !isExporting && setExportDialogOpen(open)}
+    >
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -78,7 +81,7 @@ export default function AnkiExportDialog() {
 
           {/* 卡片数量 */}
           <div className="text-sm text-muted-foreground">
-            {t('totalCards')}: {currentAnkiCards?.cardsData.length || 0}
+            {t('totalCards')}: {currentAnkiCards?.cardsData?.length || 0}
           </div>
         </div>
 

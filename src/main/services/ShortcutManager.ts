@@ -38,7 +38,20 @@ export class ShortcutManager {
       return
     }
 
-    this.shortcuts = shortcuts.filter((s) => s.enabled)
+    // 合并新增的默认快捷键（向后兼容旧版本配置）
+    const mergedShortcuts = [...shortcuts]
+    let hasNewShortcut = false
+    for (const defaultShortcut of defaultShortcuts) {
+      if (!mergedShortcuts.some((s) => s.action === defaultShortcut.action)) {
+        mergedShortcuts.push({ ...defaultShortcut })
+        hasNewShortcut = true
+      }
+    }
+    if (hasNewShortcut) {
+      this.store.set('shortcuts', mergedShortcuts)
+    }
+
+    this.shortcuts = mergedShortcuts.filter((s) => s.enabled)
 
     if (!this.mainWindow) {
       console.error('[ShortcutManager] Main window not set!')

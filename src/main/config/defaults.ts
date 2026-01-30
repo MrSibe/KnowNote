@@ -291,5 +291,12 @@ export const defaultShortcuts: ShortcutConfig[] = [
     accelerator: 'CommandOrControl+]',
     enabled: true,
     description: 'shortcuts:toggleCreativeSpace'
+  },
+  // 编辑器
+  {
+    action: ShortcutAction.SAVE_NOTE,
+    accelerator: 'CommandOrControl+S',
+    enabled: true,
+    description: 'shortcuts:saveNote'
   }
 ]

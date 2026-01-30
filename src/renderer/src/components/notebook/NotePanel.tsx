@@ -1,6 +1,7 @@
 import { ReactElement, useEffect, useState } from 'react'
 import { Save, Trash2, ArrowLeft, Network, FileText, ClipboardCheck, Layers } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { useParams } from 'react-router-dom'
 import { useItemStore } from '../../store/itemStore'
 import { setupMindMapListeners } from '../../store/mindmapStore'
@@ -110,7 +111,7 @@ function NoteEditorPanel({
 
       {/* 编辑器内容 */}
       <div className="flex-1 overflow-hidden">
-        <NoteEditor content={editContent} onChange={setEditContent} />
+        <NoteEditor content={editContent} onChange={setEditContent} onSave={handleSave} />
       </div>
     </>
   )
@@ -175,6 +176,7 @@ export default function NotePanel(): ReactElement {
   const handleSave = async (title: string, content: string) => {
     if (!currentNote) return
     await updateNote(currentNote.id, { title, content })
+    toast.success(t('noteSaved'))
   }
 
   // 删除笔记
@@ -322,7 +324,11 @@ export default function NotePanel(): ReactElement {
           {/* 顶部工具栏 */}
           <PanelHeader
             draggable
-            left={<span className="text-sm text-foreground truncate w-full">{t('creativeSpace')}</span>}
+            left={
+              <span className="text-sm text-foreground truncate w-full select-none">
+                {t('creativeSpace')}
+              </span>
+            }
             right={
               <>
                 <Button

@@ -446,7 +446,11 @@ export default function SourcePanel(): ReactElement {
         <>
           <PanelHeader
             draggable
-            left={<span className="text-sm text-foreground truncate w-full">{t('knowledgeBase')}</span>}
+            left={
+              <span className="text-sm text-foreground truncate w-full select-none">
+                {t('knowledgeBase')}
+              </span>
+            }
             right={
               <div
                 className="relative"

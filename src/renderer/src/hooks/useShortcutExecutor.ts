@@ -28,6 +28,11 @@ export function useShortcutExecutor() {
           window.dispatchEvent(new CustomEvent('shortcut:toggle-creative-space'))
           break
 
+        // 编辑器
+        case ShortcutAction.SAVE_NOTE:
+          window.dispatchEvent(new CustomEvent('shortcut:save-note'))
+          break
+
         default:
           console.warn('[ShortcutExecutor] Unknown shortcut action:', action)
       }
