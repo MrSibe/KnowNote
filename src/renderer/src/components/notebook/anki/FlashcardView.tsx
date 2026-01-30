@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { AnkiCardItem } from '../../../../shared/types/anki'
+import type { AnkiCardItem } from '../../../../../shared/types'
 import { Button } from '../../ui/button'
 import { Card, CardContent } from '../../ui/card'
 import { Badge } from '../../ui/badge'
@@ -31,6 +31,30 @@ export default function FlashcardView({ cards, onClose }: FlashcardViewProps) {
 
   const currentCard = cards[currentIndex]
   const progress = ((currentIndex + 1) / cards.length) * 100
+
+  // 获取卡片的正面内容
+  const getFrontContent = (card: AnkiCardItem): string => {
+    switch (card.type) {
+      case 'basic':
+        return card.front
+      case 'cloze':
+        return card.text.replace(/\{\{c\d+::(.*?)\}\}/g, '[...]')
+      case 'fill-blank':
+        return card.sentence
+    }
+  }
+
+  // 获取卡片的背面内容
+  const getBackContent = (card: AnkiCardItem): string => {
+    switch (card.type) {
+      case 'basic':
+        return card.back
+      case 'cloze':
+        return card.text
+      case 'fill-blank':
+        return `${card.sentence}\n\n${t('answer')}: ${card.answer}`
+    }
+  }
 
   const handleNext = () => {
     setIsFlipped(false)
@@ -85,14 +109,14 @@ export default function FlashcardView({ cards, onClose }: FlashcardViewProps) {
                     <Badge variant="secondary" className="mb-4">
                       {t('question')}
                     </Badge>
-                    <p className="text-2xl">{currentCard.front}</p>
+                    <p className="text-2xl whitespace-pre-wrap">{getFrontContent(currentCard)}</p>
                   </>
                 ) : (
                   <>
                     <Badge variant="secondary" className="mb-4">
                       {t('answer')}
                     </Badge>
-                    <p className="text-2xl">{currentCard.back}</p>
+                    <p className="text-2xl whitespace-pre-wrap">{getBackContent(currentCard)}</p>
                   </>
                 )}
               </div>
@@ -114,15 +138,27 @@ export default function FlashcardView({ cards, onClose }: FlashcardViewProps) {
 
       {/* 底部控制栏 */}
       <div className="flex items-center justify-center gap-4 p-4 border-t">
-        <Button variant="outline" size="icon" onClick={handlePrevious} disabled={cards.length <= 1}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handlePrevious}
+          disabled={cards.length <= 1}
+          aria-label="Previous card"
+        >
           <ChevronLeft className="w-5 h-5" />
         </Button>
 
         <Button variant="default" onClick={handleFlip}>
-          {t('showAnswer')}
+          {isFlipped ? t('showQuestion') : t('showAnswer')}
         </Button>
 
-        <Button variant="outline" size="icon" onClick={handleNext} disabled={cards.length <= 1}>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleNext}
+          disabled={cards.length <= 1}
+          aria-label="Next card"
+        >
           <ChevronRight className="w-5 h-5" />
         </Button>
       </div>

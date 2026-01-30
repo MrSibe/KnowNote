@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useEffect, useRef, useState, ReactNode, ReactElement } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo, ReactNode, ReactElement } from 'react'
 import DragHandle from './DragHandle'
 
 export interface ResizableLayoutProps {
@@ -41,28 +41,30 @@ export default function ResizableLayout({
   const [isDraggingRight, setIsDraggingRight] = useState(false)
   const [isLeftCollapsed, setIsLeftCollapsed] = useState(false)
   const [isRightCollapsed, setIsRightCollapsed] = useState(false)
-  const [savedLeftWidth, setSavedLeftWidth] = useState<number | null>(null)
-  const [savedRightWidth, setSavedRightWidth] = useState<number | null>(null)
+  const lastLeftSizeRef = useRef<number | null>(null)
+  const lastRightSizeRef = useRef<number | null>(null)
+  const [containerWidth, setContainerWidth] = useState<number>(0)
 
   useEffect(() => {
     const updateWidths = () => {
       if (!containerRef.current || isInitialized) return
-      const containerWidth = containerRef.current.getBoundingClientRect().width
+      const containerW = containerRef.current.getBoundingClientRect().width
+      setContainerWidth(containerW)
       const { leftWidth: goldenLeftWidth, rightWidth: goldenRightWidth } =
-        calculateGoldenRatioWidths(containerWidth)
+        calculateGoldenRatioWidths(containerW)
       setLeftWidth(defaultLeftWidth || goldenLeftWidth)
       setRightWidth(defaultRightWidth || goldenRightWidth)
       setIsInitialized(true)
     }
 
-    updateWidths()
-    const handleResize = () => {
-      if (!isInitialized) {
-        updateWidths()
-      }
-    }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    if (!containerRef.current) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateWidths()
+    })
+    resizeObserver.observe(containerRef.current)
+
+    return () => resizeObserver.disconnect()
   }, [defaultLeftWidth, defaultRightWidth, isInitialized])
 
   const handleMouseDown = (side: 'left' | 'right') => {
@@ -80,7 +82,8 @@ export default function ResizableLayout({
     const containerWidth = containerRect.width - CONTAINER_PADDING_X
     const leftVisible = !isLeftCollapsed
     const rightVisible = !isRightCollapsed
-    const handlesWidth = (leftVisible ? 1 : 0) * DRAG_HANDLE_WIDTH + (rightVisible ? 1 : 0) * DRAG_HANDLE_WIDTH
+    const handlesWidth =
+      (leftVisible ? 1 : 0) * DRAG_HANDLE_WIDTH + (rightVisible ? 1 : 0) * DRAG_HANDLE_WIDTH
     const effectiveLeftWidth = leftVisible ? leftWidth : 0
     const effectiveRightWidth = rightVisible ? rightWidth : 0
 
@@ -104,25 +107,56 @@ export default function ResizableLayout({
     setIsDraggingRight(false)
   }
 
-  const toggleLeftPanel = () => {
-    if (isLeftCollapsed) {
-      setLeftWidth(savedLeftWidth || defaultLeftWidth || leftWidth)
-      setSavedLeftWidth(null)
-    } else {
-      setSavedLeftWidth(leftWidth)
-    }
-    setIsLeftCollapsed(!isLeftCollapsed)
-  }
+  const toggleLeftPanel = useCallback(() => {
+    setIsLeftCollapsed((prev) => {
+      if (!prev) {
+        // 即将折叠，保存当前宽度
+        lastLeftSizeRef.current = leftWidth
+      }
+      return !prev
+    })
+  }, [leftWidth])
 
-  const toggleRightPanel = () => {
-    if (isRightCollapsed) {
-      setRightWidth(savedRightWidth || defaultRightWidth || rightWidth)
-      setSavedRightWidth(null)
-    } else {
-      setSavedRightWidth(rightWidth)
-    }
-    setIsRightCollapsed(!isRightCollapsed)
-  }
+  const toggleRightPanel = useCallback(() => {
+    setIsRightCollapsed((prev) => {
+      if (!prev) {
+        // 即将折叠，保存当前宽度
+        lastRightSizeRef.current = rightWidth
+      }
+      return !prev
+    })
+  }, [rightWidth])
+
+  // 在 collapse 状态变化时执行实际 resize，保证样式已经应用
+  useEffect(() => {
+    if (!containerRef.current) return
+    const raf = requestAnimationFrame(() => {
+      if (isLeftCollapsed) {
+        setLeftWidth(0)
+      } else if (lastLeftSizeRef.current) {
+        setLeftWidth(lastLeftSizeRef.current)
+      }
+
+      if (isRightCollapsed) {
+        setRightWidth(0)
+      } else if (lastRightSizeRef.current) {
+        setRightWidth(lastRightSizeRef.current)
+      }
+    })
+
+    return () => cancelAnimationFrame(raf)
+  }, [isLeftCollapsed, isRightCollapsed])
+
+  // Memoize the center panel props to avoid ref access warnings
+  const centerPanelProps = useMemo(
+    () => ({
+      onToggleLeft: toggleLeftPanel,
+      onToggleRight: toggleRightPanel,
+      isLeftCollapsed,
+      isRightCollapsed
+    }),
+    [toggleLeftPanel, toggleRightPanel, isLeftCollapsed, isRightCollapsed]
+  )
 
   return (
     <div
@@ -135,7 +169,12 @@ export default function ResizableLayout({
       {!isLeftCollapsed && (
         <div
           className="h-full overflow-hidden"
-          style={{ width: `${leftWidth}px`, minWidth: `${MIN_SIDE_WIDTH}px` }}
+          style={{
+            width: `${leftWidth}px`,
+            minWidth: containerWidth
+              ? `${(MIN_SIDE_WIDTH / containerWidth) * 100}%`
+              : `${MIN_SIDE_WIDTH}px`
+          }}
         >
           {leftPanel}
         </div>
@@ -145,17 +184,18 @@ export default function ResizableLayout({
 
       <div
         className="flex-1 h-full overflow-hidden"
-        style={MIN_CENTER_WIDTH > 0 ? { minWidth: `${MIN_CENTER_WIDTH}px` } : undefined}
+        style={
+          MIN_CENTER_WIDTH > 0
+            ? {
+                minWidth: containerWidth
+                  ? `${(MIN_CENTER_WIDTH / containerWidth) * 100}%`
+                  : `${MIN_CENTER_WIDTH}px`
+              }
+            : undefined
+        }
       >
-        {React.cloneElement(
-          centerPanel as ReactElement,
-          {
-            onToggleLeft: toggleLeftPanel,
-            onToggleRight: toggleRightPanel,
-            isLeftCollapsed,
-            isRightCollapsed
-          } as any
-        )}
+        {/* eslint-disable-next-line react-hooks/refs */}
+        {React.cloneElement(centerPanel as ReactElement, centerPanelProps as any)}
       </div>
 
       {!isRightCollapsed && <DragHandle onMouseDown={() => handleMouseDown('right')} />}
@@ -163,7 +203,12 @@ export default function ResizableLayout({
       {!isRightCollapsed && (
         <div
           className="h-full overflow-hidden"
-          style={{ width: `${rightWidth}px`, minWidth: `${MIN_SIDE_WIDTH}px` }}
+          style={{
+            width: `${rightWidth}px`,
+            minWidth: containerWidth
+              ? `${(MIN_SIDE_WIDTH / containerWidth) * 100}%`
+              : `${MIN_SIDE_WIDTH}px`
+          }}
         >
           {rightPanel}
         </div>

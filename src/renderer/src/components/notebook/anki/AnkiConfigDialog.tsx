@@ -37,14 +37,9 @@ export default function AnkiConfigDialog({
       cardCount,
       difficulty,
       customPrompt: customPrompt || undefined
+    }).catch((error) => {
+      console.error('Failed to generate anki cards:', error)
     })
-      .then(() => {
-        // 生成成功后触发回调刷新列表
-        onGenerateStart?.()
-      })
-      .catch((error) => {
-        console.error('Failed to generate anki cards:', error)
-      })
 
     // 等待一小段时间后触发回调，以显示"正在生成"的 item
     setTimeout(() => {

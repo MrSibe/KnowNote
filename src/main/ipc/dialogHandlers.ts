@@ -13,7 +13,7 @@ export function registerDialogHandlers() {
         title?: string
         defaultPath?: string
         filters?: { name: string; extensions: string[] }[]
-      }
+      } = {}
     ) => {
       const win = BrowserWindow.getFocusedWindow()
 
@@ -21,13 +21,18 @@ export function registerDialogHandlers() {
         return null
       }
 
-      const result = await dialog.showSaveDialog(win, {
-        title: options.title || 'Save File',
-        defaultPath: options.defaultPath,
-        filters: options.filters || []
-      })
+      try {
+        const result = await dialog.showSaveDialog(win, {
+          title: options.title || 'Save File',
+          defaultPath: options.defaultPath,
+          filters: options.filters || []
+        })
 
-      return result.canceled ? null : result.filePath
+        return result.canceled ? null : result.filePath
+      } catch (error) {
+        console.error('dialog:saveFile error:', error)
+        return null
+      }
     }
   )
 

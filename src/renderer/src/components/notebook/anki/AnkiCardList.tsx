@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import type { AnkiCardItem } from '../../../../shared/types/anki'
+import DOMPurify from 'dompurify'
+import type { AnkiCardItem } from '../../../../../shared/types'
 import { Card, CardContent, CardHeader } from '../../ui/card'
 import { Badge } from '../../ui/badge'
 import { ScrollArea } from '../../ui/scroll-area'
@@ -30,7 +31,7 @@ export default function AnkiCardList({ cards }: AnkiCardListProps) {
     return colorMap[type] || 'bg-gray-500'
   }
 
-  const renderCardContent = (card: AnkiCardItem) => {
+  const renderCardContent = (card: AnkiCardItem): React.ReactNode => {
     switch (card.type) {
       case 'basic':
         return (
@@ -54,9 +55,11 @@ export default function AnkiCardList({ cards }: AnkiCardListProps) {
               <div
                 className="text-base"
                 dangerouslySetInnerHTML={{
-                  __html: card.text.replace(
-                    /\{\{c\d+::(.*?)\}\}/g,
-                    '<span class="font-bold text-primary">$1</span>'
+                  __html: DOMPurify.sanitize(
+                    card.text.replace(
+                      /\{\{c\d+::(.*?)\}\}/g,
+                      '<span class="font-bold text-primary">$1</span>'
+                    )
                   )
                 }}
               />
@@ -82,9 +85,11 @@ export default function AnkiCardList({ cards }: AnkiCardListProps) {
               <div
                 className="text-base"
                 dangerouslySetInnerHTML={{
-                  __html: card.sentence.replace(
-                    /_{3,}/g,
-                    '<span class="font-bold text-primary">_____</span>'
+                  __html: DOMPurify.sanitize(
+                    card.sentence.replace(
+                      /_{3,}/g,
+                      '<span class="font-bold text-primary">_____</span>'
+                    )
                   )
                 }}
               />

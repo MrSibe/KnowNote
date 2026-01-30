@@ -103,7 +103,7 @@ const AnkiCardItemSchema: z.ZodType<AnkiCardItem> = z.discriminatedUnion('type',
  */
 function createAnkiSchema(cardCount: number) {
   return z.object({
-    cards: z.array(AnkiCardItemSchema).length(cardCount).describe(`${cardCount}张卡片`),
+    cards: z.array(AnkiCardItemSchema).min(1).describe(`${cardCount}张卡片（允许可变数量）`),
     metadata: z.object({
       totalCards: z.number().describe('总卡片数'),
       cardTypes: z.array(z.string()).describe('卡片类型列表')
@@ -412,12 +412,16 @@ export class AnkiCardService {
 
       const generationTime = Date.now() - startTime
 
+      // 捕获当前 provider 名称，避免在更新时再次异步调用
+      const activeProvider = await this.providerManager.getActiveChatProvider()
+      const providerName = activeProvider?.name || 'unknown'
+
       db.update(ankiCards)
         .set({
           cardsData: validatedResult.cards as any,
           chunkMapping: chunkMapping as any,
           metadata: {
-            model: (await this.providerManager.getActiveChatProvider())?.name || 'unknown',
+            model: providerName,
             totalCards: validatedResult.metadata.totalCards,
             cardTypes: validatedResult.metadata.cardTypes,
             generationTime

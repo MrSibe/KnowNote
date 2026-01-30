@@ -1,9 +1,10 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, nativeTheme } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { settingsManager } from '../config'
 
 let ankiWindow: BrowserWindow | null = null
+let settingsUnsubscribe: (() => void) | null = null
 
 /**
  * 创建Anki卡片窗口
@@ -29,6 +30,7 @@ export function createAnkiWindow(notebookId: string, ankiCardId?: string): void 
   // 根据用户主题设置背景色
   const theme = settingsManager.getSettingSync('theme')
   const backgroundColor = theme === 'dark' ? '#1a1b1e' : '#fafafa'
+  const preferDark = nativeTheme.shouldUseDarkColors || theme === 'dark'
 
   // 创建Anki卡片窗口
   ankiWindow = new BrowserWindow({
@@ -42,7 +44,13 @@ export function createAnkiWindow(notebookId: string, ankiCardId?: string): void 
     // Position macOS traffic lights (window controls)
     ...(process.platform === 'darwin' ? { trafficLightPosition: { x: 16, y: 16 } } : {}),
     ...(process.platform !== 'darwin'
-      ? { titleBarOverlay: { color: 'rgba(0,0,0,0)', height: 35, symbolColor: 'white' } }
+      ? {
+          titleBarOverlay: {
+            color: 'rgba(0,0,0,0)',
+            height: 35,
+            symbolColor: preferDark ? 'white' : 'black'
+          }
+        }
       : {}),
     backgroundColor,
     webPreferences: {
@@ -56,16 +64,37 @@ export function createAnkiWindow(notebookId: string, ankiCardId?: string): void 
   })
 
   ankiWindow.on('closed', () => {
+    // 取消settings监听器
+    if (settingsUnsubscribe) {
+      try {
+        settingsUnsubscribe()
+      } catch {
+        // ignore
+      }
+      settingsUnsubscribe = null
+    }
+
     ankiWindow = null
   })
 
-  // 监听主题变化
-  settingsManager.onSettingsChangeSync((newSettings) => {
-    if (ankiWindow && !ankiWindow.isDestroyed()) {
-      const newBackgroundColor = newSettings.theme === 'dark' ? '#1a1b1e' : '#fafafa'
-      ankiWindow.setBackgroundColor(newBackgroundColor)
-    }
-  })
+  // 监听主题变化（使用 async 版本以便获取 unsubscribe）
+  settingsManager
+    .onSettingsChange((newSettings) => {
+      if (ankiWindow && !ankiWindow.isDestroyed()) {
+        const newBackgroundColor = newSettings.theme === 'dark' ? '#1a1b1e' : '#fafafa'
+        ankiWindow.setBackgroundColor(newBackgroundColor)
+        // 更新 titleBarOverlay 的符号颜色
+        const newSymbol = newSettings.theme === 'dark' ? 'white' : 'black'
+        try {
+          ankiWindow.setTitleBarOverlay({ symbolColor: newSymbol })
+        } catch {
+          // 某些平台或旧版本可能不支持 setTitleBarOverlay
+        }
+      }
+    })
+    .then((unsubscribe) => {
+      settingsUnsubscribe = unsubscribe
+    })
 
   // 加载Anki卡片页面
   const route = ankiCardId ? `/anki/view/${ankiCardId}` : `/anki/${notebookId}`

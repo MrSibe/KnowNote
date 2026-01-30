@@ -90,7 +90,7 @@ export const useAnkiStore = create<AnkiStore>()((set, get) => ({
   getTotalCards: () => {
     const { currentAnkiCards } = get()
     if (!currentAnkiCards) return 0
-    return currentAnkiCards.cardsData.length
+    return (currentAnkiCards.cardsData as AnkiCardItem[]).length
   },
 
   getSelectedCards: () => {
@@ -153,16 +153,19 @@ export const useAnkiStore = create<AnkiStore>()((set, get) => ({
   exportCards: async (format: 'apkg', deckName?: string) => {
     const { currentAnkiCards } = get()
     if (!currentAnkiCards) {
-      return { success: false, error: 'No cards to export' }
+      throw new Error('No cards to export')
     }
 
     try {
       const result = await window.api.anki.export(currentAnkiCards.id, format, deckName)
-      set({ isExportDialogOpen: false })
-      return result
+      if (result.success) {
+        set({ isExportDialogOpen: false })
+        return result
+      }
+      throw new Error(result.error || 'Export failed')
     } catch (error) {
       console.error('Failed to export cards:', error)
-      return { success: false, error: (error as Error).message }
+      throw error
     }
   },
 
@@ -181,10 +184,10 @@ export const useAnkiStore = create<AnkiStore>()((set, get) => ({
     })
   },
 
-  deleteCards: async (cardIds: string[]) => {
-    // 这里可以添加删除卡片的逻辑
-    // 目前暂不支持单个卡片删除,只支持删除整个卡片集
-    console.log('Delete cards:', cardIds)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  deleteCards: async (_cardIds: string[]) => {
+    // 当前不支持单个卡片删除，仅支持删除整个卡片集
+    throw new Error('deleteCards not implemented: only whole-deck deletion supported')
   },
 
   reset: () => {

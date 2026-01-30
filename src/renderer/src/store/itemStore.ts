@@ -5,7 +5,7 @@ import type { MindMap } from '../../../main/db/schema'
 /**
  * Item 类型
  */
-export type ItemType = 'note' | 'mindmap' | 'quiz' | 'ppt' | 'audio' | 'video'
+export type ItemType = 'note' | 'mindmap' | 'quiz' | 'anki' | 'ppt' | 'audio' | 'video'
 
 /**
  * Item 详情

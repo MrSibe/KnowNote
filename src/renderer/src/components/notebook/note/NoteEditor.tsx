@@ -14,11 +14,7 @@ interface NoteEditorProps {
   onSave?: () => void
 }
 
-export default function NoteEditor({
-  content,
-  onChange,
-  onSave
-}: NoteEditorProps): ReactElement {
+export default function NoteEditor({ content, onChange, onSave }: NoteEditorProps): ReactElement {
   const { t } = useTranslation('notebook')
 
   const editor = useEditor({

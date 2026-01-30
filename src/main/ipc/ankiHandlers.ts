@@ -4,8 +4,8 @@
  */
 
 import { ipcMain, dialog, BrowserWindow } from 'electron'
-import type { AnkiCardService, AnkiGenerationOptions } from '../services/AnkiCardService'
-import type { AnkiExportFormat } from '../../shared/types/anki'
+import type { AnkiCardService } from '../services/AnkiCardService'
+import type { AnkiExportFormat, AnkiGenerationOptions } from '../../shared/types/anki'
 import { createAnkiWindow } from '../windows/ankiWindow'
 import { ApkgExporter } from '../services/exporters/ApkgExporter'
 import path from 'path'
@@ -120,7 +120,7 @@ export function registerAnkiHandlers(ankiCardService: AnkiCardService) {
         if (args.format === 'apkg') {
           // 使用ApkgExporter导出
           const exporter = new ApkgExporter()
-          const buffer = await exporter.export(
+          const { buffer, summary } = await exporter.export(
             ankiCard.cardsData as any,
             args.deckName || ankiCard.title
           )
@@ -139,9 +139,9 @@ export function registerAnkiHandlers(ankiCardService: AnkiCardService) {
             return { success: false, error: '用户取消保存' }
           }
 
-          // 写入文件
-          fs.writeFileSync(result.filePath, buffer)
-          return { success: true, filePath: result.filePath }
+          // 写入文件（异步，避免阻塞主进程）
+          await fs.promises.writeFile(result.filePath, buffer)
+          return { success: true, filePath: result.filePath, summary }
         }
 
         return { success: false, error: '不支持的导出格式' }
@@ -164,11 +164,11 @@ export function registerAnkiHandlers(ankiCardService: AnkiCardService) {
 
       // 使用ApkgExporter导出
       const exporter = new ApkgExporter()
-      const buffer = await exporter.export(ankiCard.cardsData as any, ankiCard.title)
+      const { buffer, summary } = await exporter.export(ankiCard.cardsData as any, ankiCard.title)
 
-      // 写入文件
-      fs.writeFileSync(args.filePath, buffer)
-      return { success: true, filePath: args.filePath }
+      // 写入文件（异步）
+      await fs.promises.writeFile(args.filePath, buffer)
+      return { success: true, filePath: args.filePath, summary }
     } catch (error) {
       return { success: false, error: (error as Error).message }
     }

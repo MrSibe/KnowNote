@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAnkiStore } from '../../../store/ankiStore'
+import type { AnkiCardItem } from '../../../../../shared/types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../../ui/dialog'
 import { Button } from '../../ui/button'
 import { Label } from '../../ui/label'
@@ -11,6 +12,11 @@ export default function AnkiExportDialog() {
   const { currentAnkiCards, isExportDialogOpen, setExportDialogOpen } = useAnkiStore()
 
   const [isExporting, setIsExporting] = useState(false)
+
+  const handleDialogOpenChange = (newOpen: boolean) => {
+    if (!newOpen && isExporting) return
+    setExportDialogOpen(newOpen)
+  }
 
   const handleExport = async () => {
     if (!currentAnkiCards) return
@@ -54,10 +60,7 @@ export default function AnkiExportDialog() {
   }
 
   return (
-    <Dialog
-      open={isExportDialogOpen}
-      onOpenChange={(open) => !isExporting && setExportDialogOpen(open)}
-    >
+    <Dialog open={isExportDialogOpen} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -81,7 +84,7 @@ export default function AnkiExportDialog() {
 
           {/* 卡片数量 */}
           <div className="text-sm text-muted-foreground">
-            {t('totalCards')}: {currentAnkiCards?.cardsData?.length || 0}
+            {t('totalCards')}: {(currentAnkiCards?.cardsData as AnkiCardItem[])?.length || 0}
           </div>
         </div>
 

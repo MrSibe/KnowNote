@@ -15,6 +15,9 @@ export * from './result'
 // 导出答题类型
 export * from './quiz'
 
+// 导出 Anki 类型
+export * from './anki'
+
 /**
  * 笔记本接口
  * 与 Drizzle schema 推导的类型兼容
@@ -104,6 +107,10 @@ export interface AppSettings {
     quiz?: {
       'zh-CN'?: string // 中文答题生成提示词
       'en-US'?: string // 英文答题生成提示词
+    }
+    anki?: {
+      'zh-CN'?: string // 中文Anki卡片生成提示词
+      'en-US'?: string // 英文Anki卡片生成提示词
     }
   }
 }

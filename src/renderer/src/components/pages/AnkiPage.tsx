@@ -37,7 +37,10 @@ export default function AnkiPage() {
 
   // 加载Anki卡片数据
   useEffect(() => {
+    let cancelled = false
+
     const loadData = async (): Promise<void> => {
+      if (cancelled) return
       setIsLoading(true)
       try {
         if (ankiCardId) {
@@ -46,13 +49,17 @@ export default function AnkiPage() {
           await loadLatestAnkiCards(notebookId)
         }
       } catch (error) {
-        console.error('[AnkiPage] Failed to load anki cards:', error)
+        if (!cancelled) console.error('[AnkiPage] Failed to load anki cards:', error)
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
 
     loadData()
+
+    return () => {
+      cancelled = true
+    }
   }, [notebookId, ankiCardId, loadLatestAnkiCards, loadAnkiCards])
 
   // 清理
@@ -97,6 +104,7 @@ export default function AnkiPage() {
   }
 
   const handleConfig = () => {
+    if (!notebookId) return
     setConfigDialogOpen(true)
   }
 
@@ -109,8 +117,8 @@ export default function AnkiPage() {
       >
         {/* macOS 左侧空白区域（留给窗口控制按钮） */}
         {platform === 'darwin' && <div className="w-16"></div>}
-        {/* 非 macOS 左侧空白区域 */}
-        {platform !== 'darwin' && <div style={{ width: '100px' }}></div>}
+        {/* 非 macOS 左侧占位，保持标题居中 */}
+        {platform !== 'darwin' && <div className="w-32"></div>}
 
         <span className="text-sm text-muted-foreground font-medium">
           {currentAnkiCards?.title || t('ankiCards')}
@@ -127,8 +135,8 @@ export default function AnkiPage() {
           )}
         </div>
 
-        {/* Windows 右侧空白区域（留给窗口控制按钮） */}
-        {platform === 'win32' && <div className="w-32"></div>}
+        {/* Windows / Linux 右侧空白区域（留给窗口控制按钮） */}
+        {(platform === 'win32' || platform === 'linux') && <div className="w-32"></div>}
       </div>
 
       {/* 内容区域 */}
@@ -157,7 +165,7 @@ export default function AnkiPage() {
           <div style={{ flex: 1, overflow: 'hidden' }}>
             <FlashcardView
               cards={currentAnkiCards.cardsData as any}
-              onClose={() => window.api.closeWindow()}
+              onClose={() => window.close()}
             />
           </div>
         ) : (
@@ -173,7 +181,7 @@ export default function AnkiPage() {
             className="text-muted-foreground"
           >
             <p>{t('noCardsYet')}</p>
-            <Button variant="default" onClick={handleConfig}>
+            <Button variant="default" onClick={handleConfig} disabled={!notebookId}>
               {t('generateCards')}
             </Button>
           </div>
@@ -181,7 +189,13 @@ export default function AnkiPage() {
       </div>
 
       {/* 对话框 */}
-      <AnkiConfigDialog notebookId={notebookId!} open={isConfigDialogOpen} />
+      {isConfigDialogOpen && notebookId && (
+        <AnkiConfigDialog
+          notebookId={notebookId}
+          open={isConfigDialogOpen}
+          onOpenChange={(open) => setConfigDialogOpen(open)}
+        />
+      )}
     </div>
   )
 }
